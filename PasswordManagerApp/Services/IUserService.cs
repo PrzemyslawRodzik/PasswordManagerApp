@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PasswordManagerApp.Services
 {
-    interface IUserService
+    public interface IUserService
     {
         Task<User> Authenticate(string email, string password);
         User Create(string email, string password);

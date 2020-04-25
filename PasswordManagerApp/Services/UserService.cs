@@ -1,8 +1,12 @@
-﻿using PasswordManagerApp.Models;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
+using PasswordManagerApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace PasswordManagerApp.Services
 {
@@ -11,16 +15,20 @@ namespace PasswordManagerApp.Services
 
         private readonly ApplicationDbContext _db;
 
+        private IEnumerable<User> users;
+
         public UserService(ApplicationDbContext db)
         {
             _db = db;
         }
+
         public Task<User> Create(string email, string password)
         {
 
 
+             
             return null;
-       
+
         }
 
         public Task<User> AddExternal(string id, string email)
@@ -30,7 +38,8 @@ namespace PasswordManagerApp.Services
 
         public Task<User> Authenticate(string email, string password)
         {
-            throw new NotImplementedException();
+            return null;
+            
         }
 
         public Task<User> AuthenticateExternal(string id)

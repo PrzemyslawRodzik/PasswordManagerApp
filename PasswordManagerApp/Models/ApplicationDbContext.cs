@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 
 namespace PasswordManagerApp.Models
 {
-    public class ApplicationDbContext:DbContext
+    public class ApplicationDbContext: DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
         {
-
         }
+
+        public virtual DbSet<User> Users { get; set; }
 
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using PasswordManagerApp.Models;
+using PasswordManagerApp.Services;
 
 namespace PasswordManagerApp.Controllers
 {
@@ -11,10 +12,13 @@ namespace PasswordManagerApp.Controllers
     public class AuthController : Controller
     {
 
-        public AuthController()
-        {
+        private readonly IUserService userService;
 
+        public AuthController(IUserService userService)
+        {
+            this.userService = userService;
         }
+
         [Route("login")]
         [HttpGet]
         public IActionResult LogIn()
