@@ -14,6 +14,16 @@ namespace PasswordManagerApp.Models
         }
 
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<UserDevice> UserDevices { get; set; }
+
+
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>()
+                .HasMany(c => c.UserDevices)
+                .WithOne(e => e.User);
+        }
 
     }
 }

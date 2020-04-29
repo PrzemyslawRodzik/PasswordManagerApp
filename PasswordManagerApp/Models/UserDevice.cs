@@ -6,26 +6,18 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace PasswordManagerApp.Models
-{
-    public class User
+{   [Table("user_device")]
+    public class UserDevice
     {
         [Key]
         public int Id { get; set; }
         [Required]
-        public string Email { get; set; }
+        public string CookieDeviceHash { get; set; }
         [Required]
+        public int Authorized { get; set; }
 
         
-        public string Password { get; set; }
-        [Required]
-        public string PasswordSalt { get; set; }
-        [Required]
-        public int TwoFactorAuthorization { get; set; }
-
-
-
-        public ICollection<UserDevice> UserDevices { get; set; }
-
+        public User User { get; set; }
 
 
     }

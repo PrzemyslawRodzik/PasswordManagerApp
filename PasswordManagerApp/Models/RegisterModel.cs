@@ -10,6 +10,8 @@ namespace PasswordManagerApp.Models
     {   [Required]
         public string Email { get; set; }
         [Required]
+        [Display(Name = "Master password")]
+        [DataType(DataType.Password)]
         public string Password { get; set; }
         [Required]
         public string  RepeatPassword { get; set; }
