@@ -27,7 +27,7 @@ namespace PasswordManagerApp.Controllers
         public AuthController(IUserService userService)
         {
             this.userService = userService;
-            this.userService.AuthenticationSuccessfullEvent += UserService_AuthenticationSuccessfullEvent;
+            this.userService.EmailSendEvent += UserService_AuthenticationSuccessfullEvent;
             
            
             
@@ -87,7 +87,7 @@ namespace PasswordManagerApp.Controllers
         [Route("register")]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<IActionResult> Register([Bind] RegisterModel model)
+        public  IActionResult Register([Bind] RegisterModel model)
         {
 
             
@@ -151,9 +151,9 @@ namespace PasswordManagerApp.Controllers
         public IActionResult agent()
         {
 
+            var ip = HttpContext.Connection.RemoteIpAddress.ToString();
 
-
-            return null;
+            return Ok(ip);
 
 
 
