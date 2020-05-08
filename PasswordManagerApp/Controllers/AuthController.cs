@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using EmailService;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -20,30 +22,24 @@ namespace PasswordManagerApp.Controllers
 
 
         private readonly IUserService userService;
+        private readonly IEmailSender _emailSender;
+
         
-
-      
-
-        public AuthController(IUserService userService)
+        public AuthController(IUserService userService, IEmailSender emailSender)
         {
             this.userService = userService;
-            this.userService.EmailSendEvent += UserService_AuthenticationSuccessfullEvent;
-            
-           
-            
+            this.userService.EmailSendEvent += UserService_EmailSendEvent;
+            _emailSender = emailSender;
+
+
+
+
         }
 
-        private void UserService_AuthenticationSuccessfullEvent(object sender, string e)
+        private void UserService_EmailSendEvent(object sender, Message e)
         {
-            
-
-            var logPath = System.IO.Path.GetTempFileName();
-            var logFile = System.IO.File.Create(logPath);
-            var logWriter = new System.IO.StreamWriter(logFile);
-            logWriter.WriteLine("Wyslalem maila asasdasdasd @@@@@@@@@@@@@@@");
-            logWriter.Dispose();
+            _emailSender.SendEmailAsync(e);
         }
-
 
         [Route("login")]
         [HttpGet]
@@ -62,17 +58,23 @@ namespace PasswordManagerApp.Controllers
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
 
-        
+            if (user.TwoFactorAuthorization == 1)
+            {
+                userService.SendTotpToken(user);
+                return RedirectToAction(actionName: "TwoFactorLogIn", new { id = user.Id });
+            }
+            else
+            {
+                await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(userService.GetClaimIdentity(user)));
+
+                return RedirectToAction(controllerName: "Home", actionName: "Index");
+            }
+
+
+
+
             
 
-          await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(userService.GetClaimIdentity(user)));
-
-
-            
-          
-            
-
-            return RedirectToAction(controllerName: "Home", actionName: "Index");
 
 
         }
@@ -155,22 +157,76 @@ namespace PasswordManagerApp.Controllers
 
             return Ok(ip);
 
-
-
-
-
-
-
+        }
+        
+        [Route("twofactor")]
+        [HttpGet]
+        public IActionResult TwoFactorLogIn(int id)
+        {
+            ViewBag.AuthUserId = id;
             
-
-
-
-            
-
-            
-
+            return View();
             
         }
+
+        [Route("twofactor")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> TwoFactorLogIn(int id,string token)
+        {
+            var user = userService.GetById(id);
+            
+            var verificationStatus = userService.VerifyTotpToken(user, token);
+            if(verificationStatus != 1)
+            {
+                if (verificationStatus == 0)
+                {
+                    return RedirectToAction(actionName: "TwoFactorLogIn", new { id = user.Id });
+                }
+                else
+                {
+                    return RedirectToAction(actionName: "LogIn");
+
+                }
+            }
+            else
+            {
+                await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(userService.GetClaimIdentity(user)));
+                return RedirectToAction(controllerName: "Home", actionName: "Index");
+            }
+                
+          
+            
+                
+            
+
+
+            
+
+            
+
+            
+
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

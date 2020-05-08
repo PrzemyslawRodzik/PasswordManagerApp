@@ -1,0 +1,33 @@
+﻿
+@{
+    ViewData["Title"] = "TwoFactorLogIn";
+}
+
+<h1>TwoFactorLogIn</h1>
+
+
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="TwoFactorLogIn" method="post">
+
+            <div class="form-group">
+                <label class="control-label">@ViewBag.AuthUserId </label>
+                <input type="hidden" name="id" value="@ViewBag.AuthUserId" />
+
+
+            </div>
+            <div class="form-group">
+                <label class="control-label">Jednorazowy kod: </label>
+                <input type="text" name="token" value="" />
+
+
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Ok" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+

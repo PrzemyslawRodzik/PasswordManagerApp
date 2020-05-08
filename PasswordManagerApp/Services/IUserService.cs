@@ -1,4 +1,5 @@
-﻿using PasswordManagerApp.Models;
+﻿using EmailService;
+using PasswordManagerApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace PasswordManagerApp.Services
 {
     public interface IUserService
     {
-        event EventHandler<string> EmailSendEvent;
+        event EventHandler<Message> EmailSendEvent;
         User Authenticate(string email, string password);
 
         ClaimsIdentity GetClaimIdentity(User authUser);
@@ -21,6 +22,8 @@ namespace PasswordManagerApp.Services
         
         User GetById(int id);
         void Delete(int id);
+        void SendTotpToken(User authUser);
+        int VerifyTotpToken(User authUser, string token);
 
         Task<User> AuthenticateExternal(string id);
         Task<User> AddExternal(string id, string email);

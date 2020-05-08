@@ -15,6 +15,7 @@ namespace PasswordManagerApp.Models
 
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<UserDevice> UserDevices { get; set; }
+        public virtual DbSet<Totp_user> Totp_Users { get; set; }
 
 
 
@@ -22,8 +23,10 @@ namespace PasswordManagerApp.Models
         {
             modelBuilder.Entity<User>()
                 .HasMany(c => c.UserDevices)
-                .WithOne(e => e.User);
-        }
 
+                .WithOne(e => e.User);
+            
+        }
+        
     }
 }

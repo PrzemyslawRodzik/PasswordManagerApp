@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace EmailService
 {
     public class EmailSender : IEmailSender
@@ -12,28 +13,29 @@ namespace EmailService
 
 
         
-            private readonly EmailConfiguration _emailConfig;
+       private  readonly EmailConfiguration _emailConfig;
+       
 
-            public EmailSender(EmailConfiguration emailConfig)
-            {
+        public  EmailSender(EmailConfiguration emailConfig)
+        {
                 _emailConfig = emailConfig;
-            }
+        }
 
-            public void   SendEmail(Message message)
+       public void   SendEmail(Message message)
             {
                 var emailMessage = CreateEmailMessage(message);
 
                  Send(emailMessage);
             }
 
-        public async Task SendEmailAsync(Message message)
+       public async Task SendEmailAsync(Message message)
         {
             var emailMessage = CreateEmailMessage(message);
 
             await SendAsync(emailMessage);
         }
 
-        private MimeMessage CreateEmailMessage(Message message)
+       private  MimeMessage CreateEmailMessage(Message message)
         {
             var emailMessage = new MimeMessage();
             emailMessage.From.Add(new MailboxAddress(_emailConfig.From));
@@ -44,7 +46,7 @@ namespace EmailService
             return emailMessage;
         }
 
-        private void Send(MimeMessage mailMessage)
+       protected void Send(MimeMessage mailMessage)
         {
             using (var client = new SmtpClient())
             {
@@ -69,7 +71,7 @@ namespace EmailService
             }
         }
 
-        private async Task SendAsync(MimeMessage mailMessage)
+       private async Task SendAsync(MimeMessage mailMessage)
         {
             using (var client = new SmtpClient())
             {

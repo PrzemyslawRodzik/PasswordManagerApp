@@ -17,10 +17,42 @@ namespace PasswordManagerApp.Migrations
                 .HasAnnotation("ProductVersion", "3.1.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
+            modelBuilder.Entity("PasswordManagerApp.Models.Totp_user", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("Active")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Create_date")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("Expire_date")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Totp_Users");
+                });
+
             modelBuilder.Entity("PasswordManagerApp.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("Admin")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
@@ -64,6 +96,13 @@ namespace PasswordManagerApp.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("user_device");
+                });
+
+            modelBuilder.Entity("PasswordManagerApp.Models.Totp_user", b =>
+                {
+                    b.HasOne("PasswordManagerApp.Models.User", "User")
+                        .WithMany("Totp_Users")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("PasswordManagerApp.Models.UserDevice", b =>

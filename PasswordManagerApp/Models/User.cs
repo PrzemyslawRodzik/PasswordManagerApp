@@ -21,10 +21,13 @@ namespace PasswordManagerApp.Models
         public string PasswordSalt { get; set; }
         [Required]
         public int TwoFactorAuthorization { get; set; }
+        [Required]
+        public int Admin { get; set; }
 
 
 
         public ICollection<UserDevice> UserDevices { get; set; }
+        public ICollection<Totp_user> Totp_Users { get; set; }
 
 
 

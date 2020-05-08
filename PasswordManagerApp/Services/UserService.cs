@@ -13,13 +13,16 @@ using UAParser;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using OtpNet;
+using EmailService;
+using Microsoft.Extensions.Configuration;
 
 namespace PasswordManagerApp.Services
 {
     public class UserService : IUserService
     {
 
-        public event EventHandler<string> EmailSendEvent;
+        public event EventHandler<Message> EmailSendEvent;
 
         private readonly ApplicationDbContext _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -56,7 +59,7 @@ namespace PasswordManagerApp.Services
             _db.Users.Add(user);
                 _db.SaveChanges();
 
-            EmailSendEvent?.Invoke(this, "Wysylam e-maila ...");
+            EmailSendEvent?.Invoke(this, new Message(new string[] { user.Email }, "Zalozyles konto na PasswordManager.com", "Witamy w PasswordManager web api "+user.Email));
 
             return user;
             }
@@ -113,7 +116,7 @@ namespace PasswordManagerApp.Services
 
             var newUserDevice = AddNewDevice(cookieOsHash, authUser);
             if (newUserDevice)
-                EmailSendEvent?.Invoke(this, "text");
+                EmailSendEvent?.Invoke(this, new Message(new string[] { authUser.Email }, "Nowe urządzenie "+c.OS.ToString(), "Zarejestrowano logowanie z nowego systemu operacyjnego: "+ c.OS.ToString()+" dnia "+DateTime.UtcNow.ToString() + " Urządzenie z podanym systemem OS zostało dodane do listy zaufanych urządzeń"));
 
 
 
@@ -180,7 +183,7 @@ namespace PasswordManagerApp.Services
             throw new NotImplementedException();
         }
 
-        #region private  hashing helper methods
+        #region private methods
         private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
             if (password == null) throw new ArgumentNullException("password");
@@ -211,15 +214,50 @@ namespace PasswordManagerApp.Services
             return true;
         }
 
-        public  bool AddNewDevice(string newOsHash,User authUser)
+        
+        
+        
+
+
+        private string GenerateTotpToken(User authUser)
+        {   string totpToken;
+            string sysKey = "ajskSJ62j%sjs.;'[ah1";
+            var key_b = Encoding.UTF8.GetBytes(sysKey+authUser.Email);
+            
+            
+            Totp totp = new Totp(secretKey: key_b, mode: OtpHashMode.Sha512, step: 300,timeCorrection:new TimeCorrection(DateTime.UtcNow));
+            totpToken = totp.ComputeTotp(DateTime.UtcNow);
+
+
+            return totpToken;
+        }
+        private void SaveToDb(User authUser,string totpToken)
         {
-            
+            _db.Totp_Users.Add(
+                new Totp_user(){
+                    Token=totpToken,
+                    Active=1,
+                    Create_date=DateTime.UtcNow,
+                    Expire_date=DateTime.UtcNow.AddSeconds(300),
+                    User=authUser
+                    
 
 
-              if (!_db.UserDevices.Any(b => b.User == authUser && b.CookieDeviceHash == newOsHash))
 
-            { 
-            
+            });
+            _db.SaveChanges();
+        }
+        #endregion
+
+        public bool AddNewDevice(string newOsHash, User authUser)
+        {
+
+
+
+            if (!_db.UserDevices.Any(b => b.User == authUser && b.CookieDeviceHash == newOsHash))
+
+            {
+
                 UserDevice usd = new UserDevice();
                 usd.User = authUser;
                 usd.Authorized = 1;
@@ -243,6 +281,52 @@ namespace PasswordManagerApp.Services
 
 
         }
+        public void SendTotpToken(User authUser)
+        {
+            string totpToken = GenerateTotpToken(authUser);
+            SaveToDb(authUser, totpToken);
+            EmailSendEvent?.Invoke(this, new Message(new string[] { authUser.Email }, "Jednorazowy kod dostępu", "Jednorazowy kod dostępu do konta: " + totpToken + " dla uzytkownika: " + authUser.Email+ " Podany kod musisz wprowadzic w ciagu 5min"));
+
+
+        }
+        private enum ResultsToken
+        {
+            NotMatched,
+            Matched,
+            Expired,
+        }
+
+
+        public int VerifyTotpToken(User authUser,string totpToken)
+        {
+            
+            var totpTokenHash = Totp_user.TotpHashBase64(totpToken);
+            string sysKey = "ajskSJ62j%sjs.;'[ah1";
+            
+            long lastUse;
+            Totp totp = new Totp(secretKey: Encoding.UTF8.GetBytes(sysKey + authUser.Email), mode: OtpHashMode.Sha512, step: 300,timeCorrection:new TimeCorrection(DateTime.UtcNow));
+            
+            
+            var activeTokenRecordFromDb = _db.Totp_Users.Where(b => b.User == authUser && b.Token == totpTokenHash && b.Active == 1).FirstOrDefault();
+            if (activeTokenRecordFromDb != null)
+            {
+               // activeTokenRecordFromDb.Active = 0;
+               
+                if (activeTokenRecordFromDb.Expire_date >= DateTime.UtcNow)
+                {
+                    return totp.VerifyTotp(totpToken, out lastUse,window:new VerificationWindow(1,1)) ? (int)ResultsToken.Matched:(int)ResultsToken.NotMatched; 
+                }
+                else
+                {
+                    return (int)ResultsToken.Expired;
+                }
+
+            }
+            { 
+                return (int)ResultsToken.NotMatched;
+            }
+
+        }
 
 
 
@@ -256,7 +340,15 @@ namespace PasswordManagerApp.Services
 
 
 
-        #endregion
+
+
+
+
+
+
+
+
+
 
 
     }

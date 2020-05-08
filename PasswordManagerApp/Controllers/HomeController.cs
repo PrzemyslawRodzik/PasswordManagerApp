@@ -39,6 +39,9 @@ namespace PasswordManagerApp.Controllers
         {
             var message = new Message(new string[] { "przemyslawrodzik@gmail.com" }, "Tytul emailu asynchronicznego", "This is the content from our async email.");
             await _emailSender.SendEmailAsync(message);
+
+
+            
         }
 
 
