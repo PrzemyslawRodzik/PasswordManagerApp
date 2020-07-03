@@ -12,6 +12,7 @@ namespace PasswordManagerApp.Services
     {
         event EventHandler<Message> EmailSendEvent;
         User Authenticate(string email, string password);
+        
 
         ClaimsIdentity GetClaimIdentity(User authUser);
         User Create(string email, string password);
@@ -27,10 +28,6 @@ namespace PasswordManagerApp.Services
 
         Task<User> AuthenticateExternal(string id);
         Task<User> AddExternal(string id, string email);
-        
-
-
-
-
+        void ManageAuthorizedDevices(User authUser);
     }
 }

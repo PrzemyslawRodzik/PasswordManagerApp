@@ -34,20 +34,37 @@ namespace PasswordManagerApp
                 .Get<EmailConfiguration>();
             services.AddSingleton(emailConfig);
             services.AddHttpContextAccessor();
+            services.AddDataProtection();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddAuthentication("CookieAuth")
-                .AddCookie("CookieAuth", config =>
+                .AddCookie("CookieAuth", options =>
                 {
-                    config.Cookie.Name = "UserCookie";
-                    config.LoginPath = "/auth/login";
+                    options.Cookie.Name = "UserCookie";
+                    options.LoginPath = "/auth/login";
 
 
-                });
+
+                })
+                .AddCookie("DeviceAuth" ,options =>
+                 {
+                     options.Cookie.Name = "AuthorizedDeviceCookie";
+                     options.ExpireTimeSpan = TimeSpan.FromDays(365);
+                     
+                 });
+                
+              
+            
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<IUserService, UserService>();
             services.AddDbContext<ApplicationDbContext>(options =>
                        options.UseMySql(Configuration.GetConnectionString("defaultconnection")));
-            
+           /* services.AddAuthorization(options =>
+            {
+                options.AddPolicy("TwoFactorPolicy", policy =>
+                                  policy.RequireClaim("TwoFactorAuth", "1"));
+            });
+
+            */
 
         }
 
@@ -71,6 +88,7 @@ namespace PasswordManagerApp
             app.UseAuthentication();
 
             app.UseAuthorization();
+           
 
             app.UseEndpoints(endpoints =>
             {

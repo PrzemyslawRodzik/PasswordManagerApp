@@ -16,6 +16,9 @@ using System.Text;
 using OtpNet;
 using EmailService;
 using Microsoft.Extensions.Configuration;
+using Org.BouncyCastle.Asn1.Ocsp;
+using Microsoft.AspNetCore.DataProtection;
+using PasswordManagerApp.Handlers;
 
 namespace PasswordManagerApp.Services
 {
@@ -26,13 +29,16 @@ namespace PasswordManagerApp.Services
 
         private readonly ApplicationDbContext _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IDataProtectionProvider _provider;
+        public CookieHandler cookieHandler;
 
 
-
-        public UserService(ApplicationDbContext db, IHttpContextAccessor httpContextAccessor)
+        public UserService(ApplicationDbContext db, IHttpContextAccessor httpContextAccessor, IDataProtectionProvider provider)
         {
             _db = db;
             _httpContextAccessor = httpContextAccessor;
+            _provider = provider;
+            cookieHandler = new CookieHandler(new HttpContextAccessor(), _provider);
 
         }
 
@@ -99,24 +105,17 @@ namespace PasswordManagerApp.Services
             return user;
             }
 
+      //  public ClaimsIdentity GetClaimsIdentityDevice(User authUser)
+      //  {
+
+       // }
+
         public ClaimsIdentity GetClaimIdentity(User authUser)
         {
-            string uaString = _httpContextAccessor.HttpContext.Request.Headers["User-Agent"];
-            var uaParser = Parser.GetDefault();
-            ClientInfo c = uaParser.Parse(uaString);
-            string cookieOsHash;
-
-            using (SHA256 mysha256 = SHA256.Create())
-            {
-                
-                 
-                cookieOsHash = Convert.ToBase64String(mysha256.ComputeHash(Encoding.UTF8.GetBytes(c.OS.ToString())));
-            }
+            
 
 
-            var newUserDevice = AddNewDevice(cookieOsHash, authUser);
-            if (newUserDevice)
-                EmailSendEvent?.Invoke(this, new Message(new string[] { authUser.Email }, "Nowe urządzenie "+c.OS.ToString(), "Zarejestrowano logowanie z nowego systemu operacyjnego: "+ c.OS.ToString()+" dnia "+DateTime.UtcNow.ToString() + " Urządzenie z podanym systemem OS zostało dodane do listy zaufanych urządzeń"));
+            ManageAuthorizedDevices(authUser);
 
 
 
@@ -129,9 +128,9 @@ namespace PasswordManagerApp.Services
             var claims = new List<Claim>
 {           new Claim(ClaimTypes.Name,authUser.Id.ToString()),
             new Claim(ClaimTypes.Email,authUser.Email),
-            new Claim("Admin", "false"),
-            new Claim("TwoFactorAuth", "false"),
-            new Claim("OsHash", cookieOsHash )
+            new Claim("Admin", authUser.Admin.ToString()),
+            new Claim("TwoFactorAuth", authUser.TwoFactorAuthorization.ToString())
+            
             
 
         };
@@ -236,9 +235,8 @@ namespace PasswordManagerApp.Services
             _db.Totp_Users.Add(
                 new Totp_user(){
                     Token=totpToken,
-                    Active=1,
-                    Create_date=DateTime.UtcNow,
-                    Expire_date=DateTime.UtcNow.AddSeconds(300),
+                    Create_date=DateTime.UtcNow.ToLocalTime(),
+                    Expire_date=DateTime.UtcNow.AddSeconds(300).ToLocalTime(),
                     User=authUser
                     
 
@@ -249,7 +247,7 @@ namespace PasswordManagerApp.Services
         }
         #endregion
 
-        public bool AddNewDevice(string newOsHash, User authUser)
+        public bool AddNewDeviceToDb(string newOsHash, User authUser)
         {
 
 
@@ -265,22 +263,63 @@ namespace PasswordManagerApp.Services
 
                 _db.UserDevices.Add(usd);
                 _db.SaveChanges();
+                
 
                 return true;
 
 
             }
             return false;
-
-
-
-
-
-
-
-
-
         }
+
+        public void ManageAuthorizedDevices(User authUser)
+        {
+            string uaString = _httpContextAccessor.HttpContext.Request.Headers["User-Agent"];
+            var uaParser = Parser.GetDefault();
+            ClientInfo c = uaParser.Parse(uaString);
+            string cookieOsHash;
+            string browser = c.UA.Family.ToString() + " "+c.UA.Major.ToString();
+
+            using (SHA256 mysha256 = SHA256.Create())
+            {
+
+
+                cookieOsHash = Convert.ToBase64String(mysha256.ComputeHash(Encoding.UTF8.GetBytes(c.OS.ToString())));
+            }
+            bool IsNewCookieData = false;
+
+            var deviceCookieExist = cookieHandler.CheckIfCookieExist("DeviceInfo");
+            if (deviceCookieExist)
+            {
+                IsNewCookieData = cookieHandler.CheckCookieData("DeviceInfo", c.OS.ToString());
+                if(IsNewCookieData)
+                    cookieHandler.CreateCookie("DeviceInfo", c.OS.ToString(), null);
+                
+
+
+
+
+
+
+            }
+            else
+            {
+                cookieHandler.CreateCookie("DeviceInfo", c.OS.ToString(), null);
+                IsNewCookieData = true;
+                
+            }
+
+
+
+            var newUserDevice = AddNewDeviceToDb(cookieOsHash, authUser);
+            if (IsNewCookieData)
+                EmailSendEvent?.Invoke(this, new Message(new string[] { authUser.Email }, "Nowe urządzenie " + c.OS.ToString(), "Zarejestrowano logowanie z nowego systemu : " + c.OS.ToString() +" "+ browser +" dnia " + DateTime.UtcNow.ToLocalTime().ToString() + ". Urządzenie z podanym systemem OS zostało dodane do listy zaufanych urządzeń"));
+
+
+
+            
+        }
+        
         public void SendTotpToken(User authUser)
         {
             string totpToken = GenerateTotpToken(authUser);
@@ -307,12 +346,12 @@ namespace PasswordManagerApp.Services
             Totp totp = new Totp(secretKey: Encoding.UTF8.GetBytes(sysKey + authUser.Email), mode: OtpHashMode.Sha512, step: 300,timeCorrection:new TimeCorrection(DateTime.UtcNow));
             
             
-            var activeTokenRecordFromDb = _db.Totp_Users.Where(b => b.User == authUser && b.Token == totpTokenHash && b.Active == 1).FirstOrDefault();
+            var activeTokenRecordFromDb = _db.Totp_Users.Where(b => b.User == authUser && b.Token == totpTokenHash).FirstOrDefault();
             if (activeTokenRecordFromDb != null)
             {
                // activeTokenRecordFromDb.Active = 0;
                
-                if (activeTokenRecordFromDb.Expire_date >= DateTime.UtcNow)
+                if (activeTokenRecordFromDb.Expire_date >= DateTime.UtcNow.ToLocalTime())
                 {
                     return totp.VerifyTotp(totpToken, out lastUse,window:new VerificationWindow(1,1)) ? (int)ResultsToken.Matched:(int)ResultsToken.NotMatched; 
                 }

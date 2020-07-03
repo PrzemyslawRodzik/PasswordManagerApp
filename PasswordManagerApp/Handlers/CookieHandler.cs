@@ -1,0 +1,103 @@
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace PasswordManagerApp.Handlers
+{
+    public  class CookieHandler
+    {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IDataProtector _protector;
+
+        public CookieHandler(IHttpContextAccessor httpContextAccessor, IDataProtectionProvider provider)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            _protector = provider.CreateProtector("PasswordManagerApp.CookieHandler.v1");
+        }
+
+
+        public bool CheckIfCookieExist(string key)
+        {
+            var cookieExist = _httpContextAccessor.HttpContext.Request.Cookies.Keys.Contains(key);
+
+            if (cookieExist)
+                return true;
+
+            return false;
+        }
+        public  string ReadCookie(string key)
+        {
+            return  _httpContextAccessor.HttpContext.Request.Cookies[key];
+        }
+        public void CreateCookie(string key, string value, int? expireTime)
+        {
+            string protectedCookieData = "";
+            string decryptedCookieData = "";
+            if (CheckIfCookieExist(key))
+            {
+                decryptedCookieData = DecryptCookie(key);
+                value = decryptedCookieData + value;
+
+            }
+            
+            
+            protectedCookieData = EncryptCookieData(value);
+            CookieOptions option = new CookieOptions();
+
+
+            if (expireTime.HasValue)
+                option.Expires = DateTime.Now.AddDays(expireTime.Value);
+            else
+                option.Expires = DateTime.Now.AddDays(365);
+            
+            _httpContextAccessor.HttpContext.Response.Cookies.Append(key, protectedCookieData, option);
+           
+
+
+        }
+        private  string  EncryptCookieData(string cookieData)
+        {
+
+            return _protector.Protect(cookieData);
+
+        }
+        public string DecryptCookie(string key)
+        {
+            //Get the encrypted cookie value
+            string cookieValue = _httpContextAccessor.HttpContext.Request.Cookies[key];
+
+            //Get a data protector to use with either approach
+            var dataProtector = _protector;
+            return dataProtector.Unprotect(cookieValue);
+            
+
+         /*
+           
+            //Get the decrypted cookie as a Authentication Ticket
+           // TicketDataFormat ticketDataFormat = new TicketDataFormat(dataProtector);
+           // AuthenticationTicket ticket = ticketDataFormat.Unprotect(cookieValue);
+
+         */
+
+
+        }
+        public void RemoveCookie(string key)
+        {
+            _httpContextAccessor.HttpContext.Response.Cookies.Delete(key);
+        }
+
+        public bool  CheckCookieData(string key, string userOS)
+        {
+            
+            var oldCookieValue = DecryptCookie(key);
+            if (oldCookieValue.Contains(userOS))
+                return false;
+            return true;
+        }
+    }
+}

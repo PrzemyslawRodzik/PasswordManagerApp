@@ -27,8 +27,7 @@ namespace PasswordManagerApp.Models
 
 
         }
-        [Required]
-        public int Active { get; set; } = 1;
+        
         [Required]
         public DateTime Create_date { get; set; }
         [Required]
