@@ -1,4 +1,5 @@
 ﻿using MailKit.Net.Smtp;
+using MailKit.Security;
 using MimeKit;
 using System;
 using System.Collections.Generic;
@@ -52,7 +53,8 @@ namespace EmailService
             {
                 try
                 {
-                    client.Connect(_emailConfig.SmtpServer, _emailConfig.Port, true);
+                    client.CheckCertificateRevocation = false;
+                    client.Connect(_emailConfig.SmtpServer, _emailConfig.Port, false);
                     client.AuthenticationMechanisms.Remove("XOAUTH2");
                     client.Authenticate(_emailConfig.UserName, _emailConfig.Password);
 
@@ -77,6 +79,7 @@ namespace EmailService
             {
                 try
                 {   
+                     client.CheckCertificateRevocation = false;
                      await client.ConnectAsync(_emailConfig.SmtpServer, _emailConfig.Port, false);
                     client.AuthenticationMechanisms.Remove("XOAUTH2");
                     await client.AuthenticateAsync(_emailConfig.UserName, _emailConfig.Password);

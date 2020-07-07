@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Utilities;
 using PasswordManagerApp.Handlers;
 using PasswordManagerApp.Models;
 using PasswordManagerApp.Services;
@@ -25,8 +26,8 @@ namespace PasswordManagerApp.Controllers
 
         private readonly IUserService userService;
         private readonly IEmailSender _emailSender;
-        private readonly IDataProtectionProvider _provider;
         public CookieHandler cookieHandler;
+        public DataProtectionHelper dataProtectionHelper;
 
         
         public AuthController(IUserService userService, IEmailSender emailSender, IDataProtectionProvider provider)
@@ -34,8 +35,9 @@ namespace PasswordManagerApp.Controllers
             this.userService = userService;
             this.userService.EmailSendEvent += UserService_EmailSendEvent;
             _emailSender = emailSender;
-            _provider = provider;
-            cookieHandler = new CookieHandler(new HttpContextAccessor(), _provider);
+            dataProtectionHelper = new DataProtectionHelper(provider);
+            cookieHandler = new CookieHandler(new HttpContextAccessor(), provider);
+            
 
 
 
@@ -67,7 +69,7 @@ namespace PasswordManagerApp.Controllers
             {
                 userService.SendTotpToken(user);
 
-                return RedirectToAction(actionName: "TwoFactorLogIn", new { id = user.Id });
+                return RedirectToAction(actionName: "TwoFactorLogIn", new { id = dataProtectionHelper.Encrypt(user.Id.ToString(),"QueryStringsEncryptions")  });
             }
             else
             {
@@ -137,14 +139,7 @@ namespace PasswordManagerApp.Controllers
         public IActionResult GetById(int id)
         {
 
-            var claims = new List<Claim>
-{           new Claim(ClaimTypes.Name,User.Identity.Name),
             
-           
-          new Claim("OsHash", "asd123zxc123asjshjekehjdnmsamxk" )
-
-
-        };
 
             // HttpContext.SignInAsync("DeviceAuth", new ClaimsPrincipal(new ClaimsIdentity(claims, "AuthorizedDeviceCookieAuth")),new AuthenticationProperties
             // {IsPersistent = true,});
@@ -213,9 +208,10 @@ namespace PasswordManagerApp.Controllers
         
         [Route("twofactor")]
         [HttpGet]
-        public IActionResult TwoFactorLogIn(int id)
-        {   if(HttpContext.User.Identity.IsAuthenticated)
+        public IActionResult TwoFactorLogIn(string id)
+        {   if(HttpContext.User.Identity.IsAuthenticated || id is null)
                 return RedirectToAction(controllerName: "Home", actionName: "Index");
+
             ViewBag.AuthUserId = id;
             
             return View();
@@ -226,16 +222,17 @@ namespace PasswordManagerApp.Controllers
         [Route("twofactor")]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<IActionResult> TwoFactorLogIn(int id,string token)    
+        public async Task<IActionResult> TwoFactorLogIn(string id,string token)    
         {
-            var user = userService.GetById(id);
+            int idUser = Int32.Parse(dataProtectionHelper.Decrypt(id, "QueryStringsEncryptions"));
+            var user = userService.GetById(idUser);
             
             var verificationStatus = userService.VerifyTotpToken(user, token);
             if(verificationStatus != 1)
             {
                 if (verificationStatus == 0)
                 {
-                    return RedirectToAction(actionName: "TwoFactorLogIn", new { id = user.Id });
+                    return RedirectToAction(actionName: "TwoFactorLogIn", new { id = dataProtectionHelper.Encrypt(user.Id.ToString(), "QueryStringsEncryptions") });
                 }
                 else
                 {

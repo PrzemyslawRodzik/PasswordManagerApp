@@ -105,10 +105,7 @@ namespace PasswordManagerApp.Services
             return user;
             }
 
-      //  public ClaimsIdentity GetClaimsIdentityDevice(User authUser)
-      //  {
-
-       // }
+      
 
         public ClaimsIdentity GetClaimIdentity(User authUser)
         {
@@ -134,7 +131,7 @@ namespace PasswordManagerApp.Services
             
 
         };
-            return new ClaimsIdentity(claims, "UserCookie");
+            return new ClaimsIdentity(claims, "CookieAuth");
 
         }
 

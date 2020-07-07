@@ -57,8 +57,9 @@ namespace PasswordManagerApp
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<IUserService, UserService>();
             services.AddDbContext<ApplicationDbContext>(options =>
-                       options.UseMySql(Configuration.GetConnectionString("defaultconnection")));
-           /* services.AddAuthorization(options =>
+                       options.UseMySql(Configuration.GetConnectionString("mysqlconnection")));
+          
+            /* services.AddAuthorization(options =>
             {
                 options.AddPolicy("TwoFactorPolicy", policy =>
                                   policy.RequireClaim("TwoFactorAuth", "1"));
@@ -72,7 +73,7 @@ namespace PasswordManagerApp
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
-            {
+            {   
                 app.UseDeveloperExceptionPage();
             }
             else

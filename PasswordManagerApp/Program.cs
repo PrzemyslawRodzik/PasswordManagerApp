@@ -12,15 +12,26 @@ namespace PasswordManagerApp
     public class Program
     {
         public static void Main(string[] args)
-        {
+        { 
             CreateHostBuilder(args).Build().Run();
+            
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
+                .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-                    webBuilder.UseStartup<Startup>();
-                });
+                    if (args != null)
+                    {
+                        config.AddCommandLine(args);
+                    }
+
+
+                })
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
+
     }
 }
