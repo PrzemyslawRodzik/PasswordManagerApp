@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
+using System.Net.Http;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using EmailService;
 using Microsoft.AspNetCore.Authentication;
@@ -10,11 +10,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Utilities;
 using PasswordManagerApp.Handlers;
 using PasswordManagerApp.Models;
 using PasswordManagerApp.Services;
-using UAParser;
+
 
 
 namespace PasswordManagerApp.Controllers
@@ -26,14 +25,16 @@ namespace PasswordManagerApp.Controllers
 
         private readonly IUserService userService;
         private readonly IEmailSender _emailSender;
+        private readonly IHttpClientFactory _httpClientFactory;
         public CookieHandler cookieHandler;
         public DataProtectionHelper dataProtectionHelper;
 
         
-        public AuthController(IUserService userService, IEmailSender emailSender, IDataProtectionProvider provider)
+        public AuthController(IUserService userService, IEmailSender emailSender, IDataProtectionProvider provider, IHttpClientFactory httpClientFactory)
         {
             this.userService = userService;
             this.userService.EmailSendEvent += UserService_EmailSendEvent;
+            _httpClientFactory = httpClientFactory;
             _emailSender = emailSender;
             dataProtectionHelper = new DataProtectionHelper(provider);
             cookieHandler = new CookieHandler(new HttpContextAccessor(), provider);
@@ -101,8 +102,11 @@ namespace PasswordManagerApp.Controllers
         public  async Task<IActionResult> Register([Bind] RegisterModel model)
         {
 
-            
-            
+
+
+            if (!ModelState.IsValid)
+             
+                return View(model);
             try
             {
                 // create user
@@ -134,7 +138,7 @@ namespace PasswordManagerApp.Controllers
 
         }
      
-
+       
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
@@ -184,28 +188,45 @@ namespace PasswordManagerApp.Controllers
            // return Ok(user);
         }
 
-        [Route("agent")]
+        [Route("[action]/{passwordToCheck}")]
         [HttpGet]
-        public IActionResult agent()
+
+        public IActionResult hibp(string passwordToCheck)
         {
 
-            var ip = HttpContext.Connection.RemoteIpAddress.ToString();
+           
+            if (passwordToCheck is null)
+                return Ok("Brak wprowadzonego hasla");
+            var client = _httpClientFactory.CreateClient();
+            var wynik = PwnedPasswords.IsPasswordPwnedAsync(passwordToCheck, new CancellationToken(), client).Result;
 
-            return Ok(ip);
+            if (wynik != -1)
+                // return Ok(wynik.Result);
+                return Ok(wynik);
+            else
+                return Ok("-1");
 
         }
 
-          /*
-           *  -> jeśli zalogowany to nie może przejsc do two_factor
-           *  -> jeśli nie authenticated też nie może przejść
-           *  -> jeśli authenticated ,ale nie zalogowany(w trakcie procedury) to może przejść
-           *  Trzeba chyba stworzyć ciasteczko, które przydzieli dostęp  , claim podczas authenticated
-           * 
-           * 
-           * 
-           * 
-           */
-        
+
+
+
+
+
+
+
+
+        /*
+         *  -> jeśli zalogowany to nie może przejsc do two_factor
+         *  -> jeśli nie authenticated też nie może przejść
+         *  -> jeśli authenticated ,ale nie zalogowany(w trakcie procedury) to może przejść
+         *  Trzeba chyba stworzyć ciasteczko, które przydzieli dostęp  , claim podczas authenticated
+         * 
+         * 
+         * 
+         * 
+         */
+
         [Route("twofactor")]
         [HttpGet]
         public IActionResult TwoFactorLogIn(string id)

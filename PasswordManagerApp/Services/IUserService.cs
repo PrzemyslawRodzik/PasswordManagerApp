@@ -2,7 +2,6 @@
 using PasswordManagerApp.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -28,6 +27,6 @@ namespace PasswordManagerApp.Services
 
         Task<User> AuthenticateExternal(string id);
         Task<User> AddExternal(string id, string email);
-        void ManageAuthorizedDevices(User authUser);
+        
     }
 }

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace PasswordManagerApp.Models
 {   [Table("user_device")]
@@ -12,7 +10,7 @@ namespace PasswordManagerApp.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        public string CookieDeviceHash { get; set; }
+        public string DeviceGuid { get; set; }
         [Required]
         public int Authorized { get; set; }
 

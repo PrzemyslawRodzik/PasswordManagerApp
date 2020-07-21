@@ -1,7 +1,3 @@
-
-using Microsoft.AspNetCore.Mvc;
-using System;
-
 namespace PasswordManagerApp.Models
 {
     public class ErrorViewModel

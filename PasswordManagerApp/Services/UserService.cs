@@ -1,22 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication;
 using PasswordManagerApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc;
 using PasswordManagerApp.Controllers;
 using UAParser;
-using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using OtpNet;
 using EmailService;
-using Microsoft.Extensions.Configuration;
-using Org.BouncyCastle.Asn1.Ocsp;
 using Microsoft.AspNetCore.DataProtection;
 using PasswordManagerApp.Handlers;
 
@@ -42,33 +36,33 @@ namespace PasswordManagerApp.Services
 
         }
 
-       
-            public User Create(string email, string password)
-            {
-                // validation
-                if (string.IsNullOrWhiteSpace(password))
-                    throw new AppException("Password is required");
 
-                if (_db.Users.Any(x => x.Email == email))
-                    throw new AppException("Email \"" + email + "\" is already taken");
+        public User Create(string email, string password)
+        {
+            // validation
+            if (string.IsNullOrWhiteSpace(password))
+                throw new AppException("Password is required");
 
-                byte[] passwordHash, passwordSalt;
-                CreatePasswordHash(password, out passwordHash, out passwordSalt);
+            if (_db.Users.Any(x => x.Email == email))
+                throw new AppException("Email \"" + email + "\" is already taken");
+
+            byte[] passwordHash, passwordSalt;
+            CreatePasswordHash(password, out passwordHash, out passwordSalt);
 
             User user = new User();
-                user.Email = email;
+            user.Email = email;
             user.Password = Convert.ToBase64String(passwordHash);
             user.PasswordSalt = Convert.ToBase64String(passwordSalt);
 
 
 
             _db.Users.Add(user);
-                _db.SaveChanges();
+            _db.SaveChanges();
 
-            EmailSendEvent?.Invoke(this, new Message(new string[] { user.Email }, "Zalozyles konto na PasswordManager.com", "Witamy w PasswordManager web api "+user.Email));
+            EmailSendEvent?.Invoke(this, new Message(new string[] { user.Email }, "Zalozyles konto na PasswordManager.com", "Witamy w PasswordManager web api " + user.Email));
 
             return user;
-            }
+        }
 
         public void Update(User user, string password = null)
         {
@@ -83,41 +77,41 @@ namespace PasswordManagerApp.Services
 
 
         public User Authenticate(string email, string password)
-            {
-            
+        {
+
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
-                    return null;
+                return null;
 
-                var user = _db.Users.SingleOrDefault(x => x.Email == email);
+            var user = _db.Users.SingleOrDefault(x => x.Email == email);
 
-                // check if username exists
-                if (user == null)
-                    return null;
+            // check if username exists
+            if (user == null)
+                return null;
 
-                // check if password is correct
-                if (!VerifyPasswordHash(password,Convert.FromBase64String(user.Password) , Convert.FromBase64String(user.PasswordSalt)))
-                    return null;
+            // check if password is correct
+            if (!VerifyPasswordHash(password, Convert.FromBase64String(user.Password), Convert.FromBase64String(user.PasswordSalt)))
+                return null;
 
             // authentication successful
 
-            
+
 
             return user;
-            }
+        }
 
-      
+
 
         public ClaimsIdentity GetClaimIdentity(User authUser)
         {
-            
+
 
 
             ManageAuthorizedDevices(authUser);
 
 
 
-            
-            
+
+
 
 
 
@@ -127,19 +121,19 @@ namespace PasswordManagerApp.Services
             new Claim(ClaimTypes.Email,authUser.Email),
             new Claim("Admin", authUser.Admin.ToString()),
             new Claim("TwoFactorAuth", authUser.TwoFactorAuthorization.ToString())
-            
-            
+
+
 
         };
             return new ClaimsIdentity(claims, "CookieAuth");
 
         }
 
-        
 
-       
 
-      
+
+
+
 
         public IEnumerable<User> GetAll()
         {
@@ -147,7 +141,7 @@ namespace PasswordManagerApp.Services
         }
 
 
-        
+
 
         public User GetById(int id)
         {
@@ -156,10 +150,10 @@ namespace PasswordManagerApp.Services
 
         public void Delete(int id)
         {
-           
 
-                var user = _db.Users.Find(id);
-           
+
+            var user = _db.Users.Find(id);
+
 
             if (user != null)
             {
@@ -167,8 +161,8 @@ namespace PasswordManagerApp.Services
                 _db.SaveChanges();
             }
         }
-       
-        
+
+
         public Task<User> AuthenticateExternal(string id)
         {
             throw new NotImplementedException();
@@ -210,36 +204,36 @@ namespace PasswordManagerApp.Services
             return true;
         }
 
-        
-        
-        
+
+
+
 
 
         private string GenerateTotpToken(User authUser)
-        {   string totpToken;
+        { string totpToken;
             string sysKey = "ajskSJ62j%sjs.;'[ah1";
-            var key_b = Encoding.UTF8.GetBytes(sysKey+authUser.Email);
-            
-            
-            Totp totp = new Totp(secretKey: key_b, mode: OtpHashMode.Sha512, step: 300,timeCorrection:new TimeCorrection(DateTime.UtcNow));
+            var key_b = Encoding.UTF8.GetBytes(sysKey + authUser.Email);
+
+
+            Totp totp = new Totp(secretKey: key_b, mode: OtpHashMode.Sha512, step: 300, timeCorrection: new TimeCorrection(DateTime.UtcNow));
             totpToken = totp.ComputeTotp(DateTime.UtcNow);
 
 
             return totpToken;
         }
-        private void SaveToDb(User authUser,string totpToken)
+        private void SaveToDb(User authUser, string totpToken)
         {
             _db.Totp_Users.Add(
-                new Totp_user(){
-                    Token=totpToken,
-                    Create_date=DateTime.UtcNow.ToLocalTime(),
-                    Expire_date=DateTime.UtcNow.AddSeconds(300).ToLocalTime(),
-                    User=authUser
-                    
+                new Totp_user() {
+                    Token = totpToken,
+                    Create_date = DateTime.UtcNow.ToLocalTime(),
+                    Expire_date = DateTime.UtcNow.AddSeconds(300).ToLocalTime(),
+                    User = authUser
 
 
 
-            });
+
+                });
             _db.SaveChanges();
         }
         #endregion
@@ -249,18 +243,18 @@ namespace PasswordManagerApp.Services
 
 
 
-            if (!_db.UserDevices.Any(b => b.User == authUser && b.CookieDeviceHash == newOsHash))
+            if (!_db.UserDevices.Any(b => b.User == authUser && b.DeviceGuid == newOsHash))
 
             {
 
                 UserDevice usd = new UserDevice();
                 usd.User = authUser;
                 usd.Authorized = 1;
-                usd.CookieDeviceHash = newOsHash;
+                usd.DeviceGuid = newOsHash;
 
                 _db.UserDevices.Add(usd);
                 _db.SaveChanges();
-                
+
 
                 return true;
 
@@ -268,55 +262,76 @@ namespace PasswordManagerApp.Services
             }
             return false;
         }
+       
 
-        public void ManageAuthorizedDevices(User authUser)
+        private void ManageAuthorizedDevices(User authUser)
         {
             string uaString = _httpContextAccessor.HttpContext.Request.Headers["User-Agent"];
             var uaParser = Parser.GetDefault();
             ClientInfo c = uaParser.Parse(uaString);
-            string cookieOsHash;
-            string browser = c.UA.Family.ToString() + " "+c.UA.Major.ToString();
 
-            using (SHA256 mysha256 = SHA256.Create())
-            {
+            string browser = c.UA.Family.ToString() + " " + c.UA.Major.ToString();
 
 
-                cookieOsHash = Convert.ToBase64String(mysha256.ComputeHash(Encoding.UTF8.GetBytes(c.OS.ToString())));
-            }
-            bool IsNewCookieData = false;
+           
+            bool IsNewUserDevice = false;
+            string guidDevice = "";
+            bool IsUserGuidDeviceMatch = true;
+
 
             var deviceCookieExist = cookieHandler.CheckIfCookieExist("DeviceInfo");
             if (deviceCookieExist)
             {
-                IsNewCookieData = cookieHandler.CheckCookieData("DeviceInfo", c.OS.ToString());
-                if(IsNewCookieData)
-                    cookieHandler.CreateCookie("DeviceInfo", c.OS.ToString(), null);
-                
-
-
-
-
-
-
+                var GuidDeviceFromCookie = cookieHandler.ReadAndDecryptCookie("DeviceInfo");
+                IsUserGuidDeviceMatch = CheckUserGuidDeviceInDb(GuidDeviceFromCookie, authUser);
+                if (IsUserGuidDeviceMatch)
+                    return;
+            
             }
-            else
+            if(deviceCookieExist==false || IsUserGuidDeviceMatch==false)
             {
-                cookieHandler.CreateCookie("DeviceInfo", c.OS.ToString(), null);
-                IsNewCookieData = true;
+                guidDevice = Guid.NewGuid().ToString();
+                cookieHandler.CreateCookie("DeviceInfo", guidDevice, null);
+                var userGuidDeviceHash = dataToSHA256(guidDevice);
                 
+                IsNewUserDevice = AddNewDeviceToDb(userGuidDeviceHash, authUser);
+
             }
 
 
 
-            var newUserDevice = AddNewDeviceToDb(cookieOsHash, authUser);
-            if (IsNewCookieData)
-                EmailSendEvent?.Invoke(this, new Message(new string[] { authUser.Email }, "Nowe urządzenie " + c.OS.ToString(), "Zarejestrowano logowanie z nowego systemu : " + c.OS.ToString() +" "+ browser +" dnia " + DateTime.UtcNow.ToLocalTime().ToString() + ". Urządzenie z podanym systemem OS zostało dodane do listy zaufanych urządzeń"));
 
 
+
+            if (IsNewUserDevice)
+                EmailSendEvent?.Invoke(this, new Message(new string[] { authUser.Email }, "Nowe urządzenie " + c.OS.ToString(), "Zarejestrowano logowanie z nowego systemu : " + c.OS.ToString() + " " + browser + " dnia " + DateTime.UtcNow.ToLocalTime().ToString() + ". Urządzenie z podanym systemem OS zostało dodane do listy zaufanych urządzeń"));
+
+
+
+
+        }
+        private bool CheckUserGuidDeviceInDb(string GuidDeviceFromCookie, User authUser)
+        {
 
             
+            var GuidDeviceHashFromCookie = dataToSHA256(GuidDeviceFromCookie);
+
+            if (_db.UserDevices.Any(ud => ud.User == authUser && ud.DeviceGuid == GuidDeviceHashFromCookie))
+                return true;
+            else
+                return false;
+
         }
-        
+
+
+
+
+
+
+
+
+
+
         public void SendTotpToken(User authUser)
         {
             string totpToken = GenerateTotpToken(authUser);
@@ -362,6 +377,13 @@ namespace PasswordManagerApp.Services
                 return (int)ResultsToken.NotMatched;
             }
 
+        }
+
+        private string dataToSHA256(string data)
+        {
+            SHA256 mysha256 = SHA256.Create();
+            return Convert.ToBase64String(mysha256.ComputeHash(Encoding.UTF8.GetBytes(data)));
+            
         }
 
 

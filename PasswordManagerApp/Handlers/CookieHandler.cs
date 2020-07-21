@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -40,7 +41,7 @@ namespace PasswordManagerApp.Handlers
             string decryptedCookieData = "";
             if (CheckIfCookieExist(key))
             {
-                decryptedCookieData = DecryptCookie(key);
+                decryptedCookieData = ReadAndDecryptCookie(key);
                 value = decryptedCookieData + value;
 
             }
@@ -66,7 +67,7 @@ namespace PasswordManagerApp.Handlers
             return _protector.Protect(cookieData);
 
         }
-        public string DecryptCookie(string key)
+        public string ReadAndDecryptCookie(string key)
         {
             //Get the encrypted cookie value
             string cookieValue = _httpContextAccessor.HttpContext.Request.Cookies[key];
@@ -91,13 +92,24 @@ namespace PasswordManagerApp.Handlers
             _httpContextAccessor.HttpContext.Response.Cookies.Delete(key);
         }
 
-        public bool  CheckCookieData(string key, string userOS)
+        public bool  CheckCookieData(string key, string data)
         {
             
-            var oldCookieValue = DecryptCookie(key);
-            if (oldCookieValue.Contains(userOS))
+            var cookieValue = ReadAndDecryptCookie(key);
+            if (cookieValue.Contains(data))
                 return false;
             return true;
+        }
+        public bool CheckCookieHashedData(string key, string hashedData)
+        {
+
+            var cookieValue = ReadAndDecryptCookie(key);
+            SHA256 mysha256 = SHA256.Create();
+            var cookieDataHash = Convert.ToBase64String(mysha256.ComputeHash(Encoding.UTF8.GetBytes(cookieValue)));
+            
+            if (cookieDataHash.Equals(hashedData))
+                return true;
+            return false;
         }
     }
 }

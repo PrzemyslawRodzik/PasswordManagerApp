@@ -1,9 +1,8 @@
-﻿using System;
+﻿
+using PasswordManagerApp.Models.Entities;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace PasswordManagerApp.Models
 {
@@ -28,6 +27,7 @@ namespace PasswordManagerApp.Models
 
         public ICollection<UserDevice> UserDevices { get; set; }
         public ICollection<Totp_user> Totp_Users { get; set; }
+        public ICollection<LoginData> LoginDatas { get; set; }
 
 
 
