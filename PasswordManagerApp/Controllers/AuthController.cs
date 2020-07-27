@@ -10,8 +10,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PasswordManagerApp.Handlers;
 using PasswordManagerApp.Models;
+using PasswordManagerApp.Repositories;
 using PasswordManagerApp.Services;
 
 
@@ -82,7 +84,7 @@ namespace PasswordManagerApp.Controllers
 
 
 
-
+            
             
 
 
@@ -145,10 +147,15 @@ namespace PasswordManagerApp.Controllers
 
             
 
+
+
+
+
+
             // HttpContext.SignInAsync("DeviceAuth", new ClaimsPrincipal(new ClaimsIdentity(claims, "AuthorizedDeviceCookieAuth")),new AuthenticationProperties
             // {IsPersistent = true,});
 
-            
+
             // cookieHandler.CreateCookie("UserXDeviceAuth", "1234",null);
 
             //cookieHandler.RemoveCookie("UserXDeviceAuth");
@@ -167,9 +174,9 @@ namespace PasswordManagerApp.Controllers
 
             //if (User.Identity.IsAuthenticated)
             // return Ok(userService.GetById(int.Parse(User.Identity.Name)));
-           // return Ok(User);
+            // return Ok(User);
 
-           
+
 
             return Forbid();
 

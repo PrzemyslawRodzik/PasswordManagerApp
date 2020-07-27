@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using PasswordManagerApp.Extensions;
 using PasswordManagerApp.Models;
 using PasswordManagerApp.Services;
 
@@ -55,6 +56,7 @@ namespace PasswordManagerApp
             services.AddScoped<IUserService, UserService>();
             services.AddDbContext<ApplicationDbContext>(options =>
                        options.UseMySql(Configuration.GetConnectionString("mysqlconnection")));
+            services.ConfigureRepositoryWrapper();
           
             /* services.AddAuthorization(options =>
             {

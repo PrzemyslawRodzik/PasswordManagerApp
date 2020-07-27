@@ -9,7 +9,7 @@ namespace PasswordManagerApp.Models
 {
     public class LoginDataModel
     {
-        [Key]
+        
         public int Id { get; set; }
         [Required]
         [StringLength(20, ErrorMessage = "{0} length must be between {2} and {1}.", MinimumLength = 3)]

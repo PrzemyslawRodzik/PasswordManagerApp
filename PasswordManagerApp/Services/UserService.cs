@@ -13,23 +13,28 @@ using OtpNet;
 using EmailService;
 using Microsoft.AspNetCore.DataProtection;
 using PasswordManagerApp.Handlers;
+using PasswordManagerApp.Repositories;
+using PasswordManagerApp.Models.Entities;
+using PasswordManagerApp.Interfaces;
 
 namespace PasswordManagerApp.Services
 {
     public class UserService : IUserService
     {
 
-        public event EventHandler<Message> EmailSendEvent;
 
-        private readonly ApplicationDbContext _db;
+
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IDataProtectionProvider _provider;
         public CookieHandler cookieHandler;
 
+        public event EventHandler<Message> EmailSendEvent;
 
-        public UserService(ApplicationDbContext db, IHttpContextAccessor httpContextAccessor, IDataProtectionProvider provider)
+
+        public UserService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor, IDataProtectionProvider provider)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
             _httpContextAccessor = httpContextAccessor;
             _provider = provider;
             cookieHandler = new CookieHandler(new HttpContextAccessor(), _provider);
@@ -38,12 +43,12 @@ namespace PasswordManagerApp.Services
 
 
         public User Create(string email, string password)
-        {
+        {   
             // validation
             if (string.IsNullOrWhiteSpace(password))
                 throw new AppException("Password is required");
 
-            if (_db.Users.Any(x => x.Email == email))
+            if (_unitOfWork.Context.Users.Any(x => x.Email == email))
                 throw new AppException("Email \"" + email + "\" is already taken");
 
             byte[] passwordHash, passwordSalt;
@@ -53,11 +58,16 @@ namespace PasswordManagerApp.Services
             user.Email = email;
             user.Password = Convert.ToBase64String(passwordHash);
             user.PasswordSalt = Convert.ToBase64String(passwordSalt);
+            user.TwoFactorAuthorization = 0;
+            user.PasswordNotifications = 1;
+
+
+            _unitOfWork.Users.Add<User>(user);
+            _unitOfWork.SaveChanges();
 
 
 
-            _db.Users.Add(user);
-            _db.SaveChanges();
+
 
             EmailSendEvent?.Invoke(this, new Message(new string[] { user.Email }, "Zalozyles konto na PasswordManager.com", "Witamy w PasswordManager web api " + user.Email));
 
@@ -66,7 +76,7 @@ namespace PasswordManagerApp.Services
 
         public void Update(User user, string password = null)
         {
-            throw new NotImplementedException();
+            // TO DO
         }
 
 
@@ -82,7 +92,8 @@ namespace PasswordManagerApp.Services
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
                 return null;
 
-            var user = _db.Users.SingleOrDefault(x => x.Email == email);
+            var user = _unitOfWork.Users.SingleOrDefault<User>(x => x.Email == email);
+
 
             // check if username exists
             if (user == null)
@@ -137,7 +148,7 @@ namespace PasswordManagerApp.Services
 
         public IEnumerable<User> GetAll()
         {
-            return _db.Users;
+            return _unitOfWork.Users.GetAll<User>();
         }
 
 
@@ -145,20 +156,23 @@ namespace PasswordManagerApp.Services
 
         public User GetById(int id)
         {
-            return _db.Users.Find(id);
+            return _unitOfWork.Users.Find<User>(id);
+            
         }
 
         public void Delete(int id)
         {
 
 
-            var user = _db.Users.Find(id);
+           
+            var user = _unitOfWork.Users.Find<User>(id);
 
 
             if (user != null)
             {
-                _db.Users.Remove(user);
-                _db.SaveChanges();
+                _unitOfWork.Users.Remove<User>(user);
+                _unitOfWork.SaveChanges();
+                
             }
         }
 
@@ -223,7 +237,7 @@ namespace PasswordManagerApp.Services
         }
         private void SaveToDb(User authUser, string totpToken)
         {
-            _db.Totp_Users.Add(
+            _unitOfWork.Context.Totp_Users.Add(
                 new Totp_user() {
                     Token = totpToken,
                     Create_date = DateTime.UtcNow.ToLocalTime(),
@@ -234,7 +248,7 @@ namespace PasswordManagerApp.Services
 
 
                 });
-            _db.SaveChanges();
+            _unitOfWork.SaveChanges();
         }
         #endregion
 
@@ -243,7 +257,7 @@ namespace PasswordManagerApp.Services
 
 
 
-            if (!_db.UserDevices.Any(b => b.User == authUser && b.DeviceGuid == newOsHash))
+            if (!_unitOfWork.Context.UserDevices.Any(b => b.User == authUser && b.DeviceGuid == newOsHash))
 
             {
 
@@ -252,8 +266,8 @@ namespace PasswordManagerApp.Services
                 usd.Authorized = 1;
                 usd.DeviceGuid = newOsHash;
 
-                _db.UserDevices.Add(usd);
-                _db.SaveChanges();
+                _unitOfWork.Context.UserDevices.Add(usd);
+                _unitOfWork.SaveChanges();
 
 
                 return true;
@@ -315,8 +329,9 @@ namespace PasswordManagerApp.Services
 
             
             var GuidDeviceHashFromCookie = dataToSHA256(GuidDeviceFromCookie);
-
-            if (_db.UserDevices.Any(ud => ud.User == authUser && ud.DeviceGuid == GuidDeviceHashFromCookie))
+            
+            
+            if (_unitOfWork.Context.UserDevices.Any(ud => ud.User == authUser && ud.DeviceGuid == GuidDeviceHashFromCookie))
                 return true;
             else
                 return false;
@@ -358,7 +373,7 @@ namespace PasswordManagerApp.Services
             Totp totp = new Totp(secretKey: Encoding.UTF8.GetBytes(sysKey + authUser.Email), mode: OtpHashMode.Sha512, step: 300,timeCorrection:new TimeCorrection(DateTime.UtcNow));
             
             
-            var activeTokenRecordFromDb = _db.Totp_Users.Where(b => b.User == authUser && b.Token == totpTokenHash).FirstOrDefault();
+            var activeTokenRecordFromDb = _unitOfWork.Context.Totp_Users.Where(b => b.User == authUser && b.Token == totpTokenHash).FirstOrDefault();
             if (activeTokenRecordFromDb != null)
             {
                // activeTokenRecordFromDb.Active = 0;
