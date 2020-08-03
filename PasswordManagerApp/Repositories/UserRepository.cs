@@ -24,7 +24,7 @@ namespace PasswordManagerApp.Repositories
 
         public IEnumerable<User> Get2MethodFromIUserRepository()
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(); 
         }
 
         public IEnumerable<User> GetMethodFromIUserRepository()

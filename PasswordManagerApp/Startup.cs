@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PasswordManagerApp.Extensions;
 using PasswordManagerApp.Models;
+using PasswordManagerApp.Repositories;
 using PasswordManagerApp.Services;
 
 
@@ -42,20 +43,27 @@ namespace PasswordManagerApp
 
 
 
-                })
-                .AddCookie("DeviceAuth" ,options =>
-                 {
-                     options.Cookie.Name = "AuthorizedDeviceCookie";
-                     options.ExpireTimeSpan = TimeSpan.FromDays(365);
-                     
-                 });
-                
-              
-            
+                });
+
+
+
+
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<IUserService, UserService>();
+
+        /*  MySql Database
             services.AddDbContext<ApplicationDbContext>(options =>
                        options.UseMySql(Configuration.GetConnectionString("mysqlconnection")));
+
+         */
+
+
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlite(Configuration.GetConnectionString("SqliteConnection")));
+
+
+
+
             services.ConfigureRepositoryWrapper();
           
             /* services.AddAuthorization(options =>
@@ -69,8 +77,12 @@ namespace PasswordManagerApp
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext applicationDbContext)
         {
+
+            applicationDbContext.Database.Migrate();
+            
+            DataSeeder.SeedData(applicationDbContext);
             if (env.IsDevelopment())
             {   
                 app.UseDeveloperExceptionPage();

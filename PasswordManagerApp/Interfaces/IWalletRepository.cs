@@ -1,15 +1,15 @@
-﻿using PasswordManagerApp.Models.Entities;
+﻿using PasswordManagerApp.Models;
 using PasswordManagerApp.Repositories;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace PasswordManagerApp.Interfaces
 {
     public interface IWalletRepository: IRepositoryBase
     {
-        IEnumerable<LoginData> GetLoginDataBreach();
-        IEnumerable<PaypallAcount> GetPaypallBreach();
+        IEnumerable<LoginData> GetAllLoginDataBreach();
+        IEnumerable<PaypallAcount> GetAllPaypallBreach();
+        int GetDataCountForUser<TEntity>(User user) where TEntity : UserRelationshipModel;
+        int GetDataBreachForUser<TEntity>(User user) where TEntity : class, ICompromisedEntity;
     }
 }

@@ -1,11 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PasswordManagerApp.Interfaces;
+﻿using PasswordManagerApp.Interfaces;
 using PasswordManagerApp.Models;
-using PasswordManagerApp.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace PasswordManagerApp.Repositories
 {
@@ -20,7 +18,7 @@ namespace PasswordManagerApp.Repositories
             get { return Context as ApplicationDbContext; }
         }
 
-        public IEnumerable<LoginData> GetLoginDataBreach() 
+        public IEnumerable<LoginData> GetAllLoginDataBreach() 
         {
             try
             {
@@ -32,7 +30,7 @@ namespace PasswordManagerApp.Repositories
             }
             
         }
-        public IEnumerable<PaypallAcount> GetPaypallBreach()
+        public IEnumerable<PaypallAcount> GetAllPaypallBreach()
         {
 
             try
@@ -47,9 +45,35 @@ namespace PasswordManagerApp.Repositories
 
 
           
-        }
-        
+        } 
+        public int  GetDataCountForUser<TEntity>(User user) where TEntity: UserRelationshipModel
+        {
+            Type type = typeof(TEntity);
+            
+                return ApplicationDbContext.Set<TEntity>().Where(ld => ld.User == user).ToList().Count();
 
+
+        }
+        public int GetDataBreachForUser<TEntity>(User user) where TEntity : class,ICompromisedEntity
+        {
+            
+
+            return ApplicationDbContext.Set<TEntity>().Where(ld => ld.User == user && ld.Compromised==1).ToList().Count();
+
+
+        }
+
+
+
+
+
+    }
+    public interface ICompromisedEntity
+    {
+        
+        public int Compromised { get; set; }
+        public int UserId { get; set; }
+        public User User { get; set; }
 
 
     }

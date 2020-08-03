@@ -13,8 +13,6 @@ using OtpNet;
 using EmailService;
 using Microsoft.AspNetCore.DataProtection;
 using PasswordManagerApp.Handlers;
-using PasswordManagerApp.Repositories;
-using PasswordManagerApp.Models.Entities;
 using PasswordManagerApp.Interfaces;
 
 namespace PasswordManagerApp.Services
@@ -69,7 +67,7 @@ namespace PasswordManagerApp.Services
 
 
 
-            EmailSendEvent?.Invoke(this, new Message(new string[] { user.Email }, "Zalozyles konto na PasswordManager.com", "Witamy w PasswordManager web api " + user.Email));
+            //EmailSendEvent?.Invoke(this, new Message(new string[] { user.Email }, "Zalozyles konto na PasswordManager.com", "Witamy w PasswordManager web api " + user.Email));
 
             return user;
         }
@@ -316,9 +314,10 @@ namespace PasswordManagerApp.Services
 
 
 
-
+         /*
             if (IsNewUserDevice)
                 EmailSendEvent?.Invoke(this, new Message(new string[] { authUser.Email }, "Nowe urządzenie " + c.OS.ToString(), "Zarejestrowano logowanie z nowego systemu : " + c.OS.ToString() + " " + browser + " dnia " + DateTime.UtcNow.ToLocalTime().ToString() + ". Urządzenie z podanym systemem OS zostało dodane do listy zaufanych urządzeń"));
+         */
 
 
 

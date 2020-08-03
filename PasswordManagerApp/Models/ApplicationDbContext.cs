@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PasswordManagerApp.Models.Entities;
+using PasswordManagerApp.Models;
 
 namespace PasswordManagerApp.Models
 {
@@ -29,11 +29,8 @@ namespace PasswordManagerApp.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>()
-                .HasMany(c => c.UserDevices)
-
-                .WithOne(e => e.User);
             
+
         }
         
     }

@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PasswordManagerApp.Handlers;
-using PasswordManagerApp.Models;
+using PasswordManagerApp.Models.ViewModels;
 using PasswordManagerApp.Repositories;
 using PasswordManagerApp.Services;
 
@@ -55,13 +55,13 @@ namespace PasswordManagerApp.Controllers
         [HttpGet]
         public IActionResult LogIn()
         {
-            return View(new LoginModel());
+            return View(new LoginViewModel());
         }
         
         [Route("login")]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<IActionResult> LogIn(LoginModel model)
+        public async Task<IActionResult> LogIn(LoginViewModel model)
         {
             var user = userService.Authenticate(model.Email, model.Password);
 
@@ -79,7 +79,7 @@ namespace PasswordManagerApp.Controllers
                 
                 await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(userService.GetClaimIdentity(user)));
 
-                return RedirectToAction(controllerName: "Home", actionName: "Index");
+                return RedirectToAction(controllerName: "Wallet", actionName: "Index");
             }
 
 
@@ -95,13 +95,13 @@ namespace PasswordManagerApp.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            return View(new RegisterModel());
+            return View(new RegisterViewModel());
         }
         
         [Route("register")]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public  async Task<IActionResult> Register([Bind] RegisterModel model)
+        public  async Task<IActionResult> Register([Bind] RegisterViewModel model)
         {
 
 
@@ -116,7 +116,7 @@ namespace PasswordManagerApp.Controllers
                 // log in new created user
                 await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(userService.GetClaimIdentity(newUser)));
 
-                return RedirectToAction(controllerName: "Home", actionName: "Index");
+                return RedirectToAction(controllerName: "Wallet", actionName: "Index");
             }
             catch (AppException ex)
             {

@@ -1,4 +1,5 @@
 ﻿using PasswordManagerApp.Handlers;
+using PasswordManagerApp.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -12,7 +13,7 @@ namespace PasswordManagerApp.Models
         {
            
 
-            var registerModel = (RegisterModel)validationContext.ObjectInstance;
+            var registerModel = (RegisterViewModel)validationContext.ObjectInstance;
             string password = registerModel.Password;
             var isPwned = PwnedPasswords.IsPasswordPwnedAsync(password, new CancellationToken(), null).Result;
             if (isPwned != -1)
