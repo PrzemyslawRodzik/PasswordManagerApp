@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿﻿using Microsoft.AspNetCore.Http;
 using PasswordManagerApp.Models;
 using System;
 using System.Collections.Generic;
@@ -14,6 +14,7 @@ using EmailService;
 using Microsoft.AspNetCore.DataProtection;
 using PasswordManagerApp.Handlers;
 using PasswordManagerApp.Interfaces;
+using System.Net;
 
 namespace PasswordManagerApp.Services
 {
@@ -46,7 +47,7 @@ namespace PasswordManagerApp.Services
             if (string.IsNullOrWhiteSpace(password))
                 throw new AppException("Password is required");
 
-            if (_unitOfWork.Context.Users.Any(x => x.Email == email))
+            if (VerifyEmail(email))
                 throw new AppException("Email \"" + email + "\" is already taken");
 
             byte[] passwordHash, passwordSalt;
@@ -79,7 +80,11 @@ namespace PasswordManagerApp.Services
 
 
 
-
+        public bool VerifyEmail(string email)
+        {
+        
+            return _unitOfWork.Users.CheckIfUserExist(email);
+        }
 
 
 
@@ -278,10 +283,8 @@ namespace PasswordManagerApp.Services
 
         private void ManageAuthorizedDevices(User authUser)
         {
-            string uaString = _httpContextAccessor.HttpContext.Request.Headers["User-Agent"];
-            var uaParser = Parser.GetDefault();
-            ClientInfo c = uaParser.Parse(uaString);
-
+            
+            var c = cookieHandler.GetClientInfo();
             string browser = c.UA.Family.ToString() + " " + c.UA.Major.ToString();
 
 

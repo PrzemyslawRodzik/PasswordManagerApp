@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace PasswordManagerApp.Migrations
 {
-    public partial class InitialMigrationSqliteDb : Migration
+    public partial class Initial_Migration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -46,10 +46,10 @@ namespace PasswordManagerApp.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    device = table.Column<string>(nullable: false),
                     browser = table.Column<string>(nullable: false),
                     operating_system = table.Column<string>(nullable: false),
-                    visit_time = table.Column<DateTime>(nullable: false)
+                    country = table.Column<string>(nullable: false),
+                    visit_time = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -62,12 +62,12 @@ namespace PasswordManagerApp.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    user_id = table.Column<int>(nullable: false),
                     name = table.Column<string>(nullable: false),
                     cardholder_name = table.Column<string>(nullable: false),
                     card_number = table.Column<string>(nullable: false),
                     security_code = table.Column<string>(nullable: false),
-                    expiration_date = table.Column<string>(nullable: false),
-                    user_id = table.Column<int>(nullable: false)
+                    expiration_date = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -86,14 +86,14 @@ namespace PasswordManagerApp.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    user_id = table.Column<int>(nullable: false),
                     name = table.Column<string>(nullable: false),
                     email = table.Column<string>(nullable: true),
                     login = table.Column<string>(nullable: false),
                     password = table.Column<string>(nullable: false),
                     website = table.Column<string>(nullable: true),
                     compromised = table.Column<int>(nullable: false),
-                    modified_date = table.Column<DateTime>(nullable: false),
-                    user_id = table.Column<int>(nullable: false)
+                    modified_date = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -112,9 +112,9 @@ namespace PasswordManagerApp.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    user_id = table.Column<int>(nullable: false),
                     name = table.Column<string>(nullable: false),
-                    details = table.Column<string>(nullable: false),
-                    user_id = table.Column<int>(nullable: false)
+                    details = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -133,11 +133,11 @@ namespace PasswordManagerApp.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    user_id = table.Column<int>(nullable: false),
                     email = table.Column<string>(nullable: false),
                     password = table.Column<string>(nullable: false),
                     compromised = table.Column<int>(nullable: false),
-                    modified_date = table.Column<DateTime>(nullable: false),
-                    user_id = table.Column<int>(nullable: false)
+                    modified_date = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -179,10 +179,10 @@ namespace PasswordManagerApp.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    user_id = table.Column<int>(nullable: false),
                     token = table.Column<string>(nullable: false),
                     create_date = table.Column<DateTime>(nullable: false),
-                    expire_date = table.Column<DateTime>(nullable: false),
-                    user_id = table.Column<int>(nullable: false)
+                    expire_date = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -201,9 +201,9 @@ namespace PasswordManagerApp.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    user_id = table.Column<int>(nullable: false),
                     device_guid = table.Column<string>(nullable: false),
-                    authorized = table.Column<int>(nullable: false),
-                    user_id = table.Column<int>(nullable: false)
+                    authorized = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -222,8 +222,8 @@ namespace PasswordManagerApp.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    login_data_id = table.Column<int>(nullable: false),
                     user_id = table.Column<int>(nullable: false),
+                    login_data_id = table.Column<int>(nullable: false),
                     start_date = table.Column<DateTime>(nullable: false),
                     end_date = table.Column<DateTime>(nullable: false)
                 },

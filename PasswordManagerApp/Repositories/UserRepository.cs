@@ -1,4 +1,4 @@
-﻿using PasswordManagerApp.Models;
+﻿﻿using PasswordManagerApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,12 +22,16 @@ namespace PasswordManagerApp.Repositories
 
 
 
-        public IEnumerable<User> Get2MethodFromIUserRepository()
+        public bool CheckIfUserExist(string email)
         {
-            throw new NotImplementedException(); 
+            return ApplicationDbContext.Users.Any(u => u.Email == email);
+            
+
+    
+
         }
 
-        public IEnumerable<User> GetMethodFromIUserRepository()
+        public IEnumerable<User> Get2MethodFromIUserRepository()
         {
             throw new NotImplementedException();
         }

@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Org.BouncyCastle.Crypto.Tls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using UAParser;
 
 namespace PasswordManagerApp.Handlers
 {
@@ -110,6 +112,14 @@ namespace PasswordManagerApp.Handlers
             if (cookieDataHash.Equals(hashedData))
                 return true;
             return false;
+        }
+
+        public ClientInfo GetClientInfo()
+        {
+            string uaString = _httpContextAccessor.HttpContext.Request.Headers["User-Agent"];
+            var uaParser = Parser.GetDefault();
+            ClientInfo c = uaParser.Parse(uaString);
+            return c;
         }
     }
 }

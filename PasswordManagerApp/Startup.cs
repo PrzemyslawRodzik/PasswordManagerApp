@@ -82,7 +82,7 @@ namespace PasswordManagerApp
 
             applicationDbContext.Database.Migrate();
             
-            DataSeeder.SeedData(applicationDbContext);
+           // DataSeeder.SeedData(applicationDbContext);
             if (env.IsDevelopment())
             {   
                 app.UseDeveloperExceptionPage();

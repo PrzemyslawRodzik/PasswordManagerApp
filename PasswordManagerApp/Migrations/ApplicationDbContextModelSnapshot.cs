@@ -14,9 +14,9 @@ namespace PasswordManagerApp.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.6");
+                .HasAnnotation("ProductVersion", "3.1.7");
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.Address", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.Address", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -58,7 +58,7 @@ namespace PasswordManagerApp.Migrations
                     b.ToTable("address");
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.BreachedPassword", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.BreachedPassword", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -78,7 +78,7 @@ namespace PasswordManagerApp.Migrations
                     b.ToTable("breached_password");
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.CreditCard", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.CreditCard", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -120,7 +120,7 @@ namespace PasswordManagerApp.Migrations
                     b.ToTable("credit_card");
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.LoginData", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.LoginData", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -168,7 +168,7 @@ namespace PasswordManagerApp.Migrations
                     b.ToTable("login_data");
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.Note", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.Note", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -195,7 +195,7 @@ namespace PasswordManagerApp.Migrations
                     b.ToTable("note");
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.PaypallAcount", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.PaypallAcount", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -230,7 +230,7 @@ namespace PasswordManagerApp.Migrations
                     b.ToTable("paypall_account");
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.PersonalInfo", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.PersonalInfo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -264,7 +264,7 @@ namespace PasswordManagerApp.Migrations
                     b.ToTable("personal_info");
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.PhoneNumber", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.PhoneNumber", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -296,7 +296,7 @@ namespace PasswordManagerApp.Migrations
                     b.ToTable("phone_number");
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.SharedLoginData", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.SharedLoginData", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -325,36 +325,6 @@ namespace PasswordManagerApp.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("shared_login_data");
-                });
-
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.VisitorAgent", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Browser")
-                        .IsRequired()
-                        .HasColumnName("browser")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Device")
-                        .IsRequired()
-                        .HasColumnName("device")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OperatingSystem")
-                        .IsRequired()
-                        .HasColumnName("operating_system")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("VisitTime")
-                        .HasColumnName("visit_time")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("visitor_agent");
                 });
 
             modelBuilder.Entity("PasswordManagerApp.Models.Totp_user", b =>
@@ -455,16 +425,47 @@ namespace PasswordManagerApp.Migrations
                     b.ToTable("user_device");
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.Address", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.VisitorAgent", b =>
                 {
-                    b.HasOne("PasswordManagerApp.Models.Entities.PersonalInfo", "PersonalInfo")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Browser")
+                        .IsRequired()
+                        .HasColumnName("browser")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnName("country")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OperatingSystem")
+                        .IsRequired()
+                        .HasColumnName("operating_system")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VisitTime")
+                        .IsRequired()
+                        .HasColumnName("visit_time")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("visitor_agent");
+                });
+
+            modelBuilder.Entity("PasswordManagerApp.Models.Address", b =>
+                {
+                    b.HasOne("PasswordManagerApp.Models.PersonalInfo", "PersonalInfo")
                         .WithMany("Addresses")
                         .HasForeignKey("PersonalInfoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.CreditCard", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.CreditCard", b =>
                 {
                     b.HasOne("PasswordManagerApp.Models.User", "User")
                         .WithMany("CreditCards")
@@ -473,7 +474,7 @@ namespace PasswordManagerApp.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.LoginData", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.LoginData", b =>
                 {
                     b.HasOne("PasswordManagerApp.Models.User", "User")
                         .WithMany("LoginDatas")
@@ -482,7 +483,7 @@ namespace PasswordManagerApp.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.Note", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.Note", b =>
                 {
                     b.HasOne("PasswordManagerApp.Models.User", "User")
                         .WithMany("Notes")
@@ -491,7 +492,7 @@ namespace PasswordManagerApp.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.PaypallAcount", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.PaypallAcount", b =>
                 {
                     b.HasOne("PasswordManagerApp.Models.User", "User")
                         .WithMany("PaypallAcounts")
@@ -500,27 +501,27 @@ namespace PasswordManagerApp.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.PersonalInfo", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.PersonalInfo", b =>
                 {
                     b.HasOne("PasswordManagerApp.Models.User", "User")
                         .WithOne("PersonalInfo")
-                        .HasForeignKey("PasswordManagerApp.Models.Entities.PersonalInfo", "UserId")
+                        .HasForeignKey("PasswordManagerApp.Models.PersonalInfo", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.PhoneNumber", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.PhoneNumber", b =>
                 {
-                    b.HasOne("PasswordManagerApp.Models.Entities.PersonalInfo", "PersonalInfo")
+                    b.HasOne("PasswordManagerApp.Models.PersonalInfo", "PersonalInfo")
                         .WithMany("PhoneNumbers")
                         .HasForeignKey("PersonalInfoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PasswordManagerApp.Models.Entities.SharedLoginData", b =>
+            modelBuilder.Entity("PasswordManagerApp.Models.SharedLoginData", b =>
                 {
-                    b.HasOne("PasswordManagerApp.Models.Entities.LoginData", "LoginData")
+                    b.HasOne("PasswordManagerApp.Models.LoginData", "LoginData")
                         .WithMany("SharedLoginDatas")
                         .HasForeignKey("LoginDataId")
                         .OnDelete(DeleteBehavior.Cascade)

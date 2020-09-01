@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
@@ -27,7 +27,7 @@ namespace PasswordManagerApp.Controllers
 
         private readonly IUserService userService;
         private readonly IEmailSender _emailSender;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientFactory _httpClientFactory; // potem do usuniecia !!!
         public CookieHandler cookieHandler;
         public DataProtectionHelper dataProtectionHelper;
 
@@ -57,6 +57,17 @@ namespace PasswordManagerApp.Controllers
         {
             return View(new LoginViewModel());
         }
+
+        [AcceptVerbs("GET", "POST")]
+        public IActionResult VerifyEmail(string email)
+{
+    if (userService.VerifyEmail(email))
+    {
+        return Json($"Email {email} is already in use.");
+    }
+
+    return Json(true);
+}
         
         [Route("login")]
         [ValidateAntiForgeryToken]
@@ -66,8 +77,11 @@ namespace PasswordManagerApp.Controllers
             var user = userService.Authenticate(model.Email, model.Password);
 
             if (user == null)
-                return BadRequest(new { message = "Username or password is incorrect" });
-
+           {
+                //return BadRequest(new { message = "Username or password is incorrect" });
+                ModelState.AddModelError("Error", "Username or password is incorrect");
+                return View(new LoginViewModel());
+            }
             if (user.TwoFactorAuthorization == 1)
             {
                 userService.SendTotpToken(user);
@@ -82,13 +96,7 @@ namespace PasswordManagerApp.Controllers
                 return RedirectToAction(controllerName: "Wallet", actionName: "Index");
             }
 
-
-
-            
-            
-
-
-
+        
         }
         [AllowAnonymous]
         [Route("register")]

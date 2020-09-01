@@ -49,7 +49,7 @@ namespace PasswordManagerApp.Repositories
                 .RuleFor(u => u.User, f => f.PickRandom<User>(users));
 
 
-            var loginDatas = testLoginData.Generate(400);
+            var loginDatas = testLoginData.Generate(800);
 
             var testPaypallAccounts = new Faker<PaypallAcount>()
                .RuleFor(u => u.Email, (f, u) => f.Internet.Email())

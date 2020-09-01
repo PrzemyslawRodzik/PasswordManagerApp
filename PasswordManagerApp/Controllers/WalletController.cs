@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PasswordManagerApp.Interfaces;
 using PasswordManagerApp.Models;
-
+using PasswordManagerApp.Models.ViewModels;
+using System.Linq;
 
 namespace PasswordManagerApp.Controllers
 {  
@@ -50,7 +53,7 @@ namespace PasswordManagerApp.Controllers
         }
 
 
-
+        [Route("list")]
         public IActionResult List()
         {
 
@@ -65,6 +68,52 @@ namespace PasswordManagerApp.Controllers
 
             return View("Views/Shared/"+errorType+".cshtml");
 
+        }
+
+
+        [AcceptVerbs("GET", "POST")]
+        public IActionResult VerifyLogin(string website,string login,int id)
+        {
+            if (_unitOfWork.Context.LoginDatas.Any(l => l.Website == website && l.Login == login))
+            {
+                return Json($"You already set login {login} for that website {website}");
+            }
+
+            return Json(true);
+        }
+
+
+
+        [Route("create")]
+        [HttpGet]
+        public IActionResult LoginDataCreate()
+        {
+            return View(new LoginDataViewModel());
+        }
+        [Route("create")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public IActionResult LoginDataCreate(LoginDataViewModel model)
+        {
+            if (!ModelState.IsValid)
+
+                return View(model);
+
+
+
+            return Ok("true");
+
+
+
+        }
+        [Route("/ip")]
+        public IActionResult ip()
+        {
+            //string remoteIpAddress = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+            string ipAddress = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+           
+            
+            return Ok(ipAddress);
         }
 
 

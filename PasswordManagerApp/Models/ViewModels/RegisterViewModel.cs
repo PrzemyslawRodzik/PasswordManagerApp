@@ -1,11 +1,13 @@
-﻿
+﻿﻿
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 
 namespace PasswordManagerApp.Models.ViewModels
 {
     public class RegisterViewModel
     {   [Required]
+        [Remote(action: "VerifyEmail", controller: "Auth")]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
 

@@ -1,4 +1,4 @@
-﻿using EmailService;
+﻿﻿using EmailService;
 using PasswordManagerApp.Models;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ namespace PasswordManagerApp.Services
         IEnumerable<User> GetAll();
 
         
-        
+        bool VerifyEmail(string email);
         User GetById(int id);
         void Delete(int id);
         void SendTotpToken(User authUser);

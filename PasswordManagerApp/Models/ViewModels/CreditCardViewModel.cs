@@ -9,7 +9,7 @@ namespace PasswordManagerApp.Models.ViewModels
     public class CreditCardViewModel
     {
         
-        public int Id { get; set; }
+        
 
         [Required]
         [StringLength(45, ErrorMessage = "{0} length must be between {2} and {1}.", MinimumLength = 3)]

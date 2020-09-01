@@ -11,18 +11,19 @@ namespace PasswordManagerApp.Models
     public class VisitorAgent
     {   [Key]
         public int Id { get; set; }
-        [Required]
-        [Column("device")]
-        public string Device { get; set; }
+       
         [Required]
         [Column("browser")]
         public string Browser { get; set; }
         [Required]
         [Column("operating_system")]
-       
-        public string OperatingSystem { get; set; }
+       public string OperatingSystem { get; set; }
+        
+        [Required]
+        [Column("country")]
+        public string Country { get; set; }
         [Required]
         [Column("visit_time")]
-        public DateTime VisitTime { get; set; }
+        public String VisitTime { get; set; }
     }
 }

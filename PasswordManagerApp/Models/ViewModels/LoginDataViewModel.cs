@@ -10,7 +10,7 @@ namespace PasswordManagerApp.Models.ViewModels
     public class LoginDataViewModel
     {
         
-        public int Id { get; set; }
+        
         [Required]
         [StringLength(20, ErrorMessage = "{0} length must be between {2} and {1}.", MinimumLength = 3)]
         public string Name { get; set; }
@@ -21,14 +21,18 @@ namespace PasswordManagerApp.Models.ViewModels
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Password and confirm password does not match")]
         public string ConfirmPassword { get; set; }
+
+
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
         [Required]
+        
         public string Login { get; set; }
+
         [DataType(DataType.Url)]
+        [Remote(action: "VerifyLogin", controller: "Wallet", AdditionalFields = nameof(Login))]
         public string Website { get; set; }
-        [HiddenInput]
-        public int Compromised { get; set; }
+        
         [Required]
         [DataType(DataType.DateTime)]
         public DateTime ModifiedDate { get; set; }

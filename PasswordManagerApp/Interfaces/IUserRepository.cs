@@ -1,4 +1,4 @@
-﻿using PasswordManagerApp.Models;
+﻿﻿using PasswordManagerApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ namespace PasswordManagerApp.Repositories
 {
     public interface IUserRepository :IRepositoryBase
     {
-        IEnumerable<User> GetMethodFromIUserRepository();
+        bool CheckIfUserExist(string email);
         IEnumerable<User> Get2MethodFromIUserRepository();
     }
 }
