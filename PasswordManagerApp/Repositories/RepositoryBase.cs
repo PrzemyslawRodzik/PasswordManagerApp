@@ -18,7 +18,7 @@ namespace PasswordManagerApp.Repositories
         }
 
 
-        public TEntity GetById<TEntity>(int id) where TEntity : class
+        public  TEntity GetById<TEntity>(int id) where TEntity : class
         {
             // Here we are working with a DbContext, not PlutoContext. So we don't have DbSets 
             // such as Courses or Authors, and we need to use the generic Set() method to access them.

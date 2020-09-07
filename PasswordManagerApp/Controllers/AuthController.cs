@@ -2,14 +2,17 @@
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using EmailService;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 using PasswordManagerApp.Handlers;
 using PasswordManagerApp.Models.ViewModels;
@@ -78,26 +81,28 @@ namespace PasswordManagerApp.Controllers
 
             if (user == null)
            {
-                //return BadRequest(new { message = "Username or password is incorrect" });
-                ModelState.AddModelError("Error", "Username or password is incorrect");
+                
+                ModelState.AddModelError("Error", "Incorrect username or password.");
                 return View(new LoginViewModel());
             }
             if (user.TwoFactorAuthorization == 1)
             {
+                
                 userService.SendTotpToken(user);
 
-                return RedirectToAction(actionName: "TwoFactorLogIn", new { id = dataProtectionHelper.Encrypt(user.Id.ToString(),"QueryStringsEncryptions")  });
+                return RedirectToAction(actionName: "TwoFactorLogIn", new { id = dataProtectionHelper.Encrypt(user.Id.ToString(),"QueryStringsEncryptions")});
             }
             else
             {
                 
-                await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(userService.GetClaimIdentity(user)));
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,new ClaimsPrincipal(userService.GetClaimIdentity(user)));
 
                 return RedirectToAction(controllerName: "Wallet", actionName: "Index");
             }
 
         
         }
+        
         [AllowAnonymous]
         [Route("register")]
         [HttpGet]
@@ -122,7 +127,7 @@ namespace PasswordManagerApp.Controllers
                 // create user
                 var newUser = userService.Create(model.Email, model.Password);
                 // log in new created user
-                await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(userService.GetClaimIdentity(newUser)));
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userService.GetClaimIdentity(newUser)));
 
                 return RedirectToAction(controllerName: "Wallet", actionName: "Index");
             }
@@ -141,68 +146,16 @@ namespace PasswordManagerApp.Controllers
 
 
 
-            await HttpContext.SignOutAsync("CookieAuth");
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             return RedirectToAction(controllerName: "Home", actionName: "Index");
 
 
         }
-     
+
        
-        [HttpGet("{id}")]
-        public IActionResult GetById(int id)
-        {
 
-            
-
-
-
-
-
-
-            // HttpContext.SignInAsync("DeviceAuth", new ClaimsPrincipal(new ClaimsIdentity(claims, "AuthorizedDeviceCookieAuth")),new AuthenticationProperties
-            // {IsPersistent = true,});
-
-
-            // cookieHandler.CreateCookie("UserXDeviceAuth", "1234",null);
-
-            //cookieHandler.RemoveCookie("UserXDeviceAuth");
-
-            //string wynik = cookieHandler.ReadCookie("UserXDeviceAuth");
-            //string wynikDec = cookieHandler.DecryptCookie("UserXDeviceAuth");
-
-
-
-            //Response.WriteAsync(wynikDec);
-
-
-
-
-
-
-            //if (User.Identity.IsAuthenticated)
-            // return Ok(userService.GetById(int.Parse(User.Identity.Name)));
-            // return Ok(User);
-
-
-
-            return Forbid();
-
-            
-
-
-           // var currentUserId = int.Parse(User.Identity.Name);
-           // if (id != currentUserId)
-            //    return Forbid();
-
-           // var user = userService.GetById(id);
-
-          //  if (user == null)
-           //     return NotFound();
-
-           // return Ok(user);
-        }
-
+        
         [Route("[action]/{passwordToCheck}")]
         [HttpGet]
 
@@ -242,62 +195,90 @@ namespace PasswordManagerApp.Controllers
          * 
          */
 
-        [Route("twofactor")]
+        [Route("twofactorlogin")]
         [HttpGet]
         public IActionResult TwoFactorLogIn(string id)
-        {   if(HttpContext.User.Identity.IsAuthenticated || id is null)
-                return RedirectToAction(controllerName: "Home", actionName: "Index");
+        {  
+            if(HttpContext.User.Identity.IsAuthenticated || id is null)
+               return RedirectToAction(controllerName: "Home", actionName: "Index");
 
             ViewBag.AuthUserId = id;
+            return View(new TwoFactorViewModel());
             
-            return View();
             
             
         }
 
-        [Route("twofactor")]
+
+        [Route("twofactorlogin")]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<IActionResult> TwoFactorLogIn(string id,string token)    
+        public async Task<IActionResult> TwoFactorLogIn(string id,TwoFactorViewModel model)    
         {
+
+            if (!ModelState.IsValid)
+            {
+                ModelState.AddModelError("Error", "Code can not be null.");
+                ViewBag.AuthUserId = id;
+                return View(new TwoFactorViewModel());
+            }
+                 
+            
+            
             int idUser = Int32.Parse(dataProtectionHelper.Decrypt(id, "QueryStringsEncryptions"));
             var user = userService.GetById(idUser);
             
-            var verificationStatus = userService.VerifyTotpToken(user, token);
+            var verificationStatus = userService.VerifyTotpToken(user, model.Token);
             if(verificationStatus != 1)
             {
                 if (verificationStatus == 0)
                 {
-                    return RedirectToAction(actionName: "TwoFactorLogIn", new { id = dataProtectionHelper.Encrypt(user.Id.ToString(), "QueryStringsEncryptions") });
+                    
+                    ViewBag.AuthUserId = id;
+                    ModelState.AddModelError("Error", "Wrong code.");
+                    return View(new TwoFactorViewModel());
+
                 }
                 else
                 {
-                    return RedirectToAction(actionName: "LogIn");
+                    
+                    return RedirectToAction(actionName: "VerificationFailed");
 
                 }
             }
             else
             {
                 
-                await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(userService.GetClaimIdentity(user)));
-                return RedirectToAction(controllerName: "Home", actionName: "Index");
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userService.GetClaimIdentity(user)));
+                return RedirectToAction(controllerName: "Wallet", actionName: "Index");
             }
                 
-          
-            
-                
-            
-
-
-            
-
-            
-
-            
-
-
+         
 
         }
+        [Route("verificationfailed")]
+        public IActionResult VerificationFailed()
+        {
+            ViewBag.Message = "Kod wygasł, sprobuj zalogowac sie ponownie";
+            return View();
+        }
+
+        [Route("resendcode")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public IActionResult ReSendCode(string id)
+        {
+            int idUser = Int32.Parse(dataProtectionHelper.Decrypt(id, "QueryStringsEncryptions"));
+            var user = userService.GetById(idUser);
+            userService.SendTotpToken(user);
+            ViewBag.Message = "Your code has been resent.";
+            
+            return PartialView("~/Views/Shared/_NotificationAlert.cshtml");
+            
+        }
+        
+
+
 
 
 

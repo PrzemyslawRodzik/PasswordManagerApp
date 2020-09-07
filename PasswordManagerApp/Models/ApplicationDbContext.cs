@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PasswordManagerApp.Models;
+using PasswordManagerApp.Models.ViewModels;
 
 namespace PasswordManagerApp.Models
 {
@@ -32,6 +33,11 @@ namespace PasswordManagerApp.Models
             
 
         }
+        
+
+
+
+        
         
     }
 }

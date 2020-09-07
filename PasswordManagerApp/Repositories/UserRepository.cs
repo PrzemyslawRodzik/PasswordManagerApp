@@ -30,6 +30,29 @@ namespace PasswordManagerApp.Repositories
     
 
         }
+        public string GetActiveToken(User authUser)
+        {
+            var currentTime = DateTime.UtcNow.ToLocalTime();
+            var model = ApplicationDbContext.Totp_Users.Where(x => x.UserId == authUser.Id && x.Expire_date > currentTime).FirstOrDefault();
+            return model.Token;
+        }
+
+
+        public bool IsTokenActive(User authUser)
+        {
+            var currentTime = DateTime.UtcNow.ToLocalTime();
+            bool isActive = ApplicationDbContext.Totp_Users.Any(x => x.UserId == authUser.Id && x.Expire_date > currentTime);
+
+            if (isActive)
+                return true;
+            else
+                return false;
+        }
+
+
+
+
+
 
         public IEnumerable<User> Get2MethodFromIUserRepository()
         {

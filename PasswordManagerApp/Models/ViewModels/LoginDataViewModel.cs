@@ -17,6 +17,7 @@ namespace PasswordManagerApp.Models.ViewModels
         [Required(ErrorMessage = "Please enter password")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
+        
         [Required(ErrorMessage = "Please enter confirm password")]
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Password and confirm password does not match")]

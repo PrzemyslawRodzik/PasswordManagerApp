@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Bogus.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using PasswordGenerator;
 using PasswordManagerApp.Interfaces;
 using PasswordManagerApp.Models;
 using PasswordManagerApp.Models.ViewModels;
@@ -62,15 +64,20 @@ namespace PasswordManagerApp.Controllers
 
             return View("Views/Wallet/ListItem.cshtml", loginData);
         }
-        [HttpGet("{errorType}")]
-        public IActionResult Error(string errorType)
-        {
+        /* [HttpGet("{errorType}")]
+         public IActionResult Error(string errorType)
+         {
 
-            return View("Views/Shared/"+errorType+".cshtml");
+             return View("Views/Shared/"+errorType+".cshtml");
 
-        }
+         }
+
+     */
 
 
+        // do LoginData controller !!!
+
+        /*
         [AcceptVerbs("GET", "POST")]
         public IActionResult VerifyLogin(string website,string login,int id)
         {
@@ -81,7 +88,8 @@ namespace PasswordManagerApp.Controllers
 
             return Json(true);
         }
-
+        */
+        
 
 
         [Route("create")]
@@ -106,8 +114,11 @@ namespace PasswordManagerApp.Controllers
 
 
         }
+        // do LoginData controller !!!
+
+
         [Route("/ip")]
-        public IActionResult ip()
+        public IActionResult Ip()
         {
             //string remoteIpAddress = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
             string ipAddress = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
@@ -115,6 +126,12 @@ namespace PasswordManagerApp.Controllers
             
             return Ok(ipAddress);
         }
+
+
+
+
+
+       
 
 
 

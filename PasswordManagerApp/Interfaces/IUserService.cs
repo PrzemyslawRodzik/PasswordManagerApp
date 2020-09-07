@@ -27,6 +27,6 @@ namespace PasswordManagerApp.Services
 
         Task<User> AuthenticateExternal(string id);
         Task<User> AddExternal(string id, string email);
-        
+        void UpdatePreferences(UpdatePreferencesWrapper upPreferences,int userId);
     }
 }

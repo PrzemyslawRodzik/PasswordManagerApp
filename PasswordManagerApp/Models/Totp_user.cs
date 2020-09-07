@@ -12,22 +12,12 @@ namespace PasswordManagerApp.Models
         [Key]
         public int Id { get; set; }
 
-        private string _token;  
+        
         [Required]
         [Column("token")]
-        public string Token
-        {
-            get => _token;
-            set
-            {
-                _token = TotpHashBase64(value);
-            }
+        public string Token { get; set; }
 
 
-
-
-        }
-        
         [Required]
         [Column("create_date")]
         public DateTime Create_date { get; set; }

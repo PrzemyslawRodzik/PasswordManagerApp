@@ -99,7 +99,7 @@ namespace PasswordManagerApp.Controllers
             visitor.Country = countryName.Result;
             visitor.VisitTime = DateTime.UtcNow.ToLocalTime().ToString();
           
-            _unitOfWork.Context.Add<VisitorAgent>(visitor);
+            _unitOfWork.Context.Add<VisitorAgent>(visitor); 
             _unitOfWork.SaveChanges();
 
         }

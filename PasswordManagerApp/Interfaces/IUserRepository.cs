@@ -10,5 +10,7 @@ namespace PasswordManagerApp.Repositories
     {
         bool CheckIfUserExist(string email);
         IEnumerable<User> Get2MethodFromIUserRepository();
+        public string GetActiveToken(User authUser);
+        public bool IsTokenActive(User authUser);
     }
 }

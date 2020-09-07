@@ -1,5 +1,6 @@
 using System;
 using EmailService;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -35,15 +36,17 @@ namespace PasswordManagerApp
             services.AddHttpContextAccessor();
             services.AddDataProtection();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
-            services.AddAuthentication("CookieAuth")
-                .AddCookie("CookieAuth", options =>
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
                 {
-                    options.Cookie.Name = "UserCookie";
                     options.LoginPath = "/auth/login";
+                    options.AccessDeniedPath = "/auth/accessdenied";
 
 
 
                 });
+        
+
 
 
 
@@ -80,7 +83,7 @@ namespace PasswordManagerApp
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext applicationDbContext)
         {
 
-            applicationDbContext.Database.Migrate();
+            //applicationDbContext.Database.Migrate();
             
            // DataSeeder.SeedData(applicationDbContext);
             if (env.IsDevelopment())

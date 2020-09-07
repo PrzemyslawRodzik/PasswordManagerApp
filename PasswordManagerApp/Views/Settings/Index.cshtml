@@ -1,0 +1,208 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
+    string twofactorStatus = (string)ViewData["2F"];
+    string passNotStatus = (string)ViewData["PassNot"];
+
+    string check = (string)"checked";
+    string valueTime = (string)"value=" + (string)ViewData["valueTime"] ;
+}
+
+<h1>Settings</h1>
+
+
+<article class="content dashboard-page">
+    <div id="notification"></div>
+    <div class="row sameheight-container ">
+
+
+        <section class="section">
+            <form method="post" asp-controller="Settings" asp-action="UpdatePreferences" data-ajax="true" data-ajax-method="POST" data-ajax-mode="replace" data-ajax-complete="updateNotificationAlert();" data-ajax-update="#notification">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading clearfix">
+
+                                    <a class="btn btn-primary"
+                                       data-ajax="true"
+                                       data-ajax-method="GET"
+                                       data-ajax-mode="replace"
+                                       data-ajax-complete="settingsFadeIn();"
+                                       data-ajax-update="#content"
+                                       data-ajax-url="@Url.Action("PasswordChange","Settings")"> Change password </a>
+
+
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading clearfix">
+                                    <label class="form-check-label" for="switch2F">
+                                        Two factor verification
+                                    </label>
+
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" name="switch2F" id="switch2F" @if (@twofactorStatus.Equals("1")) { @check }>
+                                        <label class="custom-control-label" for="switch2F">ON</label>
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="col-sm">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading clearfix">
+                                    <label class="form-check-label" for="switchPnot">
+                                        Password notifications
+                                    </label>
+
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" name="switchPnot" class="custom-control-input" id="switchPnot"  @if (@passNotStatus.Equals("1")) { @check }>
+                                        <label class="custom-control-label" for="switchPnot">ON</label>
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="col-sm">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading clearfix">
+                                    <label class="form-check-label" for="sliderVerTime">
+                                        VerificationTime
+                                    </label>
+
+                                    <div class="d-flex justify-content-center my-4">
+                                        
+                                            <input id="sliderVerTime" name="sliderVerTime" class="border-0" type="range" min="5" max="60" @valueTime >
+                                        
+                                        <span class="font-weight-bold text-primary ml-2 mt-1 valueSpan"></span>
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="col-sm">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading clearfix">
+                                    <a class="btn btn-primary"
+                                       data-ajax="true"
+                                       data-ajax-method="GET"
+                                       data-ajax-mode="replace"
+                                       data-ajax-complete="settingsFadeIn();"
+                                       data-ajax-update="#content"
+                                       data-ajax-url="@Url.Action("PasswordGenerator","Settings")"> Generate password </a>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+                <div id="content" style="display:none"></div>
+                <button class="btn btn-primary" type="submit">Save</button>
+
+            </form>
+            <button id="btnDefault" class="btn btn-primary">Default</button>
+        </section>
+    </div>
+
+
+
+
+
+</article>
+
+@section Scripts {
+
+
+
+
+
+    <script>
+
+      
+
+        $(document).ready(function () {
+
+            const $valueSpan = $('.valueSpan');
+            const $value = $('#sliderVerTime');
+            $valueSpan.html($value.val());
+            $value.on('input change', () => {
+
+                $valueSpan.html($value.val());
+            });
+        });
+
+        function updateNotificationAlert() {
+
+            if ($('.alert').length) {
+                $('.alert').fadeOut('slow');
+                $('.alert').fadeIn('slow');
+
+            }
+
+
+        }
+        $("#btnDefault").click(function () {
+           
+            $('#switchPnot').prop('checked', true).trigger('change');
+            $('#switch2F').prop('checked', true).trigger('change');
+            $('#sliderVerTime').prop('value', 5).trigger('change');
+
+        });
+
+
+
+        function settingsFadeIn() {
+
+            if ($('#content').length) {
+                $('#content').fadeOut('slow');
+                $('#content').fadeIn('slow');
+
+            }
+
+
+        }
+
+
+
+
+
+    </script>
+   
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

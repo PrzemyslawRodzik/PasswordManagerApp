@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
 
-    
+
 
 
 
@@ -130,5 +130,39 @@
                 </div>
             </div>
         </section>
+
+        <a class="btn btn-primary"
+           data-ajax="true"
+           data-ajax-method="GET"
+           data-ajax-mode="replace"
+           data-ajax-update="#content"
+           data-ajax-url="@Url.Action("PasswordGenerator","Settings")"> Generate password </a>
+        
+        <div id="content"></div>
+
+
+       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     </article>
 
+@section Scripts {
+
+    <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+   
+    
+
+}

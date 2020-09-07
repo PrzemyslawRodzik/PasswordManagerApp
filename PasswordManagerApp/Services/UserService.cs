@@ -15,6 +15,9 @@ using Microsoft.AspNetCore.DataProtection;
 using PasswordManagerApp.Handlers;
 using PasswordManagerApp.Interfaces;
 using System.Net;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
+using Bogus.DataSets;
 
 namespace PasswordManagerApp.Services
 {
@@ -59,10 +62,12 @@ namespace PasswordManagerApp.Services
             user.PasswordSalt = Convert.ToBase64String(passwordSalt);
             user.TwoFactorAuthorization = 0;
             user.PasswordNotifications = 1;
+            user.AuthenticationTime = 5;
+            user.Admin = 0;
 
 
             _unitOfWork.Users.Add<User>(user);
-            _unitOfWork.SaveChanges();
+             _unitOfWork.SaveChanges();
 
 
 
@@ -98,7 +103,7 @@ namespace PasswordManagerApp.Services
             var user = _unitOfWork.Users.SingleOrDefault<User>(x => x.Email == email);
 
 
-            // check if username exists
+            // check if user exists
             if (user == null)
                 return null;
 
@@ -120,26 +125,21 @@ namespace PasswordManagerApp.Services
 
 
 
-            ManageAuthorizedDevices(authUser);
-
-
-
-
-
-
-
+            ManageAuthorizedDevices(authUser);  // zapisywać w bazie dodatkowo wcześniejsze adresy ip ?
 
 
             var claims = new List<Claim>
 {           new Claim(ClaimTypes.Name,authUser.Id.ToString()),
             new Claim(ClaimTypes.Email,authUser.Email),
             new Claim("Admin", authUser.Admin.ToString()),
-            new Claim("TwoFactorAuth", authUser.TwoFactorAuthorization.ToString())
+            new Claim("TwoFactorAuth", authUser.TwoFactorAuthorization.ToString()),
+            new Claim("PasswordNotifications", authUser.PasswordNotifications.ToString()),
+            new Claim("AuthTime", authUser.AuthenticationTime.ToString()),
 
 
 
         };
-            return new ClaimsIdentity(claims, "CookieAuth");
+            return new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
         }
 
@@ -227,7 +227,7 @@ namespace PasswordManagerApp.Services
 
 
         private string GenerateTotpToken(User authUser)
-        { string totpToken;
+        {   string totpToken;
             string sysKey = "ajskSJ62j%sjs.;'[ah1";
             var key_b = Encoding.UTF8.GetBytes(sysKey + authUser.Email);
 
@@ -240,6 +240,10 @@ namespace PasswordManagerApp.Services
         }
         private void SaveToDb(User authUser, string totpToken)
         {
+            bool tokenIsActive = _unitOfWork.Users.IsTokenActive(authUser);  
+            if (tokenIsActive)
+                return;
+            
             _unitOfWork.Context.Totp_Users.Add(
                 new Totp_user() {
                     Token = totpToken,
@@ -253,6 +257,8 @@ namespace PasswordManagerApp.Services
                 });
             _unitOfWork.SaveChanges();
         }
+
+        
         #endregion
 
         public bool AddNewDeviceToDb(string newOsHash, User authUser)
@@ -305,6 +311,7 @@ namespace PasswordManagerApp.Services
             }
             if(deviceCookieExist==false || IsUserGuidDeviceMatch==false)
             {
+ 
                 guidDevice = Guid.NewGuid().ToString();
                 cookieHandler.CreateCookie("DeviceInfo", guidDevice, null);
                 var userGuidDeviceHash = dataToSHA256(guidDevice);
@@ -315,7 +322,7 @@ namespace PasswordManagerApp.Services
 
 
 
-
+            // odkomentować potem!!!
 
          /*
             if (IsNewUserDevice)
@@ -351,12 +358,26 @@ namespace PasswordManagerApp.Services
 
         public void SendTotpToken(User authUser)
         {
-            string totpToken = GenerateTotpToken(authUser);
+            string totpToken;
+            bool isActive =  _unitOfWork.Users.IsTokenActive(authUser);
+            if (isActive)
+            {
+                totpToken = _unitOfWork.Users.GetActiveToken(authUser);
+                EmailSendEvent?.Invoke(this, new Message(new string[] { authUser.Email }, "Jednorazowy kod dostępu. Pass Manager App", "Jednorazowy kod dostępu do konta: " + totpToken + " dla uzytkownika: " + authUser.Email + " Podany kod musisz wprowadzic w ciagu 5min"));
+                
+                return;
+            }
+            
+            totpToken = GenerateTotpToken(authUser);
             SaveToDb(authUser, totpToken);
-            EmailSendEvent?.Invoke(this, new Message(new string[] { authUser.Email }, "Jednorazowy kod dostępu", "Jednorazowy kod dostępu do konta: " + totpToken + " dla uzytkownika: " + authUser.Email+ " Podany kod musisz wprowadzic w ciagu 5min"));
+
+            EmailSendEvent?.Invoke(this, new Message(new string[] { authUser.Email }, "Jednorazowy kod dostępu. Pass Manager App", "Jednorazowy kod dostępu do konta: " + totpToken + " dla uzytkownika: " + authUser.Email+ " Podany kod musisz wprowadzic w ciagu 5min"));
 
 
         }
+
+        
+
         private enum ResultsToken
         {
             NotMatched,
@@ -368,14 +389,14 @@ namespace PasswordManagerApp.Services
         public int VerifyTotpToken(User authUser,string totpToken)
         {
             
-            var totpTokenHash = Totp_user.TotpHashBase64(totpToken);
+            
             string sysKey = "ajskSJ62j%sjs.;'[ah1";
             
             long lastUse;
             Totp totp = new Totp(secretKey: Encoding.UTF8.GetBytes(sysKey + authUser.Email), mode: OtpHashMode.Sha512, step: 300,timeCorrection:new TimeCorrection(DateTime.UtcNow));
+           
             
-            
-            var activeTokenRecordFromDb = _unitOfWork.Context.Totp_Users.Where(b => b.User == authUser && b.Token == totpTokenHash).FirstOrDefault();
+            var activeTokenRecordFromDb = _unitOfWork.Context.Totp_Users.Where(b => b.User == authUser && b.Token == totpToken).FirstOrDefault();
             if (activeTokenRecordFromDb != null)
             {
                // activeTokenRecordFromDb.Active = 0;
@@ -390,6 +411,7 @@ namespace PasswordManagerApp.Services
                 }
 
             }
+            else
             { 
                 return (int)ResultsToken.NotMatched;
             }
@@ -403,28 +425,17 @@ namespace PasswordManagerApp.Services
             
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        public void UpdatePreferences(UpdatePreferencesWrapper upPreferences, int userId)
+        {
+            var aa = upPreferences.TwoFactor;
+            var bb = upPreferences.PassNotifications;
+            var cc = upPreferences.VerificationTime;
+            User user = _unitOfWork.Users.Find<User>(userId);
+            user.AuthenticationTime = Int32.Parse(upPreferences.VerificationTime);
+            user.PasswordNotifications = Int32.Parse(upPreferences.PassNotifications);
+            user.TwoFactorAuthorization = Int32.Parse(upPreferences.TwoFactor);
+            _unitOfWork.Users.Update<User>(user);
+            _unitOfWork.SaveChanges();
+        }
     }
 }
