@@ -83,8 +83,41 @@ namespace PasswordManagerApp.Controllers
         [Route("passwordchange")]
 
         public IActionResult PasswordChange()
-        {
+        {   
             return PartialView("~/Views/Auth/_PasswordChange.cshtml", new PasswordChangeViewModel());
+        }
+
+        [Route("passwordchange")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public IActionResult PasswordChange(PasswordChangeViewModel model)  
+        {
+            
+            if (!ModelState.IsValid)
+            {
+                ModelState.AddModelError("Error", "Change highlighted fields.");
+                return PartialView("~/Views/Auth/_PasswordChange.cshtml", new PasswordChangeViewModel());
+            }
+                
+           
+                 
+            var authUserId = HttpContext.User.Identity.Name;
+             bool isSuccess =  _userService.ChangeMasterPassword(model.Password,authUserId);
+            
+             if(isSuccess)
+                {
+                    ViewBag.Message = "Password has successfully changed.";
+                    return PartialView("~/Views/Shared/_NotificationAlert.cshtml");
+                }
+            else
+            {
+                ModelState.AddModelError("Error", "Something goes wrong. Try again later.");
+                return PartialView("~/Views/Auth/_PasswordChange.cshtml", new PasswordChangeViewModel());
+            }
+                
+                
+         
+
         }
 
         [HttpPost]

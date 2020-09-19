@@ -13,6 +13,9 @@ namespace PasswordManagerApp.Models
         [Column("device_guid")]
         public string DeviceGuid { get; set; }
         [Required]
+        [Column("ip_address")]
+        public string IpAddress { get; set; }
+        [Required]
         [Column("authorized")]
         public int Authorized { get; set; }
 

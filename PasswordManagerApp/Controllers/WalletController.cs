@@ -7,11 +7,18 @@ using PasswordGenerator;
 using PasswordManagerApp.Interfaces;
 using PasswordManagerApp.Models;
 using PasswordManagerApp.Models.ViewModels;
+using PasswordManagerApp.Handlers;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System;
+using System.Security.Cryptography;
+using Quartz;
+using System.Threading.Tasks;
+using Quartz.Impl;
 
 namespace PasswordManagerApp.Controllers
 {  
-   // [Authorize]    pamiętać by odkomentować !
+    [Authorize]   // pamiętać by odkomentować !
     [Route("user")]
     public class WalletController : Controller
     {
@@ -75,20 +82,7 @@ namespace PasswordManagerApp.Controllers
      */
 
 
-        // do LoginData controller !!!
-
-        /*
-        [AcceptVerbs("GET", "POST")]
-        public IActionResult VerifyLogin(string website,string login,int id)
-        {
-            if (_unitOfWork.Context.LoginDatas.Any(l => l.Website == website && l.Login == login))
-            {
-                return Json($"You already set login {login} for that website {website}");
-            }
-
-            return Json(true);
-        }
-        */
+        
         
 
 
@@ -121,17 +115,45 @@ namespace PasswordManagerApp.Controllers
         public IActionResult Ip()
         {
             //string remoteIpAddress = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
-            string ipAddress = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
-           
             
+            string ipAddress = Request.HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+            
+
+            var data = System.Text.Encoding.UTF8.GetBytes("anrzej duda");
+            //    var (publicKey, privateKey) = AsymmetricEncryptionHelper.GenerateKeys("przemek");
+            //  var pubString = Convert.ToBase64String(publicKey.);
+            //  var privString = Convert.ToBase64String(privateKey);
+            var user = _unitOfWork.Users.Find<User>(203);
+            var encryptedData =   AsymmetricEncryptionHelper.Encrypt(data, user.PublicKey);
+            var encString = Convert.ToBase64String(encryptedData);
+            var decryptedData = AsymmetricEncryptionHelper.Decrypt(encryptedData, user.PrivateKey,"Farmer1998@");
+            var decString = System.Text.Encoding.UTF8.GetString(decryptedData);
+            
+            
+            
+
+
+
+
+
+
             return Ok(ipAddress);
         }
-
-
-
-
-
+        [Route("/date")]
+        public IActionResult Date(){
+          
+           var data = DateTime.UtcNow.ToLocalTime().ToString("yyyy-MM-dd' 'HH:mm:ss");
+          
+           // DateTime.Now.ToString("HH:mm:ss tt");
+            return Ok(data);
+        }
        
+
+
+
+
+
+
 
 
 

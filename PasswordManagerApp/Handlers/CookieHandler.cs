@@ -21,6 +21,7 @@ namespace PasswordManagerApp.Handlers
         {
             _httpContextAccessor = httpContextAccessor;
             _protector = provider.CreateProtector("PasswordManagerApp.CookieHandler.v1");
+            
         }
 
 
@@ -51,6 +52,8 @@ namespace PasswordManagerApp.Handlers
             
             protectedCookieData = EncryptCookieData(value);
             CookieOptions option = new CookieOptions();
+            option.HttpOnly = true;
+            option.SameSite = SameSiteMode.Lax;
 
 
             if (expireTime.HasValue)

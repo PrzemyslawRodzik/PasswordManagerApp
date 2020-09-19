@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 using PasswordManagerApp.Handlers;
+using PasswordManagerApp.Models;
 using PasswordManagerApp.Models.ViewModels;
 using PasswordManagerApp.Repositories;
 using PasswordManagerApp.Services;
@@ -53,6 +54,7 @@ namespace PasswordManagerApp.Controllers
         {
             _emailSender.SendEmailAsync(e);
         }
+      
         [AllowAnonymous]
         [Route("login")]
         [HttpGet]
@@ -60,17 +62,7 @@ namespace PasswordManagerApp.Controllers
         {
             return View(new LoginViewModel());
         }
-
-        [AcceptVerbs("GET", "POST")]
-        public IActionResult VerifyEmail(string email)
-{
-    if (userService.VerifyEmail(email))
-    {
-        return Json($"Email {email} is already in use.");
-    }
-
-    return Json(true);
-}
+       
         
         [Route("login")]
         [ValidateAntiForgeryToken]
@@ -80,7 +72,7 @@ namespace PasswordManagerApp.Controllers
             var user = userService.Authenticate(model.Email, model.Password);
 
             if (user == null)
-           {
+            {
                 
                 ModelState.AddModelError("Error", "Incorrect username or password.");
                 return View(new LoginViewModel());
@@ -89,18 +81,32 @@ namespace PasswordManagerApp.Controllers
             {
                 
                 userService.SendTotpToken(user);
-
-                return RedirectToAction(actionName: "TwoFactorLogIn", new { id = dataProtectionHelper.Encrypt(user.Id.ToString(),"QueryStringsEncryptions")});
+                TempData["id"] = dataProtectionHelper.Encrypt(user.Id.ToString(),"QueryStringsEncryptions");
+                return RedirectToAction(actionName: "TwoFactorLogIn");
             }
             else
             {
                 
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,new ClaimsPrincipal(userService.GetClaimIdentity(user)));
+                var authProperties = GetAuthTokenExpireTime(user);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,new ClaimsPrincipal(userService.GetClaimIdentity(user)),authProperties);
 
                 return RedirectToAction(controllerName: "Wallet", actionName: "Index");
             }
 
         
+        }
+        private AuthenticationProperties GetAuthTokenExpireTime(User authUser){
+            var authProperties = new AuthenticationProperties
+                {
+                    
+
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(authUser.AuthenticationTime),
+                    // The time at which the authentication ticket expires. A 
+                    // value set here overrides the ExpireTimeSpan option of 
+                    // CookieAuthenticationOptions set with AddCookie.
+
+                };
+                return authProperties;
         }
         
         [AllowAnonymous]
@@ -147,7 +153,7 @@ namespace PasswordManagerApp.Controllers
 
 
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
+             TempData["logoutMessage"] = "You were logged out.";
             return RedirectToAction(controllerName: "Home", actionName: "Index");
 
 
@@ -197,12 +203,14 @@ namespace PasswordManagerApp.Controllers
 
         [Route("twofactorlogin")]
         [HttpGet]
-        public IActionResult TwoFactorLogIn(string id)
+        public IActionResult TwoFactorLogIn()
         {  
-            if(HttpContext.User.Identity.IsAuthenticated || id is null)
+            var encryptedId = TempData["id"] as string;
+            if(HttpContext.User.Identity.IsAuthenticated || encryptedId is null)
                return RedirectToAction(controllerName: "Home", actionName: "Index");
 
-            ViewBag.AuthUserId = id;
+            
+            ViewBag.AuthUserId = encryptedId;
             return View(new TwoFactorViewModel());
             
             
@@ -236,6 +244,7 @@ namespace PasswordManagerApp.Controllers
                     
                     ViewBag.AuthUserId = id;
                     ModelState.AddModelError("Error", "Wrong code.");
+                    
                     return View(new TwoFactorViewModel());
 
                 }
@@ -247,10 +256,11 @@ namespace PasswordManagerApp.Controllers
                 }
             }
             else
-            {
+            {   
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userService.GetClaimIdentity(user)));
+                    return RedirectToAction(controllerName: "Wallet", actionName: "Index");
                 
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userService.GetClaimIdentity(user)));
-                return RedirectToAction(controllerName: "Wallet", actionName: "Index");
+
             }
                 
          
@@ -259,7 +269,7 @@ namespace PasswordManagerApp.Controllers
         [Route("verificationfailed")]
         public IActionResult VerificationFailed()
         {
-            ViewBag.Message = "Kod wygasł, sprobuj zalogowac sie ponownie";
+            ViewBag.Message = "The code has expired.";
             return View();
         }
 
@@ -276,6 +286,7 @@ namespace PasswordManagerApp.Controllers
             return PartialView("~/Views/Shared/_NotificationAlert.cshtml");
             
         }
+        
         
 
 

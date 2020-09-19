@@ -31,7 +31,15 @@ namespace PasswordManagerApp.Models
         [Required]
         [Column("authentication_time")]
         public int AuthenticationTime { get; set; }
+    
+        [Required]
+        [Column("private_key")]
+        public string PrivateKey { get; set; }
+        [Required]
+        [Column("public_key")]
+        public string PublicKey { get; set; }
 
+    
         public PersonalInfo PersonalInfo { get; set; }
         
 

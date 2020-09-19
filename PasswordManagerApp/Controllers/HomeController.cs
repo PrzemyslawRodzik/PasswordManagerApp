@@ -42,10 +42,14 @@ namespace PasswordManagerApp.Controllers
         [Route("welcome")] // strona powitalna
         public  IActionResult Index()
         {
+
+            
             VisitorAgentStatistics();
             
             
-
+            
+                
+            ViewBag.LogoutMessage = TempData["logoutMessage"] as string;
             return View();
         }
 
@@ -87,8 +91,9 @@ namespace PasswordManagerApp.Controllers
 
         private void VisitorAgentStatistics()
         {
-            bool cookieExist = cookieHandler.CheckIfCookieExist("VisitorCookie");
-            if (cookieExist)
+            bool cookieVisitorExist = cookieHandler.CheckIfCookieExist("VisitorCookie");
+            bool cookieDeviceExist = cookieHandler.CheckIfCookieExist("DeviceInfo");
+            if (cookieVisitorExist || cookieDeviceExist)
                 return;
             cookieHandler.CreateCookie("VisitorCookie", Guid.NewGuid().ToString(),null);
             var countryName = GetVisitorLocationAsync(Request.HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString());
@@ -97,7 +102,7 @@ namespace PasswordManagerApp.Controllers
             visitor.Browser = c.UA.Family.ToString().ToString() + " " + c.UA.Major.ToString();
             visitor.OperatingSystem = c.OS.Family.ToString();
             visitor.Country = countryName.Result;
-            visitor.VisitTime = DateTime.UtcNow.ToLocalTime().ToString();
+            visitor.VisitTime = DateTime.UtcNow.ToLocalTime().ToString("yyyy-MM-dd' 'HH:mm:ss");
           
             _unitOfWork.Context.Add<VisitorAgent>(visitor); 
             _unitOfWork.SaveChanges();

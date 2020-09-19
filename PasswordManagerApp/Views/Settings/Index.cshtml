@@ -18,7 +18,7 @@
 
 
         <section class="section">
-            <form method="post" asp-controller="Settings" asp-action="UpdatePreferences" data-ajax="true" data-ajax-method="POST" data-ajax-mode="replace" data-ajax-complete="updateNotificationAlert();" data-ajax-update="#notification">
+            <form method="post"  data-ajax="true" data-ajax-method="POST"  data-ajax-mode="replace" data-ajax-complete="updateNotificationAlert();" data-ajax-update="#notification" data-ajax-url="@Url.Action("UpdatePreferences","Settings")">
                 <div class="container">
                     <div class="row">
                         <div class="col-sm">
@@ -29,7 +29,7 @@
                                        data-ajax="true"
                                        data-ajax-method="GET"
                                        data-ajax-mode="replace"
-                                       data-ajax-complete="settingsFadeIn();"
+                                       data-ajax-complete="settingsFadeIn(); renevValidation();"
                                        data-ajax-update="#content"
                                        data-ajax-url="@Url.Action("PasswordChange","Settings")"> Change password </a>
 
@@ -113,11 +113,18 @@
 
                     </div>
                 </div>
-                <div id="content" style="display:none"></div>
-                <button class="btn btn-primary" type="submit">Save</button>
+                
+                <button class="btn btn-primary" name="updatePref" type="submit" formaction="UpdatePreferences" formmethod="POST" >Save</button>
 
             </form>
             <button id="btnDefault" class="btn btn-primary">Default</button>
+            <div id="content" style="display:none">
+                <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+                                                </div>
+                            </div>
+                </div>
         </section>
     </div>
 
@@ -130,10 +137,15 @@
 @section Scripts {
 
 
+ @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
 
 
 
     <script>
+
+
+
 
       
 
@@ -158,6 +170,27 @@
 
 
         }
+        function renewValidation() {
+
+            // Remove validation.
+            $(".valq").removeData("validator").removeData("unobtrusiveValidation");
+            
+            // Add validation again.
+            $.validator.unobtrusive.parse(".valq");
+
+        }
+        function loadingFun() {
+
+            $('#content').show();
+
+           
+
+        }
+        
+        
+        loadingFun
+
+
         $("#btnDefault").click(function () {
            
             $('#switchPnot').prop('checked', true).trigger('change');
@@ -175,6 +208,18 @@
                 $('#content').fadeIn('slow');
 
             }
+           
+
+
+        }
+        function renevValidation() {
+
+            
+             // Remove validation.
+            $(".changePassForm").removeData("validator").removeData("unobtrusiveValidation");
+            
+            // Add validation again.
+            $.validator.unobtrusive.parse(".changePassForm");
 
 
         }

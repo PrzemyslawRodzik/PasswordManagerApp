@@ -2,12 +2,13 @@
 
 /*
  *  
- * Wylogowanie po 5 min nieaktywności
+ * Wylogowanie po 60 min nieaktywności
  * 
  */
 
 var inactivityTime = function () {
     var time;
+    
     window.onload = resetTimer;
 
     // DOM Events
@@ -18,17 +19,23 @@ var inactivityTime = function () {
     window.onkeypress = resetTimer;
 
     function logout() {
-        alert("You are now logged out.")
-        window.location = '/auth/login';
+        
+        window.location = '/auth/logout';
+        
+        
     }
 
     function resetTimer() {
         clearTimeout(time);
-        time = setTimeout(logout, 1000 * 60 * 5 )
+        time = setTimeout(logout, 1000 * 60 * 60 )
         // 1000 milliseconds = 1 second
     }
 };
-window.onload = function () {
 
-    inactivityTime();
+window.onload = function () {
+    
+    
+        inactivityTime();
+    
+        
 }

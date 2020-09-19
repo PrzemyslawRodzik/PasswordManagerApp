@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PasswordManagerApp.Models;
 
 namespace PasswordManagerApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200911182200_Keys field to User model")]
+    partial class KeysfieldtoUsermodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -422,11 +424,6 @@ namespace PasswordManagerApp.Migrations
                     b.Property<string>("DeviceGuid")
                         .IsRequired()
                         .HasColumnName("device_guid")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("IpAddress")
-                        .IsRequired()
-                        .HasColumnName("ip_address")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("UserId")

@@ -18,6 +18,7 @@ using System.Net;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Bogus.DataSets;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace PasswordManagerApp.Services
 {
@@ -55,6 +56,7 @@ namespace PasswordManagerApp.Services
 
             byte[] passwordHash, passwordSalt;
             CreatePasswordHash(password, out passwordHash, out passwordSalt);
+            var (publicKey, privateKey) = AsymmetricEncryptionHelper.GenerateKeys(password,keyLength:2048);
 
             User user = new User();
             user.Email = email;
@@ -64,6 +66,8 @@ namespace PasswordManagerApp.Services
             user.PasswordNotifications = 1;
             user.AuthenticationTime = 5;
             user.Admin = 0;
+            user.PrivateKey = privateKey;
+            user.PublicKey = publicKey;
 
 
             _unitOfWork.Users.Add<User>(user);
@@ -77,6 +81,8 @@ namespace PasswordManagerApp.Services
 
             return user;
         }
+
+        
 
         public void Update(User user, string password = null)
         {
@@ -189,9 +195,37 @@ namespace PasswordManagerApp.Services
         {
             throw new NotImplementedException();
         }
+        public bool ChangeMasterPassword(string password,string authUserId)
+        {   
+            var authUserIdToInt32 = Int32.Parse(authUserId);
+            User user = _unitOfWork.Users.Find<User>(authUserIdToInt32);
+            byte[] passwordHash, passwordSalt;
+            CreatePasswordHash(password, out passwordHash, out passwordSalt);
+            user.Password = Convert.ToBase64String(passwordHash);
+            user.PasswordSalt = Convert.ToBase64String(passwordSalt);
+            try
+            {
+                _unitOfWork.Users.Update<User>(user);
+                _unitOfWork.SaveChanges();
+                EmailSendEvent?.Invoke(this, 
+                new Message(new string[] { user.Email },"PasswordManagerApp Password Change", "Your password has been changed  "+ DateTime.UtcNow.ToLocalTime().ToString("yyyy-MM-dd' 'HH:mm:ss") + ".")
+                );
+                return true;
+            }catch(Exception)
+            {
+                return false;
+            }
+            
+
+
+            
+
+
+
+        }
 
         #region private methods
-        private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        private  void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
             if (password == null) throw new ArgumentNullException("password");
             if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
@@ -202,7 +236,7 @@ namespace PasswordManagerApp.Services
                 passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
             }
         }
-        private static bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
+        public  bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
         {
             if (password == null) throw new ArgumentNullException("password");
             if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
@@ -247,8 +281,8 @@ namespace PasswordManagerApp.Services
             _unitOfWork.Context.Totp_Users.Add(
                 new Totp_user() {
                     Token = totpToken,
-                    Create_date = DateTime.UtcNow.ToLocalTime(),
-                    Expire_date = DateTime.UtcNow.AddSeconds(300).ToLocalTime(),
+                    Create_date = DateTime.UtcNow,
+                    Expire_date = DateTime.UtcNow.AddSeconds(300),
                     User = authUser
 
 
@@ -274,6 +308,7 @@ namespace PasswordManagerApp.Services
                 usd.User = authUser;
                 usd.Authorized = 1;
                 usd.DeviceGuid = newOsHash;
+                usd.IpAddress = GetUserIpAddress(authUser);
 
                 _unitOfWork.Context.UserDevices.Add(usd);
                 _unitOfWork.SaveChanges();
@@ -311,28 +346,52 @@ namespace PasswordManagerApp.Services
             }
             if(deviceCookieExist==false || IsUserGuidDeviceMatch==false)
             {
- 
+                
+
                 guidDevice = Guid.NewGuid().ToString();
                 cookieHandler.CreateCookie("DeviceInfo", guidDevice, null);
                 var userGuidDeviceHash = dataToSHA256(guidDevice);
+                var ipMatchWithPrevious = CheckPreviousUserIp(authUser);
+                 IsNewUserDevice = AddNewDeviceToDb(userGuidDeviceHash, authUser);
                 
-                IsNewUserDevice = AddNewDeviceToDb(userGuidDeviceHash, authUser);
+                
+                if( ipMatchWithPrevious )
+                    IsNewUserDevice = false;
+                
+                
+                   
+                
+               
+                
+                
 
             }
+            
 
 
 
-            // odkomentować potem!!!
+            
 
-         /*
+         
             if (IsNewUserDevice)
-                EmailSendEvent?.Invoke(this, new Message(new string[] { authUser.Email }, "Nowe urządzenie " + c.OS.ToString(), "Zarejestrowano logowanie z nowego systemu : " + c.OS.ToString() + " " + browser + " dnia " + DateTime.UtcNow.ToLocalTime().ToString() + ". Urządzenie z podanym systemem OS zostało dodane do listy zaufanych urządzeń"));
-         */
+                EmailSendEvent?.Invoke(this, 
+                new Message(new string[] { authUser.Email }, "Nowe urządzenie " + c.OS.ToString(), "Zarejestrowano logowanie z nowego adresu ip: "+GetUserIpAddress(authUser)+", system : " + c.OS.ToString() + " " + browser + " dnia " + DateTime.UtcNow.ToLocalTime().ToString("yyyy-MM-dd' 'HH:mm:ss") + ".")
+                );
+         
 
 
 
 
         }
+        private string GetUserIpAddress(User user) => _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+
+        private bool CheckPreviousUserIp(User authUser)
+        {
+            string currentIpAddress =GetUserIpAddress(authUser);
+            var ipMatched = _unitOfWork.Context.UserDevices.Any(x=>x.User==authUser && x.IpAddress.Equals(currentIpAddress));
+            return ipMatched;
+        }
+
         private bool CheckUserGuidDeviceInDb(string GuidDeviceFromCookie, User authUser)
         {
 
@@ -401,7 +460,7 @@ namespace PasswordManagerApp.Services
             {
                // activeTokenRecordFromDb.Active = 0;
                
-                if (activeTokenRecordFromDb.Expire_date >= DateTime.UtcNow.ToLocalTime())
+                if (activeTokenRecordFromDb.Expire_date >= DateTime.UtcNow)
                 {
                     return totp.VerifyTotp(totpToken, out lastUse,window:new VerificationWindow(1,1)) ? (int)ResultsToken.Matched:(int)ResultsToken.NotMatched; 
                 }

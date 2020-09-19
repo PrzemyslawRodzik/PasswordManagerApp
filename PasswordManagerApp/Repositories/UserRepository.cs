@@ -32,7 +32,7 @@ namespace PasswordManagerApp.Repositories
         }
         public string GetActiveToken(User authUser)
         {
-            var currentTime = DateTime.UtcNow.ToLocalTime();
+            var currentTime = DateTime.UtcNow;
             var model = ApplicationDbContext.Totp_Users.Where(x => x.UserId == authUser.Id && x.Expire_date > currentTime).FirstOrDefault();
             return model.Token;
         }
@@ -40,7 +40,7 @@ namespace PasswordManagerApp.Repositories
 
         public bool IsTokenActive(User authUser)
         {
-            var currentTime = DateTime.UtcNow.ToLocalTime();
+            var currentTime = DateTime.UtcNow;
             bool isActive = ApplicationDbContext.Totp_Users.Any(x => x.UserId == authUser.Id && x.Expire_date > currentTime);
 
             if (isActive)

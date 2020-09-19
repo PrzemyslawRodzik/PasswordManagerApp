@@ -1,0 +1,156 @@
+﻿
+
+@model IEnumerable<PasswordManagerApp.Models.Note>
+
+@{
+    ViewData["Title"] = "ListNote";
+    Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
+
+    var encryptedFields = ViewBag.EncryptedIds as Dictionary<int, string>;
+}
+<h1>ListNote</h1>
+
+<article class="content items-list-page">
+
+    <div>
+        <h3 class="title">
+            Tu chce miec JS!
+            <a class="btn btn-primary"
+               data-ajax="true"
+               data-ajax-method="GET"
+               data-ajax-mode="replace"
+               data-ajax-complete="settingsFadeIn();"
+               data-ajax-update="#content"
+               data-ajax-url="@Url.Action("AddOrEditNote","Note")"> Add Note </a>
+
+           
+
+        </h3>
+        <div id="content"></div>
+        <div class="card items">
+
+            <ul class="item-list striped">
+                <li class="item item-list-header">
+
+                    <div class="item-row">
+
+
+                        <div class="item-col item-col-header fa-align-right item-col-sales">
+                            <div>
+                                <span>@Html.DisplayNameFor(model => model.Name)</span>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-header fa-algin-right item-col-sales">
+                            <div>
+                                <span>@Html.DisplayNameFor(model => model.Details)</span>
+                            </div>
+                        </div>
+
+
+
+
+                        <div class="item-col item-col-header fixed item-col-actions-dropdown">
+                        </div>
+                    </div>
+                </li>
+                
+
+             
+                @foreach (var item in Model)
+                {
+
+
+
+                <li class="item">
+                    <div class="item-row">
+
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">name</div>
+                            <div class="no-overflow">
+                                <a href="">@Html.DisplayFor(modelItem => item.Name)</a>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">Password</div>
+                            <div class="no-overflow">
+                                <a href="">@Html.DisplayFor(modelItem => item.Details)</a>
+                            </div>
+                        </div>
+
+                        <div class="item-col fixed item-col-actions-dropdown">
+                            <div class="item-actions-dropdown">
+                                <a class="item-actions-toggle-btn">
+                                    <span class="inactive">
+                                        <i class="fa fa-cog"></i>
+                                    </span>
+                                    <span class="active">
+                                        <i class="fa fa-chevron-circle-right"></i>
+                                    </span>
+                                </a>
+                                <div class="item-actions-block">
+                                    <ul class="item-actions-list">
+                                        @if( !(encryptedFields.Count > 0 ) )
+                                        {
+
+                                      
+                                        <li>
+                                            <a class="remove" asp-action="DeleteLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]" data-toggle="modal" data-target="#confirm-modal">
+                                                <i class="fa fa-trash-o "></i>
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="edit" asp-action="AddOrEditLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]">
+                                                <i class="fa fa-pencil"></i>
+                                            </a>
+                                        </li>
+                                        }
+
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                }
+                
+            </ul>
+
+        </div>
+
+    </div>
+</article>
+
+
+
+@section Scripts {
+
+
+
+
+
+    <script>
+
+
+
+        function settingsFadeIn() {
+
+            if ($('#content').length) {
+                $('#content').fadeOut('slow');
+                $('#content').fadeIn('slow');
+
+            }
+
+
+        }
+
+
+
+
+
+    </script>
+
+
+
+}

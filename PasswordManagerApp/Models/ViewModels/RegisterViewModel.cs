@@ -7,7 +7,7 @@ namespace PasswordManagerApp.Models.ViewModels
 {
     public class RegisterViewModel
     {   [Required]
-        [Remote(action: "VerifyEmail", controller: "Auth")]
+        [Remote(action: "VerifyEmail", controller: "Validation")]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
 

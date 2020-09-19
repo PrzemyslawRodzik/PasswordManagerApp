@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Data;
+using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace PasswordManagerApp.Models
 {
@@ -12,19 +15,17 @@ namespace PasswordManagerApp.Models
     {
         [Key]
         public int Id { get; set; }
-        
-        
 
         [Required]
-        [Column("name")]
+        [Column("Name")]
         public string Name { get; set; }
 
         [Required]
-        [Column("details")]
+        [Column("Details")]
+
         public string Details { get; set; }
 
-        
-        
+       
 
     }
 }

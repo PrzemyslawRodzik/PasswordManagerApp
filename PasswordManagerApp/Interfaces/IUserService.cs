@@ -16,6 +16,7 @@ namespace PasswordManagerApp.Services
         ClaimsIdentity GetClaimIdentity(User authUser);
         User Create(string email, string password);
         void Update(User user, string password= null);
+         bool ChangeMasterPassword(string password,string authUserId);
         IEnumerable<User> GetAll();
 
         
@@ -28,5 +29,9 @@ namespace PasswordManagerApp.Services
         Task<User> AuthenticateExternal(string id);
         Task<User> AddExternal(string id, string email);
         void UpdatePreferences(UpdatePreferencesWrapper upPreferences,int userId);
+
+
+
+          bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt);
     }
 }
