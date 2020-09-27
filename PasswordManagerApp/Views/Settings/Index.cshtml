@@ -29,7 +29,7 @@
                                        data-ajax="true"
                                        data-ajax-method="GET"
                                        data-ajax-mode="replace"
-                                       data-ajax-complete="settingsFadeIn(); renevValidation();"
+                                       data-ajax-complete="settingsFadeIn(); renewChangePassValidation();"
                                        data-ajax-update="#content"
                                        data-ajax-url="@Url.Action("PasswordChange","Settings")"> Change password </a>
 
@@ -125,6 +125,20 @@
                                                 </div>
                             </div>
                 </div>
+                
+                <div class="col-sm" style="margin-left: 80%;">
+                    <div id="contentDeleteAccount" >Przemek</div>
+                            <div class="panel panel-primary" >    
+                                <div class="panel-heading clearfix">
+                                    <a class="btn btn-primary"
+                                       data-ajax="true"
+                                       data-ajax-method="GET"
+                                       data-ajax-mode="replace"
+                                       data-ajax-complete="contentDeleteFadeIn();  renewDeleteAccountValidation();"
+                                       data-ajax-update="#contentDeleteAccount"
+                                       data-ajax-url="@Url.Action("DeleteAccount1Step","Auth")"> Delete account </a>
+
+                                </div>
         </section>
     </div>
 
@@ -170,15 +184,7 @@
 
 
         }
-        function renewValidation() {
-
-            // Remove validation.
-            $(".valq").removeData("validator").removeData("unobtrusiveValidation");
-            
-            // Add validation again.
-            $.validator.unobtrusive.parse(".valq");
-
-        }
+        
         function loadingFun() {
 
             $('#content').show();
@@ -209,10 +215,21 @@
 
             }
            
+           
 
 
         }
-        function renevValidation() {
+        function contentDeleteFadeIn()
+        {
+            if ($('#contentDeleteAccount').length) {
+                $('#contentDeleteAccount').fadeOut('slow');
+                $('#contentDeleteAccount').fadeIn('slow');
+
+            }
+
+
+        }
+        function renewChangePassValidation() {
 
             
              // Remove validation.
@@ -220,6 +237,17 @@
             
             // Add validation again.
             $.validator.unobtrusive.parse(".changePassForm");
+
+
+        }
+        function renewDeleteAccountValidation() {
+
+
+            // Remove validation.
+            $(".deleteForm").removeData("validator").removeData("unobtrusiveValidation");
+
+            // Add validation again.
+            $.validator.unobtrusive.parse(".deleteForm");
 
 
         }

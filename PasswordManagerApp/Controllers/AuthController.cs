@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 using PasswordManagerApp.Handlers;
+using PasswordManagerApp.Interfaces;
 using PasswordManagerApp.Models;
 using PasswordManagerApp.Models.ViewModels;
 using PasswordManagerApp.Repositories;
@@ -34,9 +35,10 @@ namespace PasswordManagerApp.Controllers
         private readonly IHttpClientFactory _httpClientFactory; // potem do usuniecia !!!
         public CookieHandler cookieHandler;
         public DataProtectionHelper dataProtectionHelper;
+        private readonly IUnitOfWork unitOfWork;
 
         
-        public AuthController(IUserService userService, IEmailSender emailSender, IDataProtectionProvider provider, IHttpClientFactory httpClientFactory)
+        public AuthController(IUserService userService, IEmailSender emailSender, IDataProtectionProvider provider, IHttpClientFactory httpClientFactory,IUnitOfWork unitOfWork)
         {
             this.userService = userService;
             this.userService.EmailSendEvent += UserService_EmailSendEvent;
@@ -44,10 +46,37 @@ namespace PasswordManagerApp.Controllers
             _emailSender = emailSender;
             dataProtectionHelper = new DataProtectionHelper(provider);
             cookieHandler = new CookieHandler(new HttpContextAccessor(), provider);
+            this.unitOfWork = unitOfWork;
             
 
 
 
+        }
+        
+        public void OldPasswordsCheck()
+        {
+                 var allloginDatasList = unitOfWork.Context.LoginDatas.ToList();
+                if(allloginDatasList is null)
+                    return ;
+                var loginDatasListWithOldPasswords = allloginDatasList.Where(x => (DateTime.UtcNow.ToLocalTime() - x.ModifiedDate).Days>=30 ).ToList();
+                if(loginDatasListWithOldPasswords is null)
+                    return;
+                string websitesList = "";
+                foreach (var item in loginDatasListWithOldPasswords.GroupBy(x => x.UserId))
+                {   
+                    websitesList="";
+                    var userEmail = userService.GetById(item.Key).Email;
+                    item.ToList().ForEach(x => websitesList+=x.Website+", "   );
+
+
+                    string message = $"wykryto {item.Count()} hasła nie zmieniane od 30 dni dla podanych stron internetowych : {websitesList}!";
+
+
+                    _emailSender.SendEmailAsync(new Message(new string[] { userEmail },"PasswordManagerApp stare hasła", message));
+
+
+                }
+                return;
         }
 
         private void UserService_EmailSendEvent(object sender, Message e)
@@ -55,7 +84,7 @@ namespace PasswordManagerApp.Controllers
             _emailSender.SendEmailAsync(e);
         }
       
-        [AllowAnonymous]
+        
         [Route("login")]
         [HttpGet]
         public IActionResult LogIn()
@@ -95,6 +124,88 @@ namespace PasswordManagerApp.Controllers
 
         
         }
+        [Authorize]
+        [HttpGet]
+        [Route("deleteaccount1step")]
+        public IActionResult DeleteAccount1Step() =>  PartialView("~/Views/Auth/DeleteAccount.cshtml",new DeleteAccountViewModel());
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("deleteaccount1step")]
+        public IActionResult DeleteAccount1Step(DeleteAccountViewModel model) 
+        {   
+            int authUserId = Int32.Parse( HttpContext.User.Identity.Name);
+            User authUser = userService.GetById(authUserId);
+
+            if(!userService.VerifyPasswordHash(model.Password,Convert.FromBase64String(authUser.Password),Convert.FromBase64String(authUser.PasswordSalt)))
+                {
+                    ModelState.AddModelError("Error","Password is incorrect");
+                    return PartialView("~/Views/Auth/DeleteAccount.cshtml");
+                }
+            if(!ModelState.IsValid)
+                {
+                    ModelState.AddModelError("Error","There was an error. Try again or contact support.");
+                    return PartialView("~/Views/Auth/DeleteAccount.cshtml");
+                }
+            
+            userService.CreateAndSendAuthorizationToken(authUserId,model.Password);
+            return PartialView("~/Views/Auth/DeleteAccountNotification.cshtml");
+           
+            
+
+        }
+        [Authorize]
+        [HttpGet]
+        [Route("deleteaccount2step")]
+        public IActionResult DeleteAccount2step(string token)
+        {
+            ViewBag.Token = token;
+            return View("~/Views/Auth/DeleteAccountConfirmation.cshtml");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("deleteaccount2step")]
+        public async Task<IActionResult> DeleteAccount2step(DeleteAccountViewModel model)
+        {
+            ViewBag.Token = model.Token;
+            int authUserId = Int32.Parse(HttpContext.User.Identity.Name);
+            if(authUserId==-1)
+            {
+                ModelState.AddModelError("Error","You need to be log in.");
+                return PartialView("~/Views/Auth/DeleteAccountConfirmation.cshtml");
+            }
+            User authUser = userService.GetById(authUserId);
+
+            if(!userService.VerifyPasswordHash(model.Password,Convert.FromBase64String(authUser.Password),Convert.FromBase64String(authUser.PasswordSalt)))
+            {
+                    ModelState.AddModelError("Error","Password is incorrect");
+                    return PartialView("~/Views/Auth/DeleteAccountConfirmation.cshtml");
+            }
+            if (!ModelState.IsValid)
+            {
+                ModelState.AddModelError("Error","There was an error. Try again or contact support.");
+                return PartialView("~/Views/Auth/DeleteAccountConfirmation.cshtml",new DeleteAccountViewModel());
+            }
+
+            bool tokenIsValid = userService.ValidateToken(model.Token,model.Password);
+            if(!tokenIsValid)
+            {
+                ModelState.AddModelError("Error", "Verification token is invalid or expired.");
+                return View("~/Views/Auth/DeleteAccountConfirmation.cshtml",new DeleteAccountViewModel());
+            }
+                
+             bool isDeleted = userService.DeleteUser(authUserId);
+             if(isDeleted)
+                {
+                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    TempData["logoutMessage"] = "You account has been deleted.";
+                    return RedirectToAction(controllerName: "Home", actionName: "Index");
+                }
+            ModelState.AddModelError("Error","There was an error during user delete. Try again or contact support.");
+            return PartialView("~/Views/Auth/DeleteAccountConfirmation.cshtml",new DeleteAccountViewModel());
+            
+            
+        }
         private AuthenticationProperties GetAuthTokenExpireTime(User authUser){
             var authProperties = new AuthenticationProperties
                 {
@@ -109,7 +220,7 @@ namespace PasswordManagerApp.Controllers
                 return authProperties;
         }
         
-        [AllowAnonymous]
+        
         [Route("register")]
         [HttpGet]
         public IActionResult Register()
@@ -133,7 +244,8 @@ namespace PasswordManagerApp.Controllers
                 // create user
                 var newUser = userService.Create(model.Email, model.Password);
                 // log in new created user
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userService.GetClaimIdentity(newUser)));
+                 var authProperties = GetAuthTokenExpireTime(newUser);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userService.GetClaimIdentity(newUser)),authProperties);
 
                 return RedirectToAction(controllerName: "Wallet", actionName: "Index");
             }
@@ -146,6 +258,7 @@ namespace PasswordManagerApp.Controllers
 
            
         }
+        [Authorize]
         [Route("logout")]
         public async Task<IActionResult> Logout()
         {
@@ -159,47 +272,6 @@ namespace PasswordManagerApp.Controllers
 
         }
 
-       
-
-        
-        [Route("[action]/{passwordToCheck}")]
-        [HttpGet]
-
-        public IActionResult hibp(string passwordToCheck)
-        {
-
-           
-            if (passwordToCheck is null)
-                return Ok("Brak wprowadzonego hasla");
-            var client = _httpClientFactory.CreateClient();
-            var wynik = PwnedPasswords.IsPasswordPwnedAsync(passwordToCheck, new CancellationToken(), client).Result;
-
-            if (wynik != -1)
-                // return Ok(wynik.Result);
-                return Ok(wynik);
-            else
-                return Ok("-1");
-
-        }
-
-
-
-
-
-
-
-
-
-        /*
-         *  -> jeśli zalogowany to nie może przejsc do two_factor
-         *  -> jeśli nie authenticated też nie może przejść
-         *  -> jeśli authenticated ,ale nie zalogowany(w trakcie procedury) to może przejść
-         *  Trzeba chyba stworzyć ciasteczko, które przydzieli dostęp  , claim podczas authenticated
-         * 
-         * 
-         * 
-         * 
-         */
 
         [Route("twofactorlogin")]
         [HttpGet]
@@ -256,8 +328,8 @@ namespace PasswordManagerApp.Controllers
                 }
             }
             else
-            {   
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userService.GetClaimIdentity(user)));
+            {       var authProperties = GetAuthTokenExpireTime(user); 
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userService.GetClaimIdentity(user)),authProperties);
                     return RedirectToAction(controllerName: "Wallet", actionName: "Index");
                 
 

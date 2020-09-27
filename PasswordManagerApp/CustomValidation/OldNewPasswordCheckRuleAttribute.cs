@@ -1,5 +1,6 @@
 using PasswordManagerApp.Handlers;
 using PasswordManagerApp.Models.ViewModels;
+using PasswordManagerApp.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -11,8 +12,11 @@ namespace PasswordManagerApp.Models
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
+            
+            
+            
             PasswordChangeViewModel model = (PasswordChangeViewModel)validationContext.ObjectInstance;
-            string oldPassword = model.OldPassword;
+            string oldPassword = model.Password;
             string newPassword = (string)value;  
             if(oldPassword.Equals(newPassword))
                 return new ValidationResult($"Selected password is the same as the previous one . Enter another one!", new[] { validationContext.MemberName });

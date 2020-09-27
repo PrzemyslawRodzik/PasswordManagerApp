@@ -12,7 +12,9 @@ using PasswordManagerApp.Models.ViewModels;
 using PasswordManagerApp.Services;
 
 namespace PasswordManagerApp.Controllers
-{   [Authorize]
+{   
+    [Authorize]
+    [Route("settings")]
     public class SettingsController : Controller
     {
         private readonly IUserService _userService;
@@ -20,6 +22,7 @@ namespace PasswordManagerApp.Controllers
         {
             _userService = userService;
         }
+
         public IActionResult Index()
         {
             PopulateForm();
@@ -40,8 +43,8 @@ namespace PasswordManagerApp.Controllers
 
 
 
-
-
+        [HttpGet]
+        [Route("passwordgenerate")]
         public IActionResult PasswordGenerator()
         {
 
@@ -51,6 +54,7 @@ namespace PasswordManagerApp.Controllers
 
 
         [HttpPost]
+        [Route("passwordgenerate")]
         public IActionResult PasswordGenerator(PassGeneratorViewModel model)
         {
             string result;
@@ -82,10 +86,10 @@ namespace PasswordManagerApp.Controllers
         [HttpGet]
         [Route("passwordchange")]
 
-        public IActionResult PasswordChange()
-        {   
-            return PartialView("~/Views/Auth/_PasswordChange.cshtml", new PasswordChangeViewModel());
-        }
+        public IActionResult PasswordChange() => PartialView("~/Views/Auth/PasswordChange.cshtml", new PasswordChangeViewModel());
+           
+             
+       
 
         [Route("passwordchange")]
         [ValidateAntiForgeryToken]
@@ -96,13 +100,13 @@ namespace PasswordManagerApp.Controllers
             if (!ModelState.IsValid)
             {
                 ModelState.AddModelError("Error", "Change highlighted fields.");
-                return PartialView("~/Views/Auth/_PasswordChange.cshtml", new PasswordChangeViewModel());
+                return PartialView("~/Views/Auth/PasswordChange.cshtml", new PasswordChangeViewModel());
             }
                 
            
                  
             var authUserId = HttpContext.User.Identity.Name;
-             bool isSuccess =  _userService.ChangeMasterPassword(model.Password,authUserId);
+             bool isSuccess =  _userService.ChangeMasterPassword(model.NewPassword,authUserId);
             
              if(isSuccess)
                 {
@@ -112,7 +116,7 @@ namespace PasswordManagerApp.Controllers
             else
             {
                 ModelState.AddModelError("Error", "Something goes wrong. Try again later.");
-                return PartialView("~/Views/Auth/_PasswordChange.cshtml", new PasswordChangeViewModel());
+                return PartialView("~/Views/Auth/PasswordChange.cshtml", new PasswordChangeViewModel());
             }
                 
                 
@@ -134,18 +138,13 @@ namespace PasswordManagerApp.Controllers
             return PartialView("~/Views/Shared/_NotificationAlert.cshtml");
         }
 
-
-        public void Fillform()
-        {
-
-           
-            
-
+        
+        
               
             
             
             
-        }
+        
         
 
 

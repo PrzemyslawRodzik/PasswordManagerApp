@@ -1,0 +1,48 @@
+﻿@model PasswordManagerApp.Models.ViewModels.DeleteAccountViewModel
+
+@{
+    ViewData["Title"] = "DeleteAccountConfirmation";
+    Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
+}
+
+
+
+<div class="row" style="margin-left:20%;margin-top:20%;">
+    <div class="col-md-4">
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState["Error"].Errors.Count > 0)
+        {
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                @ViewData.ModelState["Error"].Errors.First().ErrorMessage
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+        <form asp-action="DeleteAccount2Step" asp-controller="Auth">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <input type="hidden" asp-for="Token" class="form-control" value="@ViewBag.Token" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Delete account" class="btn btn-primary" />
+            </div>
+        </form>
+        <a asp-action="Index" asp-controller="Wallet" class="btn btn-primary">Back to dashboard</a>
+    </div>
+</div>
+
+
+@section Scripts{
+
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+}
+
+
+

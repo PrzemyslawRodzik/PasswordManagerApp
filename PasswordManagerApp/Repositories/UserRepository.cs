@@ -25,10 +25,7 @@ namespace PasswordManagerApp.Repositories
         public bool CheckIfUserExist(string email)
         {
             return ApplicationDbContext.Users.Any(u => u.Email == email);
-            
-
-    
-
+         
         }
         public string GetActiveToken(User authUser)
         {
@@ -49,14 +46,5 @@ namespace PasswordManagerApp.Repositories
                 return false;
         }
 
-
-
-
-
-
-        public IEnumerable<User> Get2MethodFromIUserRepository()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

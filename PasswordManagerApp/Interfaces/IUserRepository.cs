@@ -9,7 +9,6 @@ namespace PasswordManagerApp.Repositories
     public interface IUserRepository :IRepositoryBase
     {
         bool CheckIfUserExist(string email);
-        IEnumerable<User> Get2MethodFromIUserRepository();
         public string GetActiveToken(User authUser);
         public bool IsTokenActive(User authUser);
     }

@@ -17,24 +17,27 @@ using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Configuration;
 using PasswordGenerator;
+using Microsoft.Extensions.Hosting;
 
 namespace PasswordManagerApp.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        
         private readonly IEmailSender _emailSender;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDataProtectionProvider _provider;
         public CookieHandler cookieHandler;
+        
 
-        public HomeController(ILogger<HomeController> logger, IEmailSender emailSender,IUnitOfWork unitOfWork, IDataProtectionProvider provider)
+        public HomeController(IEmailSender emailSender,IUnitOfWork unitOfWork, IDataProtectionProvider provider)
         {
-            _logger = logger;
+            
             _emailSender = emailSender;
             _unitOfWork = unitOfWork;
             _provider = provider;
             cookieHandler = new CookieHandler(new HttpContextAccessor(), _provider);
+            
 
         }
 
@@ -42,7 +45,7 @@ namespace PasswordManagerApp.Controllers
         [Route("welcome")] // strona powitalna
         public  IActionResult Index()
         {
-
+            
             
             VisitorAgentStatistics();
             

@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using PasswordManagerApp.Extensions;
 using PasswordManagerApp.Models;
-using PasswordManagerApp.Repositories;
 using PasswordManagerApp.Services;
 
 
@@ -27,6 +27,8 @@ namespace PasswordManagerApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            
+            
 
             var emailConfig = Configuration
                 .GetSection("EmailConfiguration")
@@ -35,21 +37,32 @@ namespace PasswordManagerApp
             services.AddHttpClient();
             services.AddHttpContextAccessor();
             services.AddDataProtection();
-            services.AddControllersWithViews().AddRazorRuntimeCompilation();
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
+            services.AddControllersWithViews().AddNewtonsoftJson(options =>
                 {
-                    options.LoginPath = "/auth/login";
-                    options.AccessDeniedPath = "/auth/accessdenied";
-                    options.ExpireTimeSpan=TimeSpan.FromMinutes(15);
-                    options.SlidingExpiration=true;
-                    
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                })
+            
+            
+            
+            .AddRazorRuntimeCompilation();
+              services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                  .AddCookie(options =>
+                  {
+                      options.LoginPath = "/auth/login";
+                      options.AccessDeniedPath = "/auth/accessdenied";
+                      options.ExpireTimeSpan=TimeSpan.FromMinutes(15);
+                      options.SlidingExpiration=true;
+                      
 
 
 
-                });
-                
-        
+
+                  });
+            
+            
+
+
+
 
 
 
@@ -72,6 +85,8 @@ namespace PasswordManagerApp
 
 
             services.ConfigureRepositoryWrapper();
+
+            services.ConfigureScheduleTasks();
           
             /* services.AddAuthorization(options =>
             {
@@ -106,6 +121,7 @@ namespace PasswordManagerApp
             
             app.UseRouting();
             app.UseAuthentication();
+            
 
             app.UseAuthorization();
            

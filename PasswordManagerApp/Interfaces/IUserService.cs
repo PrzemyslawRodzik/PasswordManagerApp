@@ -11,6 +11,7 @@ namespace PasswordManagerApp.Services
     {
         event EventHandler<Message> EmailSendEvent;
         User Authenticate(string email, string password);
+        int GetAuthUserId();
         
 
         ClaimsIdentity GetClaimIdentity(User authUser);
@@ -22,7 +23,7 @@ namespace PasswordManagerApp.Services
         
         bool VerifyEmail(string email);
         User GetById(int id);
-        void Delete(int id);
+        bool DeleteUser(int id);
         void SendTotpToken(User authUser);
         int VerifyTotpToken(User authUser, string token);
 
@@ -33,5 +34,10 @@ namespace PasswordManagerApp.Services
 
 
           bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt);
+
+          void InformUserAboutOldPasswords(int userId);
+          void InformAllUsersAboutOldPasswords();
+        void CreateAndSendAuthorizationToken(int authUserId,string password);
+        bool ValidateToken(string token,string password);
     }
 }

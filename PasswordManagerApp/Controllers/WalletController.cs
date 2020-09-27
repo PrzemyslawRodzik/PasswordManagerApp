@@ -15,6 +15,10 @@ using System.Security.Cryptography;
 using Quartz;
 using System.Threading.Tasks;
 using Quartz.Impl;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace PasswordManagerApp.Controllers
 {  
@@ -23,8 +27,10 @@ namespace PasswordManagerApp.Controllers
     public class WalletController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        
             public WalletController(IUnitOfWork unitOfWork)
         {
+            
             _unitOfWork = unitOfWork;
         }
 
@@ -56,34 +62,47 @@ namespace PasswordManagerApp.Controllers
             ViewBag.countCompromised = countPaypalComp + countLoginComp;
 
             ViewBag.countSharedData = _unitOfWork.Wallet.GetDataCountForUser<SharedLoginData>(user);
-
+            ViewBag.UserEmail = user.Email;
             return View("Views/Wallet/IndexDashboard.cshtml");
 
         }
 
 
         [Route("list")]
-        public IActionResult List()
+        public string List()
         {
-
+            
             var user = _unitOfWork.Users.Find<User>(int.Parse(User.Identity.Name));
-            var loginData = _unitOfWork.Wallet.FindByCondition<LoginData>(x => x.User == user);
+            var loginData = _unitOfWork.Wallet.FindByCondition<LoginData>(x => x.User == user).ToList();
 
-            return View("Views/Wallet/ListItem.cshtml", loginData);
+           // return View("Views/Wallet/ListItem.cshtml", loginData);
+          // return loginData;
+          
+         //  string json = JsonConvert.SerializeObject(user, Formatting.Indented, new JsonSerializerSettings
+                      //  {
+                       //     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                     //   });
+                          string json = JsonConvert.SerializeObject(user, Formatting.Indented);
+           
+            return json;
+
+           // var deserializedLoginData = JsonConvert.DeserializeObject<LoginData>(output);
+        
+        
         }
+        
+        
+        
         /* [HttpGet("{errorType}")]
          public IActionResult Error(string errorType)
          {
 
              return View("Views/Shared/"+errorType+".cshtml");
 
-         }
+                }
 
      */
 
-
-        
-        
 
 
         [Route("create")]
@@ -108,6 +127,26 @@ namespace PasswordManagerApp.Controllers
 
 
         }
+        [Route("temp")]
+         public IActionResult temp()
+        {
+
+        
+         var authUserId = Int32.Parse( HttpContext.User.Identity.Name);
+                
+                
+                 var loginDatas  = _unitOfWork.Wallet.GetUnchangedPasswordsForUser(authUserId);
+                 var loginDatasList = (List<LoginData>)loginDatas;
+                 if(loginDatas is null )
+                    return Ok("null byl");
+                //MethodSignalR();
+                var liczba = loginDatasList.Count;
+                string message = $"Liczba wynosi: {liczba} @###########################";
+                
+                return Ok(liczba);
+        }
+
+
         // do LoginData controller !!!
 
 

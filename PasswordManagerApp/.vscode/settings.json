@@ -1,0 +1,4 @@
+{
+    "task.quickOpen.skip": true,
+    "workbench.quickOpen.closeOnFocusLost": false
+}

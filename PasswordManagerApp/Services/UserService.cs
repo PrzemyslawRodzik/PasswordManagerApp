@@ -6,7 +6,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using PasswordManagerApp.Controllers;
-using UAParser;
 using System.Security.Cryptography;
 using System.Text;
 using OtpNet;
@@ -14,11 +13,8 @@ using EmailService;
 using Microsoft.AspNetCore.DataProtection;
 using PasswordManagerApp.Handlers;
 using PasswordManagerApp.Interfaces;
-using System.Net;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
-using Bogus.DataSets;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace PasswordManagerApp.Services
 {
@@ -29,18 +25,21 @@ namespace PasswordManagerApp.Services
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IDataProtectionProvider _provider;
+        
+        public DataProtectionHelper dataProtectionHelper;
+        private readonly IEmailSender _emailSender;
         public CookieHandler cookieHandler;
 
         public event EventHandler<Message> EmailSendEvent;
 
 
-        public UserService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor, IDataProtectionProvider provider)
+        public UserService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor, IDataProtectionProvider provider,IEmailSender emailSender)
         {
             _unitOfWork = unitOfWork;
-            _httpContextAccessor = httpContextAccessor;
-            _provider = provider;
-            cookieHandler = new CookieHandler(new HttpContextAccessor(), _provider);
+            _httpContextAccessor = httpContextAccessor;  
+            cookieHandler = new CookieHandler(new HttpContextAccessor(), provider);
+            _emailSender = emailSender;
+            dataProtectionHelper = new DataProtectionHelper(provider);
 
         }
 
@@ -80,6 +79,20 @@ namespace PasswordManagerApp.Services
             //EmailSendEvent?.Invoke(this, new Message(new string[] { user.Email }, "Zalozyles konto na PasswordManager.com", "Witamy w PasswordManager web api " + user.Email));
 
             return user;
+        }
+        public int GetAuthUserId()
+        {   
+            
+            try
+            {
+                int id =  Int32.Parse(_httpContextAccessor.HttpContext.User.Identity.Name);
+            
+                return id;
+            }catch(NullReferenceException)
+            {
+                return -1;
+            }
+            
         }
 
         
@@ -164,25 +177,27 @@ namespace PasswordManagerApp.Services
 
 
         public User GetById(int id)
-        {
+        {   
+            
             return _unitOfWork.Users.Find<User>(id);
             
         }
 
-        public void Delete(int id)
+        public bool DeleteUser(int id)
         {
-
-
-           
-            var user = _unitOfWork.Users.Find<User>(id);
+             User user = GetById(id);
 
 
             if (user != null)
             {
                 _unitOfWork.Users.Remove<User>(user);
                 _unitOfWork.SaveChanges();
-                
+                return true;
             }
+            return false;
+
+           
+           
         }
 
 
@@ -383,6 +398,57 @@ namespace PasswordManagerApp.Services
 
 
         }
+
+        public void InformAllUsersAboutOldPasswords()
+        {   
+            
+                var allloginDatasList = _unitOfWork.Context.LoginDatas.ToList();
+                if(allloginDatasList is null)
+                    return;
+                var loginDatasListWithOldPasswords = allloginDatasList.Where(x => (DateTime.UtcNow.ToLocalTime() - x.ModifiedDate).Days>=30 ).ToList();
+                if(loginDatasListWithOldPasswords is null)
+                    return;
+                string websitesList = "";
+                foreach (var item in loginDatasListWithOldPasswords.GroupBy(x => x.UserId))
+                {   
+                    websitesList="";
+                    var userEmail = GetById(item.Key).Email;
+                    item.ToList().ForEach(x => websitesList+=x.Website+", "   );
+
+
+                    string message = $"wykryto {item.Count()} hasła nie zmieniane od 30 dni dla podanych stron internetowych : {websitesList}!";
+
+
+                    _emailSender.SendEmailAsync(new Message(new string[] { userEmail },"PasswordManagerApp stare hasła", message));
+
+
+                }
+       
+            
+            
+            
+            
+            
+            
+                
+        }
+        public void InformUserAboutOldPasswords(int userId)
+        {
+             string userEmail = GetById(userId).Email;
+             var allUserLoginData = _unitOfWork.Context.LoginDatas.Where(x=>x.UserId==userId).ToList();
+                if(allUserLoginData is null)
+                    return;
+                var loginDataListWithOldPasswords = allUserLoginData.Where(x => (DateTime.UtcNow.ToLocalTime() - x.ModifiedDate).Days>=30 ).ToList();
+                if(loginDataListWithOldPasswords is null)
+                    return;
+                string websitesList = "";
+
+                loginDataListWithOldPasswords.ForEach(x=>websitesList+=x.Website+", ");
+                
+                string message = $"wykryto {loginDataListWithOldPasswords.Count} hasła nie zmieniane od 30 dni dla podanych stron internetowych : {websitesList}.";
+
+              //  _emailSender.SendEmailAsync(new Message(new string[] { userEmail },"PasswordManagerApp stare hasła", message));
+        }
         private string GetUserIpAddress(User user) => _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
 
         private bool CheckPreviousUserIp(User authUser)
@@ -405,6 +471,46 @@ namespace PasswordManagerApp.Services
                 return false;
 
         }
+        public void CreateAndSendAuthorizationToken(int authUserId,string userPassword)
+        {
+            User authUser = GetById(authUserId);
+            string token = authUser.Id.ToString() + "|"+authUser.Email +"|"+DateTime.UtcNow.AddMinutes(10).ToString();
+            token = dataProtectionHelper.Encrypt(token,userPassword);
+            string url  = QueryHelpers.AddQueryString("https://localhost:5004/auth/deleteaccount2step", "token", token);
+            EmailSendEvent?.Invoke(this, new Message(new string[] { authUser.Email }, "Link do usuniecia konta. Pass Manager App", "Link do usuniecia konta w serwisie Pass Manager App : " + url + " dla uzytkownika: " + authUser.Email + " Podany link bedzie aktywny przez 10 minut."));
+            
+
+        }
+        public bool ValidateToken(string token,string password)
+        {   
+            
+            var authUserId = _httpContextAccessor.HttpContext.User.Identity.Name;
+            User authUser = GetById(Int32.Parse(authUserId));
+            string decryptedToken = "";
+            try
+            {
+                decryptedToken = dataProtectionHelper.Decrypt(token, password);
+            }
+            catch(CryptographicException)
+            {
+                return false;
+            }
+            
+            
+            var tokenArray = decryptedToken.Split("|");
+           
+            
+            
+            if(tokenArray[0].Equals(authUserId) && tokenArray[1].Equals(authUser.Email) )
+            {
+                DateTime expiredDate = DateTime.Parse(tokenArray[2]);
+                if(DateTime.Compare(DateTime.UtcNow,expiredDate)<0   )
+                    return true;
+
+            }
+            return false;
+
+        }
 
 
 
@@ -419,6 +525,7 @@ namespace PasswordManagerApp.Services
         {
             string totpToken;
             bool isActive =  _unitOfWork.Users.IsTokenActive(authUser);
+           
             if (isActive)
             {
                 totpToken = _unitOfWork.Users.GetActiveToken(authUser);
@@ -458,7 +565,7 @@ namespace PasswordManagerApp.Services
             var activeTokenRecordFromDb = _unitOfWork.Context.Totp_Users.Where(b => b.User == authUser && b.Token == totpToken).FirstOrDefault();
             if (activeTokenRecordFromDb != null)
             {
-               // activeTokenRecordFromDb.Active = 0;
+               
                
                 if (activeTokenRecordFromDb.Expire_date >= DateTime.UtcNow)
                 {

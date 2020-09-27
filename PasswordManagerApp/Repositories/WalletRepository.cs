@@ -46,6 +46,13 @@ namespace PasswordManagerApp.Repositories
 
           
         } 
+        public IEnumerable<LoginData> GetUnchangedPasswordsForUser(int userId)
+        {   
+            var allloginDatasList = ApplicationDbContext.LoginDatas.Where(x=>x.UserId==userId).ToList();
+            var loginDatasList = allloginDatasList.Where(x => (DateTime.UtcNow.ToLocalTime() - x.ModifiedDate).Days>=30 ).ToList();
+            
+            return loginDatasList;
+        }
         public int  GetDataCountForUser<TEntity>(User user) where TEntity: UserRelationshipModel
         {
             Type type = typeof(TEntity);

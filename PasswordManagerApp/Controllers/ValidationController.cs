@@ -35,10 +35,10 @@ namespace PasswordManagerApp.Controllers
         [Authorize]
         [Route("VerifyPassword")]
         [AcceptVerbs("GET", "POST")]
-        public IActionResult VerifyPassword(string oldpassword)
+        public IActionResult VerifyPassword(string password)
         {   int authUserId = Int32.Parse(HttpContext.User.Identity.Name);
             var user = _unitOfWork.Users.Find<User>(authUserId);
-            if (!_userService.VerifyPasswordHash(oldpassword, Convert.FromBase64String(user.Password), Convert.FromBase64String(user.PasswordSalt)))
+            if (!_userService.VerifyPasswordHash(password, Convert.FromBase64String(user.Password), Convert.FromBase64String(user.PasswordSalt)))
             {
                 return Json($"Password  is incorrect.");
             }

@@ -10,15 +10,12 @@ namespace PasswordManagerApp.Models.ViewModels
     public class PasswordChangeViewModel 
     {
 
-        [Key]
-        public int Key { get; set; }
-
-
+       
         [Required(ErrorMessage = "Please enter old password")]
         [Display(Name = "Old master password")]
         [DataType(DataType.Password)]
         [Remote(action: "VerifyPassword", controller: "Validation")]
-        public string OldPassword { get; set; }
+        public string Password { get; set; }
 
         [Required(ErrorMessage = "Please enter new password")]
         [StringLength(40, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 8)]
@@ -31,13 +28,13 @@ namespace PasswordManagerApp.Models.ViewModels
         [HibpCheckRule]
         [Display(Name = "New password")]
         [DataType(DataType.Password)]
-        public string Password { get; set; }
+        public string NewPassword { get; set; }
 
 
         [Required(ErrorMessage = "Please enter confirm password")]
         [Display(Name = "Confirm new password")]
         [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "Password and confirm password does not match")]
+        [Compare("NewPassword", ErrorMessage = "New password and confirm password does not match")]
         public string RepeatPassword { get; set; }
     }
 }

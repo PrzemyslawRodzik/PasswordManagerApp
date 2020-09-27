@@ -11,5 +11,6 @@ namespace PasswordManagerApp.Interfaces
         IEnumerable<PaypallAcount> GetAllPaypallBreach();
         int GetDataCountForUser<TEntity>(User user) where TEntity : UserRelationshipModel;
         int GetDataBreachForUser<TEntity>(User user) where TEntity : class, ICompromisedEntity;
+         IEnumerable<LoginData> GetUnchangedPasswordsForUser(int userId);
     }
 }
