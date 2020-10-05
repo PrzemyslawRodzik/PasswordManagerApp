@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using EmailService;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using PasswordManagerApp.Extensions;
+using PasswordManagerApp.Handlers;
 using PasswordManagerApp.Models;
 using PasswordManagerApp.Services;
 
@@ -51,17 +53,38 @@ namespace PasswordManagerApp
                       options.LoginPath = "/auth/login";
                       options.AccessDeniedPath = "/auth/accessdenied";
                       options.ExpireTimeSpan=TimeSpan.FromMinutes(15);
-                      options.SlidingExpiration=true;
-                      
-
-
-
-
+                      options.SlidingExpiration=false;
+                  
                   });
-            
-            
 
 
+
+
+
+          /*  services.AddHttpClient("HttpClientWithSSLUntrusted").ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                ClientCertificateOptions = ClientCertificateOption.Manual,
+                ServerCertificateCustomValidationCallback =
+            (httpRequestMessage, cert, cetChain, policyErrors) =>
+            {
+                return true;
+            }
+            }); */
+            services.AddHttpClient<ApiService>(c =>
+            {
+                c.BaseAddress = new Uri("https://localhost:44324/api/");
+                
+                
+
+            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                ClientCertificateOptions = ClientCertificateOption.Manual,
+                ServerCertificateCustomValidationCallback =
+            (httpRequestMessage, cert, cetChain, policyErrors) =>
+            {
+                return true;
+            }
+            });
 
 
 
@@ -70,6 +93,7 @@ namespace PasswordManagerApp
 
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<JwtHelper>();
 
         /*  MySql Database
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -87,6 +111,8 @@ namespace PasswordManagerApp
             services.ConfigureRepositoryWrapper();
 
             services.ConfigureScheduleTasks();
+
+            
           
             /* services.AddAuthorization(options =>
             {
@@ -102,9 +128,11 @@ namespace PasswordManagerApp
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext applicationDbContext)
         {
 
+
+           
             //applicationDbContext.Database.Migrate();
-            
-           // DataSeeder.SeedData(applicationDbContext);
+
+            // DataSeeder.SeedData(applicationDbContext);
             if (env.IsDevelopment())
             {   
                 app.UseDeveloperExceptionPage();
@@ -118,6 +146,7 @@ namespace PasswordManagerApp
             
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
             
             app.UseRouting();
             app.UseAuthentication();

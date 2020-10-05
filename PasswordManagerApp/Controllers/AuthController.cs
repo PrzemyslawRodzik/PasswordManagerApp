@@ -1,24 +1,18 @@
 ﻿﻿using System;
 using System.Linq;
-using System.Net.Http;
-using System.Security.Claims;
-using System.Text.Json;
-using System.Threading;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
-using EmailService;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using PasswordManagerApp.ApiResponses;
 using PasswordManagerApp.Handlers;
-using PasswordManagerApp.Interfaces;
 using PasswordManagerApp.Models;
 using PasswordManagerApp.Models.ViewModels;
-using PasswordManagerApp.Repositories;
 using PasswordManagerApp.Services;
 
 
@@ -30,29 +24,29 @@ namespace PasswordManagerApp.Controllers
     {
 
 
-        private readonly IUserService userService;
-        private readonly IEmailSender _emailSender;
-        private readonly IHttpClientFactory _httpClientFactory; // potem do usuniecia !!!
+        
+        
+        private readonly ApiService _apiService; 
         public CookieHandler cookieHandler;
         public DataProtectionHelper dataProtectionHelper;
-        private readonly IUnitOfWork unitOfWork;
-
+       
         
-        public AuthController(IUserService userService, IEmailSender emailSender, IDataProtectionProvider provider, IHttpClientFactory httpClientFactory,IUnitOfWork unitOfWork)
+        private readonly JwtHelper _jwtHelper;
+
+        public AuthController(IDataProtectionProvider provider, ApiService apiService, JwtHelper jwtHelper)
         {
-            this.userService = userService;
-            this.userService.EmailSendEvent += UserService_EmailSendEvent;
-            _httpClientFactory = httpClientFactory;
-            _emailSender = emailSender;
+           
+            _apiService = apiService;
             dataProtectionHelper = new DataProtectionHelper(provider);
             cookieHandler = new CookieHandler(new HttpContextAccessor(), provider);
-            this.unitOfWork = unitOfWork;
+            _jwtHelper = jwtHelper;
             
 
 
 
         }
         
+        /*
         public void OldPasswordsCheck()
         {
                  var allloginDatasList = unitOfWork.Context.LoginDatas.ToList();
@@ -78,11 +72,9 @@ namespace PasswordManagerApp.Controllers
                 }
                 return;
         }
+        */
 
-        private void UserService_EmailSendEvent(object sender, Message e)
-        {
-            _emailSender.SendEmailAsync(e);
-        }
+       
       
         
         [Route("login")]
@@ -91,39 +83,52 @@ namespace PasswordManagerApp.Controllers
         {
             return View(new LoginViewModel());
         }
-       
-        
+
+
         [Route("login")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> LogIn(LoginViewModel model)
-        {
-            var user = userService.Authenticate(model.Email, model.Password);
+        {   
+            User user = await _apiService.AuthenticateUser(model);
 
-            if (user == null)
-            {
+              if (user == null)
+              {
+
+                  ModelState.AddModelError("Error", "Incorrect username or password.");
+                  return View(new LoginViewModel());
+              }
+              if (user.TwoFactorAuthorization == 1)
+              {
+
+                  
+                  TempData["id"] = dataProtectionHelper.Encrypt(user.Id.ToString(),"QueryStringsEncryptions");
+                  return RedirectToAction(actionName: "TwoFactorLogIn");
+              }
+              else
+              {
+                var apiResponse = await _apiService.GetAccessToken(model);
                 
-                ModelState.AddModelError("Error", "Incorrect username or password.");
-                return View(new LoginViewModel());
-            }
-            if (user.TwoFactorAuthorization == 1)
-            {
+                if (!apiResponse.Success)
+                {
+                    ModelState.AddModelError("Error", apiResponse.Messages.First());
+                    return View(new LoginViewModel());
+                }
                 
-                userService.SendTotpToken(user);
-                TempData["id"] = dataProtectionHelper.Encrypt(user.Id.ToString(),"QueryStringsEncryptions");
-                return RedirectToAction(actionName: "TwoFactorLogIn");
-            }
-            else
-            {
-                
-                var authProperties = GetAuthTokenExpireTime(user);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,new ClaimsPrincipal(userService.GetClaimIdentity(user)),authProperties);
+                var isSuccess = await _jwtHelper.ValidateTokenAndSignIn(apiResponse.AccessToken);
+                if (!isSuccess)
+                {
+                    ModelState.AddModelError("Error", "Token is invalid.");
+                    return View(new LoginViewModel());
+                }
 
                 return RedirectToAction(controllerName: "Wallet", actionName: "Index");
-            }
 
+            }
         
         }
+       
+       
         [Authorize]
         [HttpGet]
         [Route("deleteaccount1step")]
@@ -132,14 +137,14 @@ namespace PasswordManagerApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Route("deleteaccount1step")]
-        public IActionResult DeleteAccount1Step(DeleteAccountViewModel model) 
+        public async Task<IActionResult> DeleteAccount1Step(DeleteAccountViewModel model) 
         {   
-            int authUserId = Int32.Parse( HttpContext.User.Identity.Name);
-            User authUser = userService.GetById(authUserId);
+           // int authUserId = Int32.Parse( HttpContext.User.Identity.Name);
+            var responseFromApi = await _apiService.DeleteAccountProcess(model,"1step");
 
-            if(!userService.VerifyPasswordHash(model.Password,Convert.FromBase64String(authUser.Password),Convert.FromBase64String(authUser.PasswordSalt)))
+            if(!responseFromApi.Success)
                 {
-                    ModelState.AddModelError("Error","Password is incorrect");
+                    ModelState.AddModelError("Error",responseFromApi.Messages.First());
                     return PartialView("~/Views/Auth/DeleteAccount.cshtml");
                 }
             if(!ModelState.IsValid)
@@ -148,7 +153,7 @@ namespace PasswordManagerApp.Controllers
                     return PartialView("~/Views/Auth/DeleteAccount.cshtml");
                 }
             
-            userService.CreateAndSendAuthorizationToken(authUserId,model.Password);
+            
             return PartialView("~/Views/Auth/DeleteAccountNotification.cshtml");
            
             
@@ -168,17 +173,27 @@ namespace PasswordManagerApp.Controllers
         public async Task<IActionResult> DeleteAccount2step(DeleteAccountViewModel model)
         {
             ViewBag.Token = model.Token;
-            int authUserId = Int32.Parse(HttpContext.User.Identity.Name);
+            int authUserId;
+            try
+            {
+                authUserId = Int32.Parse(HttpContext.User.Identity.Name);
+            }
+            catch (Exception)
+            {
+                authUserId = -1;
+            }
+            
             if(authUserId==-1)
             {
                 ModelState.AddModelError("Error","You need to be log in.");
                 return PartialView("~/Views/Auth/DeleteAccountConfirmation.cshtml");
             }
-            User authUser = userService.GetById(authUserId);
+            
+            var responseFromApi = await _apiService.DeleteAccountProcess(model, "2step");
 
-            if(!userService.VerifyPasswordHash(model.Password,Convert.FromBase64String(authUser.Password),Convert.FromBase64String(authUser.PasswordSalt)))
+            if(!responseFromApi.Success)
             {
-                    ModelState.AddModelError("Error","Password is incorrect");
+                    ModelState.AddModelError("Error",responseFromApi.Messages.First());
                     return PartialView("~/Views/Auth/DeleteAccountConfirmation.cshtml");
             }
             if (!ModelState.IsValid)
@@ -186,25 +201,21 @@ namespace PasswordManagerApp.Controllers
                 ModelState.AddModelError("Error","There was an error. Try again or contact support.");
                 return PartialView("~/Views/Auth/DeleteAccountConfirmation.cshtml",new DeleteAccountViewModel());
             }
-
-            bool tokenIsValid = userService.ValidateToken(model.Token,model.Password);
-            if(!tokenIsValid)
+           
+            if(responseFromApi.Success)
             {
-                ModelState.AddModelError("Error", "Verification token is invalid or expired.");
-                return View("~/Views/Auth/DeleteAccountConfirmation.cshtml",new DeleteAccountViewModel());
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                TempData["logoutMessage"] = "You account has been deleted.";
+               
             }
-                
-             bool isDeleted = userService.DeleteUser(authUserId);
-             if(isDeleted)
-                {
-                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                    TempData["logoutMessage"] = "You account has been deleted.";
-                    return RedirectToAction(controllerName: "Home", actionName: "Index");
-                }
-            ModelState.AddModelError("Error","There was an error during user delete. Try again or contact support.");
-            return PartialView("~/Views/Auth/DeleteAccountConfirmation.cshtml",new DeleteAccountViewModel());
+            return RedirectToAction(controllerName: "Home", actionName: "Index");
+
+
+          
             
             
+
+
         }
         private AuthenticationProperties GetAuthTokenExpireTime(User authUser){
             var authProperties = new AuthenticationProperties
@@ -242,17 +253,23 @@ namespace PasswordManagerApp.Controllers
             try
             {
                 // create user
-                var newUser = userService.Create(model.Email, model.Password);
+                var authRegisterResponse = await _apiService.RegisterUser(model);
+
                 // log in new created user
-                 var authProperties = GetAuthTokenExpireTime(newUser);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userService.GetClaimIdentity(newUser)),authProperties);
+                var isSuccess = await _jwtHelper.ValidateTokenAndSignIn(authRegisterResponse.AccessToken);
+                if(!isSuccess)
+                {
+                    ModelState.AddModelError("Error", "Token is invalid");
+                    return View(model);
+                }
 
                 return RedirectToAction(controllerName: "Wallet", actionName: "Index");
             }
             catch (AppException ex)
             {
                 // return error message if there was an exception
-                return BadRequest(new { message = ex.Message });
+                ModelState.AddModelError("Error", ex.Message);
+                return View(model);
             }
            
 
@@ -262,11 +279,9 @@ namespace PasswordManagerApp.Controllers
         [Route("logout")]
         public async Task<IActionResult> Logout()
         {
-
-
-
+            // trzeba jakos zrevoke ' owac jwt token
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-             TempData["logoutMessage"] = "You were logged out.";
+            TempData["logoutMessage"] = "You were logged out.";
             return RedirectToAction(controllerName: "Home", actionName: "Index");
 
 
@@ -306,16 +321,18 @@ namespace PasswordManagerApp.Controllers
             
             
             int idUser = Int32.Parse(dataProtectionHelper.Decrypt(id, "QueryStringsEncryptions"));
-            var user = userService.GetById(idUser);
             
-            var verificationStatus = userService.VerifyTotpToken(user, model.Token);
-            if(verificationStatus != 1)
+
+            ApiTwoFactorResponse apiResponse = await _apiService.TwoFactorLogIn(idUser,model.Token);
+            
+            
+            if(apiResponse.VerificationStatus != 1)
             {
-                if (verificationStatus == 0)
+                if (apiResponse.VerificationStatus == 0)
                 {
                     
                     ViewBag.AuthUserId = id;
-                    ModelState.AddModelError("Error", "Wrong code.");
+                    ModelState.AddModelError("Error", apiResponse.Messages.First());
                     
                     return View(new TwoFactorViewModel());
 
@@ -328,10 +345,21 @@ namespace PasswordManagerApp.Controllers
                 }
             }
             else
-            {       var authProperties = GetAuthTokenExpireTime(user); 
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userService.GetClaimIdentity(user)),authProperties);
-                    return RedirectToAction(controllerName: "Wallet", actionName: "Index");
+            {
                 
+                var isSuccess = await _jwtHelper.ValidateTokenAndSignIn(apiResponse.AccessToken);
+                if(!isSuccess)
+                {
+                    ViewBag.AuthUserId = id;
+                    ModelState.AddModelError("Error", "Token is invalid.");
+
+                    return View(new TwoFactorViewModel());
+
+                }
+                return RedirectToAction("Index", "Wallet");
+
+
+
 
             }
                 
@@ -348,40 +376,43 @@ namespace PasswordManagerApp.Controllers
         [Route("resendcode")]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public IActionResult ReSendCode(string id)
+        public async Task<IActionResult> ReSendCode(string id)
         {
             int idUser = Int32.Parse(dataProtectionHelper.Decrypt(id, "QueryStringsEncryptions"));
-            var user = userService.GetById(idUser);
-            userService.SendTotpToken(user);
-            ViewBag.Message = "Your code has been resent.";
             
+            ApiResponse apiResponse = await _apiService.SendTotpByEmail(idUser);
+            if(!apiResponse.Success)
+            {
+                ViewBag.Message = apiResponse.Messages.First();
+                return PartialView("~/Views/Shared/_NotificationAlert.cshtml");
+            }
+            
+            ViewBag.Message = "Your code has been resend.";
             return PartialView("~/Views/Shared/_NotificationAlert.cshtml");
             
+
+
+
+
+
         }
-        
-        
+
+        [Route("generatersa")]
+        public IActionResult generatersa()    // potem do usuniecia !!!
+        {
+            using RSA rsa = RSA.Create();
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            return Ok(new
+            {
+                PrivateKey = Convert.ToBase64String(rsa.ExportRSAPrivateKey()),
+                PublicKey = Convert.ToBase64String(rsa.ExportRSAPublicKey()),
+            });
+            
+            
+        }
     }
+
 }
+        
+      

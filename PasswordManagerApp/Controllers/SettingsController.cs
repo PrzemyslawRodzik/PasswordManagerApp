@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using PasswordGenerator;
+using PasswordManagerApp.ApiResponses;
+using PasswordManagerApp.Handlers;
 using PasswordManagerApp.Models;
 using PasswordManagerApp.Models.ViewModels;
 using PasswordManagerApp.Services;
@@ -17,10 +19,14 @@ namespace PasswordManagerApp.Controllers
     [Route("settings")]
     public class SettingsController : Controller
     {
-        private readonly IUserService _userService;
-        public SettingsController(IUserService userService)
+       // private readonly IUserService _userService;
+        private readonly ApiService _apiService;
+        private readonly JwtHelper _jwtHelper;
+
+        public SettingsController(ApiService apiService, JwtHelper jwtHelper)
         {
-            _userService = userService;
+             _apiService = apiService;
+            _jwtHelper = jwtHelper;
         }
 
         public IActionResult Index()
@@ -30,12 +36,11 @@ namespace PasswordManagerApp.Controllers
            
             return View();
         }
-        private void PopulateForm()
+        private void  PopulateForm()
         {
-            var authUser = _userService.GetById(Int32.Parse(HttpContext.User.Identity.Name) );
-            ViewData["2F"] = authUser.TwoFactorAuthorization.ToString();
-            ViewData["PassNot"] = authUser.PasswordNotifications.ToString();
-            ViewData["valueTime"] = authUser.AuthenticationTime.ToString();
+            ViewData["2F"] = HttpContext.User.FindFirst("TwoFactorAuth").Value;
+            ViewData["PassNot"] = HttpContext.User.FindFirst("PasswordNotifications").Value;
+            ViewData["valueTime"] = HttpContext.User.FindFirst("AuthTime").Value;
         }
 
 
@@ -94,7 +99,7 @@ namespace PasswordManagerApp.Controllers
         [Route("passwordchange")]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public IActionResult PasswordChange(PasswordChangeViewModel model)  
+        public async Task<IActionResult> PasswordChange(PasswordChangeViewModel model)  
         {
             
             if (!ModelState.IsValid)
@@ -102,40 +107,44 @@ namespace PasswordManagerApp.Controllers
                 ModelState.AddModelError("Error", "Change highlighted fields.");
                 return PartialView("~/Views/Auth/PasswordChange.cshtml", new PasswordChangeViewModel());
             }
-                
-           
-                 
-            var authUserId = HttpContext.User.Identity.Name;
-             bool isSuccess =  _userService.ChangeMasterPassword(model.NewPassword,authUserId);
+           ApiResponse apiResponse =  await _apiService.ChangeMasterPassword(model);
             
-             if(isSuccess)
+             if(apiResponse.Success)
                 {
-                    ViewBag.Message = "Password has successfully changed.";
+                    ViewBag.Message = apiResponse.Messages.First();
                     return PartialView("~/Views/Shared/_NotificationAlert.cshtml");
                 }
             else
             {
-                ModelState.AddModelError("Error", "Something goes wrong. Try again later.");
+                ModelState.AddModelError("Error", apiResponse.Messages.First());
                 return PartialView("~/Views/Auth/PasswordChange.cshtml", new PasswordChangeViewModel());
             }
-                
-                
-         
-
         }
+
+
+
+
 
         [HttpPost]
         [Route("updatepreferences")]
-        public IActionResult UpdatePreferences(string switch2F,string switchPnot, string sliderVerTime)
+        public async Task<IActionResult> UpdatePreferences(string switch2F,string switchPnot, string sliderVerTime)
         {
-
-            int authUserId = Int32.Parse(HttpContext.User.Identity.Name);
-            _userService.UpdatePreferences(new UpdatePreferencesWrapper(switch2F, switchPnot, sliderVerTime), authUserId);
             
 
-          
-            ViewBag.Message = "Changes was saved";
-            return PartialView("~/Views/Shared/_NotificationAlert.cshtml");
+            var apiResponse = await _apiService.UpdateUserPreferences(switch2F, switchPnot, sliderVerTime);
+
+
+            if (apiResponse.Success)
+            {
+                await _jwtHelper.ValidateTokenAndSignIn(apiResponse.AccessToken);
+                ViewBag.Message = apiResponse.Messages.First();
+                return PartialView("~/Views/Shared/_NotificationAlert.cshtml");
+            }
+            else
+            {
+                ViewBag.Message = apiResponse.Messages.First();
+                return PartialView("~/Views/Shared/_NotificationAlert.cshtml");
+            }
         }
 
         

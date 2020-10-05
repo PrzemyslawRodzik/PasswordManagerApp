@@ -18,25 +18,25 @@ using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Configuration;
 using PasswordGenerator;
 using Microsoft.Extensions.Hosting;
+using PasswordManagerApp.Services;
 
 namespace PasswordManagerApp.Controllers
 {
     public class HomeController : Controller
     {
         
-        private readonly IEmailSender _emailSender;
-        private readonly IUnitOfWork _unitOfWork;
+        
         private readonly IDataProtectionProvider _provider;
         public CookieHandler cookieHandler;
-        
+        private readonly ApiService _apiService;
 
-        public HomeController(IEmailSender emailSender,IUnitOfWork unitOfWork, IDataProtectionProvider provider)
+        public HomeController(ApiService apiService,IDataProtectionProvider provider)
         {
             
-            _emailSender = emailSender;
-            _unitOfWork = unitOfWork;
+            
             _provider = provider;
             cookieHandler = new CookieHandler(new HttpContextAccessor(), _provider);
+            _apiService = apiService;
             
 
         }
@@ -56,43 +56,16 @@ namespace PasswordManagerApp.Controllers
             return View();
         }
 
-        [Authorize]
-        public IActionResult Privacy()
-        {
-            return View();
-            
-        }
-        
-        [Route("email")]
-        [HttpGet]
-        public async Task Email()
-        {
-            var message = new Message(new string[] { "przemyslawrodzik@gmail.com" }, "Tytul emailu asynchronicznego", "This is the content from our async email.");
-            await _emailSender.SendEmailAsync(message);
-
-
-            
-        }
-
-
-
-
+       
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult DateNow()
-        {
-            var pwd = new Password().IncludeLowercase().IncludeUppercase().IncludeSpecial().LengthRequired(18);
-            var result = pwd.Next();
+      
 
-            return Ok(result);
-           
-        }
-
-        private void VisitorAgentStatistics()
+        private async void VisitorAgentStatistics()
         {
             bool cookieVisitorExist = cookieHandler.CheckIfCookieExist("VisitorCookie");
             bool cookieDeviceExist = cookieHandler.CheckIfCookieExist("DeviceInfo");
@@ -106,9 +79,8 @@ namespace PasswordManagerApp.Controllers
             visitor.OperatingSystem = c.OS.Family.ToString();
             visitor.Country = countryName.Result;
             visitor.VisitTime = DateTime.UtcNow.ToLocalTime().ToString("yyyy-MM-dd' 'HH:mm:ss");
-          
-            _unitOfWork.Context.Add<VisitorAgent>(visitor); 
-            _unitOfWork.SaveChanges();
+            
+            await _apiService.CreateUpdateData<VisitorAgent>(visitor);
 
         }
         private async Task<string> GetVisitorLocationAsync(string ip)

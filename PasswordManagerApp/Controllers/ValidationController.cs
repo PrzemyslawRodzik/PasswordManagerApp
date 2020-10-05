@@ -13,19 +13,23 @@ namespace PasswordManagerApp.Controllers
 {
     public class ValidationController : Controller
     {   
-        private readonly IUnitOfWork _unitOfWork;
+        
         private readonly IUserService _userService;
-        public ValidationController(IUnitOfWork unitOfWork, IUserService userService)
+        private readonly ApiService _apiService;
+
+        public ValidationController(IUserService userService,ApiService apiService)
         {
-            _unitOfWork = unitOfWork;
+            
             _userService = userService;
+            _apiService = apiService;
         }
 
         [Route("VerifyEmail")]
         [AcceptVerbs("GET", "POST")]
         public IActionResult VerifyEmail(string email)
         {
-            if (_userService.VerifyEmail(email))
+            var isEmailAvailable = _apiService.CheckEmailAvailability(email);
+            if (!isEmailAvailable)
             {
                 return Json($"Email {email} is already in use.");
             }
@@ -36,8 +40,8 @@ namespace PasswordManagerApp.Controllers
         [Route("VerifyPassword")]
         [AcceptVerbs("GET", "POST")]
         public IActionResult VerifyPassword(string password)
-        {   int authUserId = Int32.Parse(HttpContext.User.Identity.Name);
-            var user = _unitOfWork.Users.Find<User>(authUserId);
+        {   
+            var user = _apiService.GetAuthUser();
             if (!_userService.VerifyPasswordHash(password, Convert.FromBase64String(user.Password), Convert.FromBase64String(user.PasswordSalt)))
             {
                 return Json($"Password  is incorrect.");
