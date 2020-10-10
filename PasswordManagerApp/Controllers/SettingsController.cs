@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -22,11 +24,13 @@ namespace PasswordManagerApp.Controllers
        // private readonly IUserService _userService;
         private readonly ApiService _apiService;
         private readonly JwtHelper _jwtHelper;
+        private readonly LogInHandler _logInHandler;
 
-        public SettingsController(ApiService apiService, JwtHelper jwtHelper)
+        public SettingsController(ApiService apiService, JwtHelper jwtHelper, LogInHandler logInHandler)
         {
              _apiService = apiService;
             _jwtHelper = jwtHelper;
+            _logInHandler = logInHandler;
         }
 
         public IActionResult Index()
@@ -136,7 +140,10 @@ namespace PasswordManagerApp.Controllers
 
             if (apiResponse.Success)
             {
-                await _jwtHelper.ValidateTokenAndSignIn(apiResponse.AccessToken);
+                ClaimsPrincipal claimsPrincipal;
+                AuthenticationProperties authProperties;
+                _jwtHelper.ValidateToken(apiResponse.AccessToken,out claimsPrincipal, out authProperties);
+                _logInHandler.LogInUser(claimsPrincipal, authProperties);
                 ViewBag.Message = apiResponse.Messages.First();
                 return PartialView("~/Views/Shared/_NotificationAlert.cshtml");
             }

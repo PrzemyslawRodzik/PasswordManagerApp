@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using PasswordManagerApp.Interfaces;
 using PasswordManagerApp.Models;
 using PasswordManagerApp.Services;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +15,7 @@ using System.Linq;
 namespace PasswordManagerApp.Controllers
 {
     
-    //[Authorize]
+    [Authorize]
     public class NoteController : Controller
     { 
         
@@ -34,8 +33,9 @@ namespace PasswordManagerApp.Controllers
         [Route("notes")]
         public async Task<IActionResult> Note()
         {
-
             
+
+
              var userId = HttpContext.User.Identity.Name;
             
             
@@ -61,8 +61,9 @@ namespace PasswordManagerApp.Controllers
             ViewBag.EncryptedIds = encryptedIds;
             return View("Views/Wallet/ListNote.cshtml", userNotes);
         }
-       
 
+
+        
         [Route("AddOrEditNote")]
         public async Task<IActionResult> AddOrEditNote(string? encrypted_id)
         {
@@ -114,7 +115,7 @@ namespace PasswordManagerApp.Controllers
 
             }
 
-            return RedirectToAction("Note");
+            return PartialView("Views/Forms/AddOrEditNote.cshtml", note);
         }
         [HttpPost]
         [Route("DeleteNote")]

@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PasswordManagerApp.ScheludeTasks;
-using PasswordManagerApp.Interfaces;
-using PasswordManagerApp.Repositories;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
@@ -17,20 +15,12 @@ namespace PasswordManagerApp.Extensions
     public static class ServiceExtensions
     {
         
-
-        
-
-        
-
         public static void ConfigureMySqlContext(this IServiceCollection services, IConfiguration config)
         {
             // TO DO
         }
 
-        public static void ConfigureRepositoryWrapper(this IServiceCollection services)
-        {
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
-        }
+        
         public static void ConfigureScheduleTasks(this IServiceCollection services)
         {
            

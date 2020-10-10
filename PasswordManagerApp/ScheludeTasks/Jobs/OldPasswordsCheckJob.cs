@@ -1,11 +1,5 @@
-
-using System;
-using System.Linq;
 using System.Threading.Tasks;
-using EmailService;
 using Microsoft.Extensions.Logging;
-using PasswordManagerApp.Interfaces;
-using PasswordManagerApp.Models;
 using PasswordManagerApp.Services;
 using Quartz;
 

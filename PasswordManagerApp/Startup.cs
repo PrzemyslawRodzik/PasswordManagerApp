@@ -1,6 +1,5 @@
 using System;
 using System.Net.Http;
-using EmailService;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,13 +28,7 @@ namespace PasswordManagerApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
-            
-
-            var emailConfig = Configuration
-                .GetSection("EmailConfiguration")
-                .Get<EmailConfiguration>();
-            services.AddSingleton(emailConfig);
+           
             services.AddHttpClient();
             services.AddHttpContextAccessor();
             services.AddDataProtection();
@@ -58,21 +51,10 @@ namespace PasswordManagerApp
                   });
 
 
-
-
-
-          /*  services.AddHttpClient("HttpClientWithSSLUntrusted").ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            {
-                ClientCertificateOptions = ClientCertificateOption.Manual,
-                ServerCertificateCustomValidationCallback =
-            (httpRequestMessage, cert, cetChain, policyErrors) =>
-            {
-                return true;
-            }
-            }); */
             services.AddHttpClient<ApiService>(c =>
             {
-                c.BaseAddress = new Uri("https://localhost:44324/api/");
+               c.BaseAddress = new Uri("https://localhost:44324/api/");
+             // c.BaseAddress = new Uri("https://localhost:5006/api/");
                 
                 
 
@@ -91,9 +73,10 @@ namespace PasswordManagerApp
 
 
 
-            services.AddScoped<IEmailSender, EmailSender>();
+            
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<JwtHelper>();
+            services.AddScoped<LogInHandler>();
 
         /*  MySql Database
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -108,7 +91,7 @@ namespace PasswordManagerApp
 
 
 
-            services.ConfigureRepositoryWrapper();
+            
 
             services.ConfigureScheduleTasks();
 

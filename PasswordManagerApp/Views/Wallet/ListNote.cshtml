@@ -14,19 +14,38 @@
 
     <div>
         <h3 class="title">
-            Tu chce miec JS!
-            <a class="btn btn-primary"
+            Notes
+            <a class="btn btn-primary btn-sm rounded-s"
                data-ajax="true"
                data-ajax-method="GET"
                data-ajax-mode="replace"
-               data-ajax-complete="settingsFadeIn();"
+               data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
                data-ajax-update="#content"
-               data-ajax-url="@Url.Action("AddOrEditNote","Note")"> Add Note </a>
+               data-ajax-url="@Url.Action("AddOrEditNote","Note")"
+               data-toggle="modal" data-target="#modalCenter"> Add New </a>
 
            
+            
 
         </h3>
-        <div id="content"></div>
+        <!-- Modal -->
+        <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="content"></div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
         <div class="card items">
 
             <ul class="item-list striped">
@@ -53,70 +72,78 @@
                         </div>
                     </div>
                 </li>
-                
 
-             
+
+
                 @foreach (var item in Model)
                 {
 
 
 
-                <li class="item">
-                    <div class="item-row">
+                    <li class="item">
+                        <div class="item-row">
 
-                        <div class="item-col item-col-category no-overflow">
-                            <div class="item-heading">name</div>
-                            <div class="no-overflow">
-                                <a href="">@Html.DisplayFor(modelItem => item.Name)</a>
+                            <div class="item-col item-col-category no-overflow">
+                                <div class="item-heading">name</div>
+                                <div class="no-overflow">
+                                    <a href="">@Html.DisplayFor(modelItem => item.Name)</a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="item-col item-col-category no-overflow">
-                            <div class="item-heading">Password</div>
+                            <div class="item-col item-col-category no-overflow">
+                                <div class="item-heading">Password</div>
+                                <div>
+                                    <a href="">@Html.DisplayFor(modelItem => item.Details)</a>
+                                    
+ <a class="btn btn-primary btn-sm rounded-s"
+               data-ajax="true"
+               data-ajax-method="GET"
+               data-ajax-mode="replace"
+               data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
+               data-ajax-update="#content"
+               data-ajax-url="@Url.Action("AddOrEditNote","Note", new { encrypted_id = @encryptedFields[item.Id] })"
+               data-toggle="modal" data-target="#modalCenter"> Edit </a>
+
+                                    <form asp-controller="Note" asp-action="DeleteNote" asp-route-encrypted_id="@encryptedFields[item.Id]">
+                                        <input type="submit" value="Delete" />
+                                    </form>
+                                </div>
+                            </div>
+
                             <div>
-                                <a href="">@Html.DisplayFor(modelItem => item.Details)</a>
-                                <a asp-action="AddOrEditNote" asp-route-encrypted_id="@encryptedFields[item.Id]">Edit</a>
-                                
-                                <form asp-controller="Note" asp-action="DeleteNote" asp-route-encrypted_id="@encryptedFields[item.Id]">
-                                    <input type="submit" value="Delete" />
-                                </form>
-                            </div>
-                        </div>
-
-                        <div >
-                            <div >
-                                <a >
-                                    
-                                    
-                                </a>
-                                <div >
-                                    <ul>
-                                        @if (!(encryptedFields.Count > 0))
-                                        {
+                                <div>
+                                    <a>
 
 
-                                            
+                                    </a>
+                                    <div>
+                                        <ul>
+                                            @if (!(encryptedFields.Count > 0))
+                                            {
 
-                                            <li>
 
-                                                <a asp-action="AddOrEditNote" asp-route-encrypted_id="@encryptedFields[item.Id]">Edit</a>
-                                            </li>
-                                            <li>
-                                                <a asp-action="DeleteNote" asp-route-encrypted_id="@encryptedFields[item.Id]">
-                                                    Delete
-                                                </a>
-                                            </li>
 
-                                        }
 
-                                    </ul>
+                                                <li>
+
+                                                    <a asp-action="AddOrEditNote" asp-route-encrypted_id="@encryptedFields[item.Id]">Edit</a>
+                                                </li>
+                                                <li>
+                                                    <a asp-action="DeleteNote" asp-route-encrypted_id="@encryptedFields[item.Id]">
+                                                        Delete
+                                                    </a>
+                                                </li>
+
+                                            }
+
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </li>
+                    </li>
 
                 }
-                
+
             </ul>
 
         </div>
@@ -129,12 +156,12 @@
 @section Scripts {
 
 
-
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
 
     <script>
 
-
+        
 
         function settingsFadeIn() {
 
@@ -143,6 +170,18 @@
                 $('#content').fadeIn('slow');
 
             }
+
+
+        }
+        
+        function renewNoteValidation() {
+
+
+            // Remove validation.
+            $(".noteForm").removeData("validator").removeData("unobtrusiveValidation");
+
+            // Add validation again.
+            $.validator.unobtrusive.parse(".noteForm");
 
 
         }

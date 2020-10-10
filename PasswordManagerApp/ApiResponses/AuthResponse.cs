@@ -9,5 +9,7 @@ namespace PasswordManagerApp.ApiResponses
     public class AuthResponse :ApiResponse
     {
         public AccessToken AccessToken { get; set; }
+        public bool TwoFactorLogIn { get; set; } = false;
+        public int UserId { get; set; }
     }
 }

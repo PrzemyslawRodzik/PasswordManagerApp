@@ -14,6 +14,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using UAParser;
 
 namespace PasswordManagerApp.Services
 {
@@ -37,7 +38,7 @@ namespace PasswordManagerApp.Services
         public  bool CheckEmailAvailability(string email)
         {
             
-            var response = _client.GetAsync($"users/check?email={email}").Result;
+            var response = _client.GetAsync($"users/email/check?email={email}").Result;
 
             if (response.IsSuccessStatusCode)
                 return true;
@@ -46,7 +47,7 @@ namespace PasswordManagerApp.Services
 
         #region Generic CRUD api calls
 
-        public async Task<IEnumerable<T>> GetAllUserData<T>(int userId) where T : class
+        public async Task<IEnumerable<T>> GetAllUserData<T>(int userId, int? compromised = null) where T : class
         {
             string typeName = typeof(T).Name;
             typeName += "s";
@@ -59,11 +60,41 @@ namespace PasswordManagerApp.Services
             return  JsonConvert.DeserializeObject<IEnumerable<T>>(responseString);
 
         }
-        public async Task<T> GetDataById<T>(int userId) where T : class
+
+        public  bool CheckUserGuidDeviceInDb(string guidDeviceHash,int userId)
+        {
+            HttpResponseMessage response;
+            StringContent content = new StringContent(JsonConvert.SerializeObject(new {GuidDevice = guidDeviceHash, UserId = userId }), Encoding.UTF8, "application/json");
+            response = _client.PostAsync("users/devices/check-guid", content).Result;
+            if (response.IsSuccessStatusCode)
+                return true;
+            return false;
+        }
+
+        public bool  CheckLoginDuplicate(string website, string login)
+        {
+            HttpResponseMessage response;
+            StringContent content = new StringContent(JsonConvert.SerializeObject(new { Website = website, Login = login}), Encoding.UTF8, "application/json");
+            response = _client.PostAsync("logindatas/checklogindup", content).Result;
+            if (response.IsSuccessStatusCode)
+                return false;
+            return true;
+          
+        }
+
+        public void HandleNewDeviceLogIn(string ipAddress, string guidDevice,int userId, string osName, string browserName)
+        {
+            HttpResponseMessage response;
+            StringContent content = new StringContent(JsonConvert.SerializeObject(new { IpAddress = ipAddress, GuidDevice = guidDevice, UserId = userId, OSName = osName, BrowserName = browserName }), Encoding.UTF8, "application/json");
+            response = _client.PostAsync("users/devices/authorize-new-device", content).Result;
+           
+        }
+
+        public async Task<T> GetDataById<T>(int id) where T : class
         {
             string typeName = typeof(T).Name;
             typeName += "s";
-            var response = await _client.GetAsync($"{typeName}/{userId}");
+            var response = await _client.GetAsync($"{typeName}/{id}");
 
             response.EnsureSuccessStatusCode();
 
@@ -128,11 +159,8 @@ namespace PasswordManagerApp.Services
         {
             HttpResponseMessage response;
            
-            
-            
-            
             StringContent content = new StringContent(JsonConvert.SerializeObject(new { TwoFactor = switch2F, PassNotifications = switchPnot, VerificationTime = sliderVerTime }), Encoding.UTF8, "application/json");
-            response = await _client.PostAsync("users/update-preferences", content);
+            response = await _client.PostAsync("users/update/preferences", content);
             
 
             var responseString = await response.Content.ReadAsStringAsync();
@@ -144,50 +172,33 @@ namespace PasswordManagerApp.Services
 
         #region Authentication api calls
 
-        public async Task<AuthResponse> GetAccessToken(LoginViewModel model)
+        
+
+        public async Task<AuthResponse> LogIn(LoginViewModel model)
         {
             HttpResponseMessage response;
-
+            
             StringContent content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
-            response = await _client.PostAsync("identity/token", content);
-
+            
+            response = await _client.PostAsync($"identity/login", content);
 
             var responseString = await response.Content.ReadAsStringAsync();
 
             return JsonConvert.DeserializeObject<AuthResponse>(responseString);
-        }
-
-        public async Task<User> AuthenticateUser(LoginViewModel model)
-        {
-            HttpResponseMessage response;
-            
-            StringContent content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
-            
-            response = await _client.PostAsync($"identity/authenticate", content);
-
-            var responseString = await response.Content.ReadAsStringAsync();
-
-            if (response.StatusCode==HttpStatusCode.BadRequest)
-                return null;
-            else
-                return JsonConvert.DeserializeObject<User>(responseString);
 
 
         }
 
-        public async Task<AuthRegisterResponse> RegisterUser(RegisterViewModel model)
+        public async Task<AuthResponse> RegisterUser(RegisterViewModel model)
         {
             HttpResponseMessage response;
 
             StringContent content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
 
             response = await _client.PostAsync($"identity/register", content);
-
-            response.EnsureSuccessStatusCode();
-
             var responseString = await response.Content.ReadAsStringAsync();
-
-            return JsonConvert.DeserializeObject<AuthRegisterResponse>(responseString);
+            
+            return JsonConvert.DeserializeObject<AuthResponse>(responseString);
         }
 
         public User GetAuthUser()
@@ -229,7 +240,7 @@ namespace PasswordManagerApp.Services
         {
             HttpResponseMessage response;
             StringContent content = new StringContent(JsonConvert.SerializeObject(idUser), Encoding.UTF8, "application/json");
-            response = await _client.PostAsync($"identity/resendtotp", content);
+            response = await _client.PostAsync($"identity/twofactorlogin/resendtotp", content);
             var responseString = await response.Content.ReadAsStringAsync();
 
             return JsonConvert.DeserializeObject<ApiResponse>(responseString);

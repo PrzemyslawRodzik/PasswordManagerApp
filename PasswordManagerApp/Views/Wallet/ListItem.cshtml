@@ -3,6 +3,9 @@
 @{
     ViewData["Title"] = "ListItem";
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
+
+
+    var encryptedFields = ViewBag.EncryptedIds as Dictionary<int, string>;
 }
 
 <article class="content items-list-page">
@@ -11,25 +14,50 @@
             <div class="row">
                 <div class="col-md-6">
                     <h3 class="title">
-                        Items <a asp-controller="Wallet" asp-action="LoginDataCreate" class="btn btn-primary btn-sm rounded-s"> Add New </a>
-                        <!--
-                        -->
-                        <div class="action dropdown">
-                            <button class="btn  btn-sm rounded-s btn-secondary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> More actions... </button>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                <a class="dropdown-item" href="#"><i class="fa fa-pencil-square-o icon"></i>Mark as a draft</a>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-close icon"></i>Delete</a>
+                        LoginDatas <a class="btn btn-primary btn-sm rounded-s"
+                                      data-ajax="true"
+                                      data-ajax-method="GET"
+                                      data-ajax-mode="replace"
+                                      data-ajax-complete="settingsFadeIn(); renewLoginDataValidation();"
+                                      data-ajax-update="#content"
+                                      data-ajax-url="@Url.Action("AddOrEditLoginData","LoginData")"
+                                      data-toggle="modal" data-target="#modalCenter"> Add New </a>
+                    </h3>
+                    <!-- Modal -->
+                    <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div id="content"></div>
+                                </div>
+
                             </div>
                         </div>
+                    </div>
+                    <div class="action dropdown">
+                        <button class="btn  btn-sm rounded-s btn-secondary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> More actions... </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <a class="dropdown-item" href="#"><i class="fa fa-pencil-square-o icon"></i>Mark as a draft</a>
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-close icon"></i>Delete</a>
+                        </div>
+                    </div>
+
+                    <h3 class="title">
                     </h3>
-                    <p class="title-description"> List of sample items - e.g. books, movies, events, etc... </p>
+                    <div id="content"></div>
                 </div>
             </div>
         </div>
         <div class="items-search">
             <form class="form-inline">
                 <div class="input-group">
-                    <input type="text" id="searchItem" class="form-control boxed rounded-s" placeholder="Search for...">
+                    <input type="text" class="form-control boxed rounded-s" placeholder="Search for...">
                     <span class="input-group-btn">
                         <button class="btn btn-secondary rounded-s" type="button">
                             <i class="fa fa-search"></i>
@@ -51,7 +79,7 @@
                         </label>
                     </div>
 
-                    <div class="item-col item-col-header item-col-title">
+                    <div class="item-col item-col-header item-col-sales">
                         <div>
                             <span>@Html.DisplayNameFor(model => model.Name)</span>
                         </div>
@@ -61,21 +89,23 @@
                             <span>@Html.DisplayNameFor(model => model.Website)</span>
                         </div>
                     </div>
+                    <div class="item-col item-col-header item-col-sales">
+                        <div>
+                            <span>@Html.DisplayNameFor(model => model.Login)</span>
+                        </div>
+                    </div>
                     <div class="item-col item-col-header item-col-stats">
                         <div class="no-overflow">
                             <span>@Html.DisplayNameFor(model => model.Email)</span>
                         </div>
                     </div>
-                    <div class="item-col item-col-header item-col-category">
+                    <div class="item-col item-col-header item-col-stats">
                         <div class="no-overflow">
-                            <span>Category</span>
+                            <span>@Html.DisplayNameFor(model => model.Password)</span>
                         </div>
                     </div>
-                    <div class="item-col item-col-header item-col-author">
-                        <div class="no-overflow">
-                            <span>Author</span>
-                        </div>
-                    </div>
+
+
                     <div class="item-col item-col-header item-col-date">
                         <div>
                             <span>Published</span>
@@ -85,87 +115,97 @@
                     </div>
                 </div>
             </li>
-            <div id="itemss">
-                @foreach (var item in Model)
-                {
-                    <li class="item">
-                        <div class="item-row">
-                            <div class="item-col fixed item-col-check">
-                                <label class="item-check" id="select-all-items">
-                                    <input type="checkbox" class="checkbox">
-                                    <span></span>
-                                </label>
-                            </div>
-                            <div class="item-col fixed item-col-img md">
-                                <a href="item-editor.html">
-                                    <div class="item-img rounded" style="background-image: url(https://s3.amazonaws.com/uifaces/faces/twitter/brad_frost/128.jpg)"></div>
+
+            @foreach (var item in Model)
+            {
+                <li class="item">
+                    <div class="item-row">
+                        <div class="item-col fixed item-col-check">
+                            <label class="item-check" id="select-all-items">
+                                <input type="checkbox" class="checkbox">
+                                <span></span>
+                            </label>
+                        </div>
+                        <div class="item-col fixed item-col-img md">
+                            <a href="item-editor.html">
+                                <div class="item-img rounded" style="background-image: url(https://s3.amazonaws.com/uifaces/faces/twitter/brad_frost/128.jpg)"></div>
+                            </a>
+                        </div>
+                        <div class="item-col fixed pull-left item-col-sales">
+                            <div class="item-heading">@Html.DisplayNameFor(modelItem => item.Name)</div>
+                            <div>
+                                <a href="item-editor.html" class="">
+                                    <h4 class="item-title"> @Html.DisplayFor(modelItem => item.Name) </h4>
                                 </a>
                             </div>
-                            <div class="item-col fixed pull-left item-col-title">
-                                <div class="item-heading">@Html.DisplayNameFor(modelItem => item.Name)</div>
-                                <div>
-                                    <a href="item-editor.html" class="">
-                                        <h4 class="item-title"> @Html.DisplayFor(modelItem => item.Name) </h4>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="item-col item-col-sales">
-                                <div class="item-heading">@Html.DisplayNameFor(modelItem => item.Website)</div>
-                                <div> @Html.DisplayFor(modelItem => item.Website) </div>
-                            </div>
-                            <div class="item-col item-col-stats no-overflow">
-                                <div class="item-heading">Stats</div>
-                                <div class="no-overflow">
-                                    <div class="item-stats sparkline" data-type="bar"></div>
-                                </div>
-                            </div>
-                            <div class="item-col item-col-category no-overflow">
-                                <div class="item-heading">Login</div>
-                                <div class="no-overflow">
-                                    <a href="">@Html.DisplayFor(modelItem => item.Email)</a>
-                                </div>
-                            </div>
-                            <div class="item-col item-col-author">
-                                <div class="item-heading">Password</div>
-                                <div class="no-overflow">
-                                    <a href="">@Html.DisplayFor(modelItem => item.Password)</a>
-                                </div>
-                            </div>
-                            <div class="item-col item-col-date">
-                                <div class="item-heading">Published</div>
-                                <div class="no-overflow"> 21 SEP 10:45 </div>
-                            </div>
-                            <div class="item-col fixed item-col-actions-dropdown">
-                                <div class="item-actions-dropdown">
-                                    <a class="item-actions-toggle-btn">
-                                        <span class="inactive">
-                                            <i class="fa fa-cog"></i>
-                                        </span>
-                                        <span class="active">
-                                            <i class="fa fa-chevron-circle-right"></i>
-                                        </span>
-                                    </a>
-                                    <div class="item-actions-block">
-                                        <ul class="item-actions-list">
-                                            <li>
-                                                <a class="remove" asp-action="Delete" asp-route-id="@item.Id" data-toggle="modal" data-target="#confirm-modal">
-                                                    <i class="fa fa-trash-o "></i>
-                                                </a>
-                                            </li>
-
-                                            <li>
-                                                <a class="edit" asp-action="Edit" asp-route-id="@item.Id">
-                                                    <i class="fa fa-pencil"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
+                        </div>
+                        <div class="item-col item-col-sales">
+                            <div class="item-heading">@Html.DisplayNameFor(modelItem => item.Website)</div>
+                            <div> @Html.DisplayFor(modelItem => item.Website) </div>
+                        </div>
+                        <!--
+                                    <div class="item-col item-col-stats no-overflow">
+                                        <div class="item-heading">@Html.DisplayNameFor(modelItem => item.Login)</div>
+                                        <div class="no-overflow">
+                                            <div class="item-stats sparkline" data-type="bar"></div>
+                                        </div>
                                     </div>
+                            -->
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">Login</div>
+                            <div class="no-overflow">
+                                <a href="">@Html.DisplayFor(modelItem => item.Login)</a>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">Email</div>
+                            <div class="no-overflow">
+                                <a href="">@Html.DisplayFor(modelItem => item.Email)</a>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-author">
+                            <div class="item-heading">Password</div>
+                            <div class="no-overflow">
+                                <a href="">@Html.DisplayFor(modelItem => item.Password)</a>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-date">
+                            <div class="item-heading">Published</div>
+                            <div class="no-overflow">@Html.DisplayFor(modelItem => item.ModifiedDate)</div>
+                        </div>
+                        <div class="item-col fixed item-col-actions-dropdown">
+                            <div class="item-actions-dropdown">
+                                <a class="item-actions-toggle-btn">
+                                    <span class="inactive">
+                                        <i class="fa fa-cog"></i>
+                                    </span>
+                                    <span class="active">
+                                        <i class="fa fa-chevron-circle-right"></i>
+                                    </span>
+                                </a>
+                                <div class="item-actions-block">
+                                    <ul class="item-actions-list">
+                                        <li>
+                                            <form asp-action="DeleteLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
+                                                <button style="font-size:24px; color:red"> <i class="fa fa-trash-o"></i></button>
+                                            </form>
+                                            <!--  <a class="remove" asp-action="DeleteLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]" data-toggle="modal" data-target="#confirm-modal">
+                                                  <i class="fa fa-trash-o "></i>
+                                              </a> -->
+                                        </li>
+
+                                        <li>
+                                            <a class="edit" asp-action="AddOrEditLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]">
+                                                <i class="fa fa-pencil"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
-                    </li>
-                }
-            </div>
+                    </div>
+                </li>
+            }
 
 
 
@@ -201,27 +241,38 @@
 
 
 
-
 @section Scripts {
 
 
-
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
 
     <script>
 
 
 
-        
-            $(document).ready(function(){
-                $("#searchItem").on("keyup", function () {
-                    var value = $(this).val().toLowerCase();
-                    $("#itemss li").filter(function () {
-                        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                    });
-                });
-});
-    
+        function settingsFadeIn() {
+
+            if ($('#content').length) {
+                $('#content').fadeOut('slow');
+                $('#content').fadeIn('slow');
+
+            }
+
+
+        }
+        function renewLoginDataValidation() {
+
+
+            // Remove validation.
+            $(".loginDataForm").removeData("validator").removeData("unobtrusiveValidation");
+
+            // Add validation again.
+            $.validator.unobtrusive.parse(".loginDataForm");
+
+
+        }
+
 
 
 
@@ -231,6 +282,7 @@
 
 
 }
+
 
 
 

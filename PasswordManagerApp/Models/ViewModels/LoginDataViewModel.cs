@@ -31,11 +31,9 @@ namespace PasswordManagerApp.Models.ViewModels
         public string Login { get; set; }
 
         [DataType(DataType.Url)]
-        [Remote(action: "VerifyLogin", controller: "Wallet", AdditionalFields = nameof(Login))]
+        [Remote(action: "VerifyLogin", controller: "Validation", AdditionalFields = nameof(Login))]
         public string Website { get; set; }
         
-        [Required]
-        [DataType(DataType.DateTime)]
-        public DateTime ModifiedDate { get; set; }
+        
     }
 }

@@ -1,5 +1,6 @@
 ﻿﻿using System;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -29,18 +30,19 @@ namespace PasswordManagerApp.Controllers
         private readonly ApiService _apiService; 
         public CookieHandler cookieHandler;
         public DataProtectionHelper dataProtectionHelper;
-       
-        
+        public LogInHandler _logInHandler;
         private readonly JwtHelper _jwtHelper;
 
-        public AuthController(IDataProtectionProvider provider, ApiService apiService, JwtHelper jwtHelper)
+        public AuthController(IDataProtectionProvider provider, ApiService apiService, JwtHelper jwtHelper, LogInHandler logInHandler)
         {
            
             _apiService = apiService;
             dataProtectionHelper = new DataProtectionHelper(provider);
             cookieHandler = new CookieHandler(new HttpContextAccessor(), provider);
             _jwtHelper = jwtHelper;
-            
+            _logInHandler = logInHandler;
+
+
 
 
 
@@ -79,10 +81,8 @@ namespace PasswordManagerApp.Controllers
         
         [Route("login")]
         [HttpGet]
-        public IActionResult LogIn()
-        {
-            return View(new LoginViewModel());
-        }
+        public IActionResult LogIn() => View(new LoginViewModel());
+        
 
 
         [Route("login")]
@@ -90,41 +90,33 @@ namespace PasswordManagerApp.Controllers
         [HttpPost]
         public async Task<IActionResult> LogIn(LoginViewModel model)
         {   
-            User user = await _apiService.AuthenticateUser(model);
+            var apiResponse = await _apiService.LogIn(model);
 
-              if (user == null)
+              if (!apiResponse.Success)
               {
 
-                  ModelState.AddModelError("Error", "Incorrect username or password.");
+                  ModelState.AddModelError("Error", apiResponse.Messages.First());
                   return View(new LoginViewModel());
               }
-              if (user.TwoFactorAuthorization == 1)
+              if (apiResponse.TwoFactorLogIn)
               {
-
-                  
-                  TempData["id"] = dataProtectionHelper.Encrypt(user.Id.ToString(),"QueryStringsEncryptions");
+                  TempData["id"] = dataProtectionHelper.Encrypt(apiResponse.UserId.ToString(),"QueryStringsEncryptions");
                   return RedirectToAction(actionName: "TwoFactorLogIn");
               }
-              else
-              {
-                var apiResponse = await _apiService.GetAccessToken(model);
-                
-                if (!apiResponse.Success)
-                {
-                    ModelState.AddModelError("Error", apiResponse.Messages.First());
-                    return View(new LoginViewModel());
-                }
-                
-                var isSuccess = await _jwtHelper.ValidateTokenAndSignIn(apiResponse.AccessToken);
-                if (!isSuccess)
-                {
-                    ModelState.AddModelError("Error", "Token is invalid.");
-                    return View(new LoginViewModel());
-                }
 
-                return RedirectToAction(controllerName: "Wallet", actionName: "Index");
+            ClaimsPrincipal claimsPrincipal;
+            AuthenticationProperties authProperties;
+            var isSuccess = _jwtHelper.ValidateToken(apiResponse.AccessToken, out claimsPrincipal, out authProperties);
+            if (!isSuccess)
+              { 
+                    ModelState.AddModelError("Error", "Json Web Token is invalid.");
+                    return View(new LoginViewModel());
+              }
+             await _logInHandler.LogInUser(claimsPrincipal, authProperties);
+            
+            return RedirectToAction(controllerName: "Wallet", actionName: "Index");
 
-            }
+            
         
         }
        
@@ -137,24 +129,21 @@ namespace PasswordManagerApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Route("deleteaccount1step")]
-        public async Task<IActionResult> DeleteAccount1Step(DeleteAccountViewModel model) 
-        {   
-           // int authUserId = Int32.Parse( HttpContext.User.Identity.Name);
-            var responseFromApi = await _apiService.DeleteAccountProcess(model,"1step");
+        public IActionResult DeleteAccount1Step(DeleteAccountViewModel model) 
+        {
+            if (!ModelState.IsValid)
+            {
+                ModelState.AddModelError("Error", "There was an error. Try again or contact support.");
+                return PartialView("~/Views/Auth/DeleteAccount.cshtml");
+            }
+            var responseFromApi = _apiService.DeleteAccountProcess(model,"1step").Result;
 
             if(!responseFromApi.Success)
                 {
                     ModelState.AddModelError("Error",responseFromApi.Messages.First());
                     return PartialView("~/Views/Auth/DeleteAccount.cshtml");
                 }
-            if(!ModelState.IsValid)
-                {
-                    ModelState.AddModelError("Error","There was an error. Try again or contact support.");
-                    return PartialView("~/Views/Auth/DeleteAccount.cshtml");
-                }
-            
-            
-            return PartialView("~/Views/Auth/DeleteAccountNotification.cshtml");
+           return PartialView("~/Views/Auth/DeleteAccountNotification.cshtml");
            
             
 
@@ -172,18 +161,11 @@ namespace PasswordManagerApp.Controllers
         [Route("deleteaccount2step")]
         public async Task<IActionResult> DeleteAccount2step(DeleteAccountViewModel model)
         {
-            ViewBag.Token = model.Token;
-            int authUserId;
-            try
-            {
-                authUserId = Int32.Parse(HttpContext.User.Identity.Name);
-            }
-            catch (Exception)
-            {
-                authUserId = -1;
-            }
             
-            if(authUserId==-1)
+            ViewBag.Token = model.Token;
+            var userIsAuth = HttpContext.User.Identity.IsAuthenticated;
+
+            if(!userIsAuth)
             {
                 ModelState.AddModelError("Error","You need to be log in.");
                 return PartialView("~/Views/Auth/DeleteAccountConfirmation.cshtml");
@@ -196,12 +178,7 @@ namespace PasswordManagerApp.Controllers
                     ModelState.AddModelError("Error",responseFromApi.Messages.First());
                     return PartialView("~/Views/Auth/DeleteAccountConfirmation.cshtml");
             }
-            if (!ModelState.IsValid)
-            {
-                ModelState.AddModelError("Error","There was an error. Try again or contact support.");
-                return PartialView("~/Views/Auth/DeleteAccountConfirmation.cshtml",new DeleteAccountViewModel());
-            }
-           
+            
             if(responseFromApi.Success)
             {
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -217,75 +194,52 @@ namespace PasswordManagerApp.Controllers
 
 
         }
-        private AuthenticationProperties GetAuthTokenExpireTime(User authUser){
-            var authProperties = new AuthenticationProperties
-                {
-                    
-
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(authUser.AuthenticationTime),
-                    // The time at which the authentication ticket expires. A 
-                    // value set here overrides the ExpireTimeSpan option of 
-                    // CookieAuthenticationOptions set with AddCookie.
-
-                };
-                return authProperties;
-        }
+        
         
         
         [Route("register")]
         [HttpGet]
-        public IActionResult Register()
-        {
-            return View(new RegisterViewModel());
-        }
+        public IActionResult Register() => View(new RegisterViewModel());
+        
         
         [Route("register")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public  async Task<IActionResult> Register([Bind] RegisterViewModel model)
         {
-
-
-
             if (!ModelState.IsValid)
-             
                 return View(model);
-            try
-            {
-                // create user
-                var authRegisterResponse = await _apiService.RegisterUser(model);
+  
+            var authRegisterResponse = await _apiService.RegisterUser(model);
 
-                // log in new created user
-                var isSuccess = await _jwtHelper.ValidateTokenAndSignIn(authRegisterResponse.AccessToken);
-                if(!isSuccess)
-                {
+            if(!authRegisterResponse.Success)
+               {
+                   ModelState.AddModelError("Error", authRegisterResponse.Messages.First());
+                   return View(model);
+               }
+            ClaimsPrincipal claimsPrincipal;
+            AuthenticationProperties authProperties;
+            var isTokenValid = _jwtHelper.ValidateToken(authRegisterResponse.AccessToken, out claimsPrincipal, out authProperties);
+            if(!isTokenValid)
+              {     
                     ModelState.AddModelError("Error", "Token is invalid");
                     return View(model);
-                }
-
-                return RedirectToAction(controllerName: "Wallet", actionName: "Index");
-            }
-            catch (AppException ex)
-            {
-                // return error message if there was an exception
-                ModelState.AddModelError("Error", ex.Message);
-                return View(model);
-            }
-           
-
+              }
+            await _logInHandler.LogInUser(claimsPrincipal, authProperties);
+            
+            return RedirectToAction(controllerName: "Wallet", actionName: "Index");
            
         }
         [Authorize]
         [Route("logout")]
         public async Task<IActionResult> Logout()
         {
-            // trzeba jakos zrevoke ' owac jwt token
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             TempData["logoutMessage"] = "You were logged out.";
             return RedirectToAction(controllerName: "Home", actionName: "Index");
-
-
         }
+
+
 
 
         [Route("twofactorlogin")]
@@ -339,15 +293,15 @@ namespace PasswordManagerApp.Controllers
                 }
                 else
                 {
-                    
-                    return RedirectToAction(actionName: "VerificationFailed");
-
+                    TempData["logoutMessage"] = "Your code has expired. Try log in again.";
+                    return RedirectToAction(controllerName: "Home", actionName: "Index");
                 }
             }
-            else
-            {
-                
-                var isSuccess = await _jwtHelper.ValidateTokenAndSignIn(apiResponse.AccessToken);
+            
+            
+                ClaimsPrincipal claimsPrincipal;
+                AuthenticationProperties authProperties;
+                var isSuccess = _jwtHelper.ValidateToken(apiResponse.AccessToken, out claimsPrincipal,out authProperties);
                 if(!isSuccess)
                 {
                     ViewBag.AuthUserId = id;
@@ -356,12 +310,13 @@ namespace PasswordManagerApp.Controllers
                     return View(new TwoFactorViewModel());
 
                 }
+                await _logInHandler.LogInUser(claimsPrincipal, authProperties);
                 return RedirectToAction("Index", "Wallet");
 
 
 
 
-            }
+            
                 
          
 
@@ -397,20 +352,8 @@ namespace PasswordManagerApp.Controllers
 
         }
 
-        [Route("generatersa")]
-        public IActionResult generatersa()    // potem do usuniecia !!!
-        {
-            using RSA rsa = RSA.Create();
+        
 
-
-            return Ok(new
-            {
-                PrivateKey = Convert.ToBase64String(rsa.ExportRSAPrivateKey()),
-                PublicKey = Convert.ToBase64String(rsa.ExportRSAPublicKey()),
-            });
-            
-            
-        }
     }
 
 }

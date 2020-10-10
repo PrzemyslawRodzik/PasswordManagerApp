@@ -29,7 +29,7 @@ namespace PasswordManagerApp.Handlers
             _config = config;
             _httpContextAccessor = httpContextAccessor;
         }
-        public  async Task<bool> ValidateTokenAndSignIn(AccessToken accessToken)
+        public bool ValidateToken(AccessToken accessToken,out ClaimsPrincipal claimsPrincipal, out AuthenticationProperties authProperties)
         {
 
 
@@ -39,7 +39,7 @@ namespace PasswordManagerApp.Handlers
                 bytesRead: out int _
             );
 
-            var keyBytes = Encoding.UTF8.GetBytes(_config["JwtSettings:SecretEncyptionKey"]);
+            var keyBytes = Encoding.UTF8.GetBytes(_config["JwtSettings:SecretEncryptionKey"]);
             var symmetricSecurityKey = new SymmetricSecurityKey(keyBytes);
 
             var tokenValidationParameters = new TokenValidationParameters
@@ -57,7 +57,8 @@ namespace PasswordManagerApp.Handlers
 
 
             var handler = new JwtSecurityTokenHandler();
-            ClaimsPrincipal claimsPrincipal = null;
+            claimsPrincipal = null;
+            authProperties = null;
 
             try
             {
@@ -71,21 +72,16 @@ namespace PasswordManagerApp.Handlers
                 return false;
             }
 
-
-
-
-
             List<Claim> claimsToAdd = new List<Claim>();
             claimsToAdd.AddRange(claimsPrincipal.Claims);
             claimsToAdd.Add(new Claim("Access_token", accessToken.JwtToken));
 
 
-            var authProperties = new AuthenticationProperties
+            authProperties = new AuthenticationProperties
             {
                 ExpiresUtc = accessToken.Expire
             };
-
-            await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(new ClaimsIdentity(claimsToAdd, CookieAuthenticationDefaults.AuthenticationScheme)), authProperties);
+            claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claimsToAdd, CookieAuthenticationDefaults.AuthenticationScheme));
 
             return true;
         }

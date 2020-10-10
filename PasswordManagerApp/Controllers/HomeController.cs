@@ -5,14 +5,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PasswordManagerApp.Models.ViewModels;
-using EmailService;
 using Microsoft.AspNetCore.Razor.Language.Intermediate;
 using Microsoft.AspNetCore.Routing;
 using PasswordManagerApp.Handlers;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using PasswordManagerApp.Models;
-using PasswordManagerApp.Interfaces;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Configuration;
@@ -29,14 +27,16 @@ namespace PasswordManagerApp.Controllers
         private readonly IDataProtectionProvider _provider;
         public CookieHandler cookieHandler;
         private readonly ApiService _apiService;
+        private readonly IConfiguration _config;
 
-        public HomeController(ApiService apiService,IDataProtectionProvider provider)
+        public HomeController(ApiService apiService,IDataProtectionProvider provider,IConfiguration config)
         {
             
             
             _provider = provider;
             cookieHandler = new CookieHandler(new HttpContextAccessor(), _provider);
             _apiService = apiService;
+            _config = config;
             
 
         }
@@ -85,7 +85,7 @@ namespace PasswordManagerApp.Controllers
         }
         private async Task<string> GetVisitorLocationAsync(string ip)
         {
-            string apiKey = "d9c08ff5970ecf16de9952e42bcc620f";
+            string apiKey = _config["IpLocationApiKey"];
             
             string countryName = "Unknown";
             string requestUri = $"http://api.ipstack.com/{ip}?access_key={apiKey}";

@@ -1,5 +1,4 @@
-﻿﻿using EmailService;
-using PasswordManagerApp.Models;
+﻿using PasswordManagerApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -9,7 +8,7 @@ namespace PasswordManagerApp.Services
 {
     public interface IUserService
     {
-        event EventHandler<Message> EmailSendEvent;
+       // event EventHandler<Message> EmailSendEvent;
         
         int GetAuthUserId();
 
@@ -18,8 +17,8 @@ namespace PasswordManagerApp.Services
         
 
 
-        bool VerifyEmail(string email);
-        User GetById(int id);
+      
+        
         
         
 

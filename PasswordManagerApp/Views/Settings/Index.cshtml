@@ -18,7 +18,8 @@
 
 
         <section class="section">
-            <form method="post"  data-ajax="true" data-ajax-method="POST"  data-ajax-mode="replace" data-ajax-complete="updateNotificationAlert();" data-ajax-update="#notification" data-ajax-url="@Url.Action("UpdatePreferences","Settings")">
+
+            <form method="post" data-ajax="true" data-ajax-method="POST" data-ajax-mode="replace" data-ajax-complete="updateNotificationAlert();" data-ajax-update="#notification" data-ajax-url="@Url.Action("UpdatePreferences","Settings")">
                 <div class="container">
                     <div class="row">
                         <div class="col-sm">
@@ -29,9 +30,10 @@
                                        data-ajax="true"
                                        data-ajax-method="GET"
                                        data-ajax-mode="replace"
-                                       data-ajax-complete="settingsFadeIn(); renewChangePassValidation();"
+                                       data-ajax-complete="settingsFadeIn();"
                                        data-ajax-update="#content"
-                                       data-ajax-url="@Url.Action("PasswordChange","Settings")"> Change password </a>
+                                       data-ajax-url="@Url.Action("PasswordChange","Settings")"
+                                       data-toggle="modal" data-target="#modalCenter"> Change password </a>
 
 
 
@@ -65,7 +67,7 @@
                                     </label>
 
                                     <div class="custom-control custom-switch">
-                                        <input type="checkbox" name="switchPnot" class="custom-control-input" id="switchPnot"  @if (@passNotStatus.Equals("1")) { @check }>
+                                        <input type="checkbox" name="switchPnot" class="custom-control-input" id="switchPnot" @if (@passNotStatus.Equals("1")) { @check }>
                                         <label class="custom-control-label" for="switchPnot">ON</label>
                                     </div>
 
@@ -82,9 +84,9 @@
                                     </label>
 
                                     <div class="d-flex justify-content-center my-4">
-                                        
-                                            <input id="sliderVerTime" name="sliderVerTime" class="border-0" type="range" min="5" max="60" @valueTime >
-                                        
+
+                                        <input id="sliderVerTime" name="sliderVerTime" class="border-0" type="range" min="5" max="60" @valueTime>
+
                                         <span class="font-weight-bold text-primary ml-2 mt-1 valueSpan"></span>
                                     </div>
 
@@ -103,7 +105,8 @@
                                        data-ajax-mode="replace"
                                        data-ajax-complete="settingsFadeIn();"
                                        data-ajax-update="#content"
-                                       data-ajax-url="@Url.Action("PasswordGenerator","Settings")"> Generate password </a>
+                                       data-ajax-url="@Url.Action("PasswordGenerator","Settings")"
+                                       data-toggle="modal" data-target="#modalCenter"> Generate password </a>
 
                                 </div>
 
@@ -113,32 +116,46 @@
 
                     </div>
                 </div>
-                
-                <button class="btn btn-primary" name="updatePref" type="submit" formaction="UpdatePreferences" formmethod="POST" >Save</button>
+
+                <button class="btn btn-primary" name="updatePref" type="submit" formaction="UpdatePreferences" formmethod="POST">Save</button>
 
             </form>
-            <button id="btnDefault" class="btn btn-primary">Default</button>
-            <div id="content" style="display:none">
-                <div class="d-flex justify-content-center">
-                <div class="spinner-border" role="status">
-                <span class="sr-only">Loading...</span>
-                                                </div>
-                            </div>
-                </div>
-                
-                <div class="col-sm" style="margin-left: 80%;">
-                    <div id="contentDeleteAccount" >Przemek</div>
-                            <div class="panel panel-primary" >    
-                                <div class="panel-heading clearfix">
-                                    <a class="btn btn-primary"
-                                       data-ajax="true"
-                                       data-ajax-method="GET"
-                                       data-ajax-mode="replace"
-                                       data-ajax-complete="contentDeleteFadeIn();  renewDeleteAccountValidation();"
-                                       data-ajax-update="#contentDeleteAccount"
-                                       data-ajax-url="@Url.Action("DeleteAccount1Step","Auth")"> Delete account </a>
 
-                                </div>
+            <button id="btnDefault" class="btn btn-primary">Default</button>
+            <!-- Modal -->
+            <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="content"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            
+
+
+
+            <div class="col-sm" style="margin-left: 80%;">
+                <div id="contentDeleteAccount"></div>
+                <div class="panel panel-primary">
+                    <div class="panel-heading clearfix">
+                        <a class="btn btn-primary"
+                           data-ajax="true"
+                           data-ajax-method="GET"
+                           data-ajax-mode="replace"
+                           
+                           data-ajax-update="#contentDeleteAccount"
+                           data-ajax-url="@Url.Action("DeleteAccount1Step","Auth")"> Delete account </a>
+
+                    </div>
         </section>
     </div>
 

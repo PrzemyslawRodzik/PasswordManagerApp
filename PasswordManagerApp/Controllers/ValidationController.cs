@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PasswordManagerApp.Interfaces;
+
 using PasswordManagerApp.Models;
 using PasswordManagerApp.Services;
 //using PasswordManagerApp.Models;
@@ -53,14 +53,16 @@ namespace PasswordManagerApp.Controllers
         [Authorize]
         [Route("VerifyLogin")]
         [AcceptVerbs("GET", "POST")]
-        public IActionResult VerifyLogin(string website,string login,int id)
+        public IActionResult VerifyLogin(string website,string login)
         {
-            if (_unitOfWork.Context.LoginDatas.Any(l => l.Website == website && l.Login == login))
-            {
-                return Json($"You already set login {login} for that website {website}");
-            }
-
+            var isDuplicateLogin = _apiService.CheckLoginDuplicate(website,login);
+             if (isDuplicateLogin)
+             {
+                 return Json($"You already set login {login} for that website {website}");
+             }
+             
             return Json(true);
+            
         }
         
         

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PasswordGenerator;
-using PasswordManagerApp.Interfaces;
+
 using PasswordManagerApp.Models;
 using PasswordManagerApp.Models.ViewModels;
 using PasswordManagerApp.Handlers;
@@ -19,19 +19,22 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Text.Json;
+using PasswordManagerApp.Services;
 
 namespace PasswordManagerApp.Controllers
 {  
-    [Authorize]   // pamiętać by odkomentować !
+    [Authorize]   
     [Route("user")]
     public class WalletController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
         
-            public WalletController(IUnitOfWork unitOfWork)
+        private readonly ApiService _apiService;
+        
+
+        public WalletController(ApiService apiService)
         {
+            _apiService = apiService;
             
-            _unitOfWork = unitOfWork;
         }
 
 
@@ -39,30 +42,32 @@ namespace PasswordManagerApp.Controllers
 
         [Route("dashboard")]
         [Route("~/")]
-        public IActionResult Index()
+        public IActionResult Index()   // pobierac z api 
         {
-            if (!User.Identity.IsAuthenticated)
-                return RedirectToAction(controllerName: "Auth", actionName: "Login");
+            /* if (!User.Identity.IsAuthenticated)
+                 return RedirectToAction(controllerName: "Auth", actionName: "Login");
 
 
-            var user = _unitOfWork.Users.Find<User>(int.Parse(User.Identity.Name));
+             var user = _unitOfWork.Users.Find<User>(int.Parse(User.Identity.Name));
 
-            var countLogin = _unitOfWork.Wallet.GetDataCountForUser<LoginData>(user);
-            var countCreditCards = _unitOfWork.Wallet.GetDataCountForUser<CreditCard>(user);
+             var countLogin = _unitOfWork.Wallet.GetDataCountForUser<LoginData>(user);
+             var countCreditCards = _unitOfWork.Wallet.GetDataCountForUser<CreditCard>(user);
 
-            ViewBag.countCreditCards = countCreditCards;
+             ViewBag.countCreditCards = countCreditCards;
 
-          var countPaypall =  _unitOfWork.Wallet.GetDataCountForUser<PaypallAcount>(user);
+           var countPaypall =  _unitOfWork.Wallet.GetDataCountForUser<PaypallAcount>(user);
 
-            ViewBag.countPasswords = countLogin + countPaypall;
+             ViewBag.countPasswords = countLogin + countPaypall;
 
-           var countPaypalComp =  _unitOfWork.Wallet.GetDataBreachForUser<PaypallAcount>(user);
+            var countPaypalComp =  _unitOfWork.Wallet.GetDataBreachForUser<PaypallAcount>(user);
 
-           var countLoginComp =  _unitOfWork.Wallet.GetDataBreachForUser<LoginData>(user);
-            ViewBag.countCompromised = countPaypalComp + countLoginComp;
+            var countLoginComp =  _unitOfWork.Wallet.GetDataBreachForUser<LoginData>(user);
+             ViewBag.countCompromised = countPaypalComp + countLoginComp;
 
-            ViewBag.countSharedData = _unitOfWork.Wallet.GetDataCountForUser<SharedLoginData>(user);
-            ViewBag.UserEmail = user.Email;
+             ViewBag.countSharedData = _unitOfWork.Wallet.GetDataCountForUser<SharedLoginData>(user);
+             ViewBag.UserEmail = user.Email;
+     */
+           
             return View("Views/Wallet/IndexDashboard.cshtml");
 
         }
