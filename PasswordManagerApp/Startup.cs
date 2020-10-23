@@ -55,8 +55,8 @@ namespace PasswordManagerApp
             services.AddCloudscribePagination();
             services.AddHttpClient<ApiService>(c =>
             {
-               //c.BaseAddress = new Uri("https://localhost:44324/api/");
-              c.BaseAddress = new Uri("https://localhost:5006/api/");
+               c.BaseAddress = new Uri("https://localhost:44324/api/");
+              //c.BaseAddress = new Uri("https://localhost:5006/api/");
                 
                 
 

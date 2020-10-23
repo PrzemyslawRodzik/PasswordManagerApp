@@ -48,9 +48,6 @@ namespace PasswordManagerApp.Controllers
         public  IActionResult Index()
         {
             
-            var x = _mock.GetAllEncryptionKeys();
-            ViewBag.KeyList = x;
-            
             VisitorAgentStatistics();
             
             

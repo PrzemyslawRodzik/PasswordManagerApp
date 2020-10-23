@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Home Page";
     string message = (string)ViewBag.LogoutMessage;
-    var keyList = ViewBag.KeyList as List<byte[]>;
+    
 }
 @if ( !(message is null) )
 {
@@ -22,17 +22,7 @@
     <h1 class="display-4">Password Manager App</h1>
     <p> Strona powitalna , dodać !</p>
     <ul>
-        @foreach (byte[] x in keyList)
-        {
-
-            <li>
-                @x
-            </li>
-
-
-
-
-        }
+       
     </ul>
 
     </div>
