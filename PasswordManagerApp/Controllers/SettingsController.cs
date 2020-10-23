@@ -21,16 +21,18 @@ namespace PasswordManagerApp.Controllers
     [Route("settings")]
     public class SettingsController : Controller
     {
-       // private readonly IUserService _userService;
+       
         private readonly ApiService _apiService;
         private readonly JwtHelper _jwtHelper;
         private readonly LogInHandler _logInHandler;
+        private readonly EncryptionService _encryptionService;
 
-        public SettingsController(ApiService apiService, JwtHelper jwtHelper, LogInHandler logInHandler)
+        public SettingsController(ApiService apiService, JwtHelper jwtHelper, LogInHandler logInHandler,EncryptionService encryptionService)
         {
              _apiService = apiService;
             _jwtHelper = jwtHelper;
             _logInHandler = logInHandler;
+            _encryptionService = encryptionService;
         }
 
         public IActionResult Index()
@@ -60,6 +62,10 @@ namespace PasswordManagerApp.Controllers
             ViewBag.Password = "";
             return PartialView("PasswordGenerator", new PassGeneratorViewModel());
         }
+        
+        [HttpGet]
+        [Route("passwordgeneratequick")]
+        public string PasswordGeneratorQuick() => new Password(true,true,true,true,13).Next();
 
 
         [HttpPost]
@@ -143,7 +149,8 @@ namespace PasswordManagerApp.Controllers
                 ClaimsPrincipal claimsPrincipal;
                 AuthenticationProperties authProperties;
                 _jwtHelper.ValidateToken(apiResponse.AccessToken,out claimsPrincipal, out authProperties);
-                _logInHandler.LogInUser(claimsPrincipal, authProperties);
+                await _logInHandler.LogInUser(claimsPrincipal, authProperties);
+                
                 ViewBag.Message = apiResponse.Messages.First();
                 return PartialView("~/Views/Shared/_NotificationAlert.cshtml");
             }

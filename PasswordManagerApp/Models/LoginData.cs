@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace PasswordManagerApp.Models
 {
     [Table("login_data")]
-    public class LoginData: UserRelationshipModel
+    public class LoginData: UserRelationshipModel,ISearchable
     {
 
         [Key]

@@ -28,15 +28,17 @@ namespace PasswordManagerApp.Controllers
         public CookieHandler cookieHandler;
         private readonly ApiService _apiService;
         private readonly IConfiguration _config;
+        private readonly EncryptionService _mock;
 
-        public HomeController(ApiService apiService,IDataProtectionProvider provider,IConfiguration config)
+        public HomeController(ApiService apiService,IDataProtectionProvider provider,IConfiguration config, EncryptionService mock)
         {
             
             
             _provider = provider;
-            cookieHandler = new CookieHandler(new HttpContextAccessor(), _provider);
+            cookieHandler = new CookieHandler(new HttpContextAccessor(), _provider,config);
             _apiService = apiService;
             _config = config;
+            _mock = mock;
             
 
         }
@@ -46,6 +48,8 @@ namespace PasswordManagerApp.Controllers
         public  IActionResult Index()
         {
             
+            var x = _mock.GetAllEncryptionKeys();
+            ViewBag.KeyList = x;
             
             VisitorAgentStatistics();
             

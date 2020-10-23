@@ -3,19 +3,22 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 
 namespace PasswordManagerApp.Models.ViewModels
 {
     public class LoginDataViewModel
     {
-        
-        
+
+
+        public string Id { get; set; }
         [Required]
         [StringLength(20, ErrorMessage = "{0} length must be between {2} and {1}.", MinimumLength = 3)]
         public string Name { get; set; }
+        
         [Required(ErrorMessage = "Please enter password")]
-        [DataType(DataType.Password)]
+       // [DataType(DataType.Password)]
         public string Password { get; set; }
         
         [Required(ErrorMessage = "Please enter confirm password")]
@@ -31,9 +34,12 @@ namespace PasswordManagerApp.Models.ViewModels
         public string Login { get; set; }
 
         [DataType(DataType.Url)]
-        [Remote(action: "VerifyLogin", controller: "Validation", AdditionalFields = nameof(Login))]
+        [Remote(action: "VerifyLogin", controller: "Validation", AdditionalFields ="Login,Id")]
         public string Website { get; set; }
+
         
-        
+        public DateTime ModifiedDate { get; set; }
+
+
     }
 }

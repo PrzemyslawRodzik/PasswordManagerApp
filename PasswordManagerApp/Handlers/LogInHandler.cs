@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using PasswordManagerApp.Services;
 using System;
 using System.Collections.Generic;
@@ -19,11 +20,12 @@ namespace PasswordManagerApp.Handlers
         private readonly IHttpContextAccessor _httpContextAccessor;
         public CookieHandler cookieHandler;
         public ApiService _apiService;
+       
 
-        public LogInHandler(IDataProtectionProvider provider, IHttpContextAccessor httpContextAccessor, ApiService apiService)
+        public LogInHandler(IDataProtectionProvider provider, IHttpContextAccessor httpContextAccessor, ApiService apiService,IConfiguration config)
         {
             _httpContextAccessor = httpContextAccessor;
-            cookieHandler = new CookieHandler(_httpContextAccessor, provider);
+            cookieHandler = new CookieHandler(_httpContextAccessor, provider,config);
             _apiService = apiService;
         }
 

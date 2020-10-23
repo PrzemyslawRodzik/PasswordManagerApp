@@ -12,20 +12,6 @@ namespace PasswordManagerApp.Services
         
         int GetAuthUserId();
 
-
-        
-        
-
-
-      
-        
-        
-        
-
-
-
-        bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt);
-
         void InformUserAboutOldPasswords(int userId);
         void InformAllUsersAboutOldPasswords();
         

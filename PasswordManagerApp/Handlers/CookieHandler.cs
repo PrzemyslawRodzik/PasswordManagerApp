@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Security.Cryptography;
 using System.Text;
@@ -9,13 +10,15 @@ namespace PasswordManagerApp.Handlers
 {
     public  class CookieHandler
     {
+        private readonly IConfiguration _config;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IDataProtector _protector;
 
-        public CookieHandler(IHttpContextAccessor httpContextAccessor, IDataProtectionProvider provider)
+        public CookieHandler(IHttpContextAccessor httpContextAccessor, IDataProtectionProvider provider,IConfiguration config)
         {
+            _config = config;
             _httpContextAccessor = httpContextAccessor;
-            _protector = provider.CreateProtector("PasswordManagerApp.CookieHandler.v1");
+            _protector = provider.CreateProtector(_config["CookieEncryptionKey"]);
             
         }
 

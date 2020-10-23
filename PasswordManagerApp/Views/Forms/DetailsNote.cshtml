@@ -1,0 +1,36 @@
+﻿@model PasswordManagerApp.Models.Note
+
+<div>
+    <h4>Note</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Details)
+        </dt>
+
+        <dd class="col-sm-10">
+
+            <input type="password" disabled id="encArea" value="@Model.Details">
+            <button onclick="switchVisibility()">show / hide</button>
+        </dd>
+
+
+
+
+
+
+
+
+
+    </dl>
+    
+</div>
+
+
+

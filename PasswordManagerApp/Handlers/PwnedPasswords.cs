@@ -30,16 +30,13 @@ namespace PasswordManagerApp.Handlers
         public async static Task<int> IsPasswordPwnedAsync(string password, CancellationToken cancellationToken, HttpClient httpClient = null)
         {
             if (password == null) return -1;
-
             byte[] byteString = Encoding.UTF8.GetBytes(password);
             byte[] hashBytes = null;
             var hashString = string.Empty;
-
             using (var sha1 = SHA1.Create())
             {
                 hashBytes = sha1.ComputeHash(byteString);
             }
-
             var sb = new StringBuilder();
             foreach (byte b in hashBytes)
             {
@@ -60,15 +57,9 @@ namespace PasswordManagerApp.Handlers
             {
                 var response = await client.GetStringAsync($"https://api.pwnedpasswords.com/range/{hashFirstFive}");
                 return ReduceResult(hashString, response);
-
-
-
-
-
             }
             catch (Exception)
             {
-                // todo: Log exceptions
                 return -1;
             }
         }

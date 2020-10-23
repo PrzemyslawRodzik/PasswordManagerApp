@@ -20,6 +20,8 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Text.Json;
 using PasswordManagerApp.Services;
+using System.Security.Claims;
+using PasswordManagerApp.Cache;
 
 namespace PasswordManagerApp.Controllers
 {  
@@ -29,69 +31,26 @@ namespace PasswordManagerApp.Controllers
     {
         
         private readonly ApiService _apiService;
-        
+        private readonly ICacheService _cache;
 
-        public WalletController(ApiService apiService)
+        public WalletController(ApiService apiService, ICacheService cache)
         {
             _apiService = apiService;
-            
+            _cache = cache;
         }
-
-
-
 
         [Route("dashboard")]
         [Route("~/")]
-        public IActionResult Index()   // pobierac z api 
+        public async Task<IActionResult> Index()   
         {
-            /* if (!User.Identity.IsAuthenticated)
-                 return RedirectToAction(controllerName: "Auth", actionName: "Login");
+                
+            var dictionary = await _cache.GetOrCreateCachedResponse<Dictionary<string,int>>(CacheKeys.Statistics + HttpContext.User.Identity.Name, () => _apiService.GetUserStatisticData());
+            ViewBag.StatisticData = dictionary;
+            ViewBag.UserEmail = HttpContext.User.Claims.FirstOrDefault(x => x.Type.Equals(ClaimTypes.Email)).Value;
 
-
-             var user = _unitOfWork.Users.Find<User>(int.Parse(User.Identity.Name));
-
-             var countLogin = _unitOfWork.Wallet.GetDataCountForUser<LoginData>(user);
-             var countCreditCards = _unitOfWork.Wallet.GetDataCountForUser<CreditCard>(user);
-
-             ViewBag.countCreditCards = countCreditCards;
-
-           var countPaypall =  _unitOfWork.Wallet.GetDataCountForUser<PaypallAcount>(user);
-
-             ViewBag.countPasswords = countLogin + countPaypall;
-
-            var countPaypalComp =  _unitOfWork.Wallet.GetDataBreachForUser<PaypallAcount>(user);
-
-            var countLoginComp =  _unitOfWork.Wallet.GetDataBreachForUser<LoginData>(user);
-             ViewBag.countCompromised = countPaypalComp + countLoginComp;
-
-             ViewBag.countSharedData = _unitOfWork.Wallet.GetDataCountForUser<SharedLoginData>(user);
-             ViewBag.UserEmail = user.Email;
-     */
-           
             return View("Views/Wallet/IndexDashboard.cshtml");
 
         }
-
-
-        
-        
-        
-        
-        
-
-
-
-       
-        
-       
-
-
-
-
-
-
-
-
 
     }
 }

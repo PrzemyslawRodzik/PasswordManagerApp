@@ -34,10 +34,14 @@ namespace PasswordManagerApp.Handlers
 
 
             RSA rsa = RSA.Create();
-            rsa.ImportRSAPublicKey(
+          /*  rsa.ImportRSAPublicKey(
                 source: Convert.FromBase64String(_config["JwtSettings:Asymmetric:PublicKey"]),
                 bytesRead: out int _
             );
+          */
+          
+            rsa.FromXmlString(_config["JwtSettings:Asymmetric:PublicKey"]);
+            
 
             var keyBytes = Encoding.UTF8.GetBytes(_config["JwtSettings:SecretEncryptionKey"]);
             var symmetricSecurityKey = new SymmetricSecurityKey(keyBytes);

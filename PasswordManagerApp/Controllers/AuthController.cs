@@ -32,15 +32,17 @@ namespace PasswordManagerApp.Controllers
         public DataProtectionHelper dataProtectionHelper;
         public LogInHandler _logInHandler;
         private readonly JwtHelper _jwtHelper;
+        private readonly EncryptionService _encryptionService;
 
-        public AuthController(IDataProtectionProvider provider, ApiService apiService, JwtHelper jwtHelper, LogInHandler logInHandler)
+        public AuthController(IDataProtectionProvider provider, ApiService apiService, JwtHelper jwtHelper, LogInHandler logInHandler,IConfiguration config, EncryptionService encryptionService)
         {
            
             _apiService = apiService;
             dataProtectionHelper = new DataProtectionHelper(provider);
-            cookieHandler = new CookieHandler(new HttpContextAccessor(), provider);
+            cookieHandler = new CookieHandler(new HttpContextAccessor(), provider, config);
             _jwtHelper = jwtHelper;
             _logInHandler = logInHandler;
+            _encryptionService = encryptionService;
 
 
 
@@ -91,16 +93,15 @@ namespace PasswordManagerApp.Controllers
         public async Task<IActionResult> LogIn(LoginViewModel model)
         {   
             var apiResponse = await _apiService.LogIn(model);
-
-              if (!apiResponse.Success)
+            if (!apiResponse.Success)
               {
-
-                  ModelState.AddModelError("Error", apiResponse.Messages.First());
-                  return View(new LoginViewModel());
+                ModelState.AddModelError("Error", apiResponse.Messages.First());
+                return View(new LoginViewModel());
               }
-              if (apiResponse.TwoFactorLogIn)
+            if (apiResponse.TwoFactorLogIn)
               {
-                  TempData["id"] = dataProtectionHelper.Encrypt(apiResponse.UserId.ToString(),"QueryStringsEncryptions");
+                _encryptionService.AddOrUpdateEncryptionKey(apiResponse.UserId.ToString(), model.Password);
+                TempData["id"] = dataProtectionHelper.Encrypt(apiResponse.UserId.ToString(),"QueryStringsEncryptions");
                   return RedirectToAction(actionName: "TwoFactorLogIn");
               }
 
@@ -113,12 +114,13 @@ namespace PasswordManagerApp.Controllers
                     return View(new LoginViewModel());
               }
              await _logInHandler.LogInUser(claimsPrincipal, authProperties);
+            _encryptionService.AddOrUpdateEncryptionKey(claimsPrincipal.Identity.Name, model.Password);
             
             return RedirectToAction(controllerName: "Wallet", actionName: "Index");
-
+        }
             
         
-        }
+        
        
        
         [Authorize]
@@ -181,6 +183,7 @@ namespace PasswordManagerApp.Controllers
             
             if(responseFromApi.Success)
             {
+                _encryptionService.RemoveEncryptionKey(HttpContext.User.Identity.Name);
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 TempData["logoutMessage"] = "You account has been deleted.";
                
@@ -226,7 +229,7 @@ namespace PasswordManagerApp.Controllers
                     return View(model);
               }
             await _logInHandler.LogInUser(claimsPrincipal, authProperties);
-            
+            _encryptionService.AddOrUpdateEncryptionKey(claimsPrincipal.Identity.Name, model.Password);
             return RedirectToAction(controllerName: "Wallet", actionName: "Index");
            
         }
@@ -234,6 +237,7 @@ namespace PasswordManagerApp.Controllers
         [Route("logout")]
         public async Task<IActionResult> Logout()
         {
+            _encryptionService.RemoveEncryptionKey(HttpContext.User.Identity.Name);
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             TempData["logoutMessage"] = "You were logged out.";
             return RedirectToAction(controllerName: "Home", actionName: "Index");
@@ -294,6 +298,7 @@ namespace PasswordManagerApp.Controllers
                 else
                 {
                     TempData["logoutMessage"] = "Your code has expired. Try log in again.";
+                    _encryptionService.RemoveEncryptionKey(idUser.ToString());
                     return RedirectToAction(controllerName: "Home", actionName: "Index");
                 }
             }

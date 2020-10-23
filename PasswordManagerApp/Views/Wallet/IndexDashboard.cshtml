@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = "IndexDashboard";
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
+
+    var statisticUserData = ViewBag.StatisticData as Dictionary<string, int>;
 }
 
 
@@ -26,7 +28,7 @@
                                         <i class="fa fa-lock"></i>
                                     </div>
                                     <div class="stat">
-                                        <div class="value"> @ViewBag.countPasswords </div>
+                                        <div class="value"> @statisticUserData["countPasswords"] </div>
                                         <div class="name"> Passwords </div>
                                     </div>
                                     <div class="progress stat-progress">
@@ -38,7 +40,7 @@
                                         <i class="fa fa-credit-card"></i>
                                     </div>
                                     <div class="stat">
-                                        <div class="value"> @ViewBag.countCreditCards </div>
+                                        <div class="value"> @statisticUserData["countCreditCards"] </div>
                                         <div class="name"> Credit cards </div>
                                     </div>
                                     <div class="progress stat-progress">
@@ -50,7 +52,7 @@
                                         <i class="fa fa-warning"></i>
                                     </div>
                                     <div class="stat">
-                                        <div class="value"> @ViewBag.countCompromised </div>
+                                        <div class="value"> @statisticUserData["countCompromised"] </div>
                                         <div class="name"> Compromised passwords </div>
                                     </div>
                                     <div class="progress stat-progress">
@@ -62,7 +64,7 @@
                                         <i class="fa fa-users"></i>
                                     </div>
                                     <div class="stat">
-                                        <div class="value"> @ViewBag.countSharedData </div>
+                                        <div class="value"> @statisticUserData["countSharedData"] </div>
                                         <div class="name"> Shared passwords </div>
                                     </div>
                                     <div class="progress stat-progress">

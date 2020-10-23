@@ -1,38 +1,29 @@
 ﻿@model PasswordManagerApp.Models.ViewModels.LoginDataViewModel
+<div id="NotificationLoginData">
 
 
-
-
-
-    <div id="NotificationLoginData">
-
-
-        @if (!ViewData.ModelState.IsValid && ViewData.ModelState["Error"].Errors.Count > 0)
-        {
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-                @ViewData.ModelState["Error"].Errors.First().ErrorMessage
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        }
-    </div>
+    @if (!ViewData.ModelState.IsValid && ViewData.ModelState["Error"].Errors.Count > 0)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            @ViewData.ModelState["Error"].Errors.First().ErrorMessage
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+</div>
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-10">
         <form class="loginDataForm" asp-action="AddOrEditLoginData">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" name="Id" value="@ViewBag.Id" />
 
-            <div class="form-group">
+            <div class="form-group mw-100">
                 <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
+                <input asp-for="Name" class="form-control" type="text" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
+            
             <div class="form-group">
                 <label asp-for="Login" class="control-label"></label>
                 <input asp-for="Login" class="form-control" />
@@ -40,9 +31,28 @@
             </div>
             <div class="form-group">
                 <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
+                <div class="row">
+                <div class="col-sm-auto" style="padding-left: 3%;"><a class="fa fa-eye" type="button" onclick="return switchVisibility();"></a></div>
+                <div class="col-sm-auto"><a class="fa fa-key" type="button" id="quickgenerator" onclick="return ajaxPasswordCall();"
+                                                   ></a> </div>
+                                                   
+                
+                <div class="col-sm-auto"> <a class="fa fa-lock"
+                   data-ajax="true"
+                   data-ajax-method="GET"
+                   data-ajax-mode="replace"
+                   data-ajax-update="#content"
+                   data-ajax-url="@Url.Action("PasswordGenerator","Settings")"></a>
+                </div> 
+            </div>
+                
+                    
+               
+
+                <input name="Password" id="encArea" type="password" class="form-control" value="@Model.Password" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
+            
             <div class="form-group">
                 <label asp-for="ConfirmPassword" class="control-label"></label>
                 <input asp-for="ConfirmPassword" class="form-control" />
@@ -53,6 +63,12 @@
                 <input asp-for="Website" class="form-control" />
                 <span asp-validation-for="Website" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+            </div>
 
 
             <div class="form-group">
@@ -62,7 +78,5 @@
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
 

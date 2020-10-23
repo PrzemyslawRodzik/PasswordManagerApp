@@ -8,10 +8,9 @@
 
 
 
+<div class="container-fluid"> 
 
-
-            
-                <div class="row">
+            <div class="row">
                     <div class="col-md-4">
                         <form class="noteForm" asp-action="AddOrEditNote" metod="post">
 
@@ -24,7 +23,8 @@
                             </div>
                             <div class="form-group">
                                 <label asp-for="Details" class="control-label"></label>
-                                <input asp-for="Details" class="form-control" />
+                                
+								<textarea class="form-control" asp-for="Details" rows="7"></textarea>
                                 <span asp-validation-for="Details" class="text-danger"></span>
                             </div>
 
@@ -34,6 +34,40 @@
                         </form>
                     </div>
                 </div>
+  
+  
+</div> 
+			
+			 
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+               
            
 
 

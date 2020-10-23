@@ -8,5 +8,6 @@ namespace PasswordManagerApp.ApiResponses
     public class ApiTwoFactorResponse : AuthResponse
     {
         public int VerificationStatus { get; set; }
+        
     }
 }

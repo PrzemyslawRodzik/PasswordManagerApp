@@ -16,45 +16,41 @@ using PasswordManagerApp.Handlers;
 using System.Collections.Generic;
 using PasswordManagerApp.Services;
 using PasswordManagerApp.Models.ViewModels;
+using PasswordManagerApp.Cache;
+using Microsoft.Extensions.Configuration;
+using System.Threading;
+using cloudscribe.Pagination.Models;
 
 namespace PasswordManagerApp.Controllers
 {
-
-
-
     [Authorize]
     public class LoginDataController : Controller
     {
-        
         public DataProtectionHelper dataProtectionHelper;
         private readonly ApiService _apiService;
+        private readonly EncryptionService _encryptionService;
+        private readonly ICacheService _cacheService;
+        private readonly IConfiguration _config;
 
-        public LoginDataController(IDataProtectionProvider provider,ApiService apiService)
+        public LoginDataController(IDataProtectionProvider provider,ApiService apiService, EncryptionService encryptionService, ICacheService cacheService,IConfiguration config)
         {
-            
             dataProtectionHelper = new DataProtectionHelper(provider);
             _apiService = apiService;
-            
-        }
+            _encryptionService = encryptionService;
+            _cacheService = cacheService;
+            _config = config;
+        }   
         
-
-
-
-        
-
+        public string AuthUserId { get { return HttpContext.User.Identity.Name; } }
 
         [Route("logindatas")]
-        public async Task<IActionResult> List()
+        public async Task<IActionResult> List(string searchString,int pageNumber=1, int pageSize=5)
         {
-
-            var userId = HttpContext.User.Identity.Name;
-
-
             IEnumerable<LoginData> loginDatas;
 
             try
             {
-                loginDatas = await _apiService.GetAllUserData<LoginData>(Int32.Parse(userId));
+                loginDatas = await _cacheService.GetOrCreateCachedResponse<LoginData>(CacheKeys.LoginData + AuthUserId, () => _apiService.GetAllUserData<LoginData>(Int32.Parse(AuthUserId)));
             }
             catch (HttpRequestException)
             {
@@ -62,98 +58,102 @@ namespace PasswordManagerApp.Controllers
             }
             loginDatas = loginDatas ?? Enumerable.Empty<LoginData>();
 
+            
+
+            if (!String.IsNullOrEmpty(searchString))
+                loginDatas = ViewHelper.FilterResult<LoginData>(loginDatas,searchString);
+                
+            
 
             Dictionary<int, string> encryptedIds = new Dictionary<int, string>();
             foreach (var x in loginDatas)
             {
-                encryptedIds.Add(x.Id, dataProtectionHelper.Encrypt(x.Id.ToString(), "QueryStringsEncryptions"));
+                encryptedIds.Add(x.Id, dataProtectionHelper.Encrypt(x.Id.ToString(), _config["QueryStringsEncryptions"]));
 
             }
             ViewBag.EncryptedIds = encryptedIds;
-            return View("Views/Wallet/ListItem.cshtml", loginDatas);
+            
+            return View("Views/Wallet/ListItem.cshtml", ViewHelper.PaginateResult<LoginData>(loginDatas,pageSize,pageNumber));
         }
 
-       
-        public async Task<IActionResult> AddOrEditLoginData(string Encrypted_id)
+        
+
+        [Route("loginDataDetails")]
+        public async Task<IActionResult> GetLoginDataById(string encrypted_id)
         {
-            if (Encrypted_id is null)
+            var loginDataId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
+            var logins = await _cacheService.GetOrCreateCachedResponse<LoginData>(CacheKeys.LoginData + AuthUserId, () => _apiService.GetAllUserData<LoginData>(Int32.Parse(AuthUserId)));
+            var loginData = logins.FirstOrDefault(x => x.Id == loginDataId);
+            return PartialView("Views/Forms/DetailsLoginData.cshtml", DecryptModel(loginData));
+        }
+        public async Task<IActionResult> AddOrEditLoginData(string encrypted_id)
+        {
+            if (encrypted_id is null)
             {
                 ViewBag.Id = 0;
                 return PartialView("Views/Forms/AddOrEditLoginData.cshtml", new LoginDataViewModel());
             }
             else
             {
-                int decrypted_id = Int32.Parse(dataProtectionHelper.Decrypt(Encrypted_id, "QueryStringsEncryptions"));
-
-                
-                var loginData = await _apiService.GetDataById<LoginData>(decrypted_id);
-                var loginDataView = new LoginDataViewModel
-                {
-                    Login = loginData.Login,
-                    Email = loginData.Email,
-                    Website = loginData.Website,
-                    Password = loginData.Password,
-                    Name = loginData.Name,
-
-                };
-
-                ViewBag.Id = Encrypted_id;
-                return PartialView("Views/Forms/AddOrEditLoginData.cshtml", loginDataView);
+                int decrypted_id = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
+                var loginDatas = await _cacheService.GetOrCreateCachedResponse<LoginData>(CacheKeys.LoginData + AuthUserId, () => _apiService.GetAllUserData<LoginData>(Int32.Parse(AuthUserId)));
+                var loginData = loginDatas.FirstOrDefault(x => x.Id == decrypted_id);
+                ViewBag.Id = encrypted_id;
+                return PartialView("Views/Forms/AddOrEditLoginData.cshtml", DecryptModel(loginData));
             }
 
         }
 
-        
+        private LoginDataViewModel DecryptModel(LoginData model)
+        {
+           return new LoginDataViewModel
+            {
+                Login = model.Login,
+                Email = model.Email,
+                Website = model.Website,
+                ModifiedDate = model.ModifiedDate,
+                Password = _encryptionService.Decrypt(AuthUserId, model.Password),
+                Name = model.Name,
+
+            };
+
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddOrEditLoginData(LoginDataViewModel loginDataView, string Id)
-        {
+        public async Task<IActionResult> AddOrEditLoginData(LoginDataViewModel loginDataView, string Id){
             if(!ModelState.IsValid)
                 return PartialView("Views/Forms/AddOrEditLoginData.cshtml", loginDataView);
-
             var loginData = new LoginData
             {
                 Id = 0,
+                Name = loginDataView.Name,
                 Login = loginDataView.Login,
                 Email = loginDataView.Email,
                 Website = loginDataView.Website,
-                Password = loginDataView.Password,
-                Name = loginDataView.Name,
+                Compromised = PwnedPasswords.IsPasswordPwnedAsync(loginDataView.Password, 
+                                                                new CancellationToken(), null).Result==-1 ? 0 : 1,
+                Password = _encryptionService.Encrypt(AuthUserId, 
+                                                    loginDataView.Password)   
             };
-
-            loginData.UserId = Int32.Parse(HttpContext.User.Identity.Name);
-            
-           
+            loginData.UserId = Int32.Parse(AuthUserId);
             if (!Id.Equals("0"))
-                 loginData.Id = Int32.Parse(dataProtectionHelper.Decrypt(Id, "QueryStringsEncryptions"));
-
+                 loginData.Id = Int32.Parse(dataProtectionHelper.Decrypt(Id, _config["QueryStringsEncryptions"]));
             if (loginData.Id == 0)
-              {
-                    await _apiService.CreateUpdateData<LoginData>(loginData);
-
-                    return RedirectToAction("List");
-             }
+              await _apiService.CreateUpdateData<LoginData>(loginData);
             else
-              {
-                    await _apiService.CreateUpdateData<LoginData>(loginData, loginData.Id);
-                    return RedirectToAction("List");
-
-              }
-
-            
-            
+              await _apiService.CreateUpdateData<LoginData>(loginData, loginData.Id);
+            _cacheService.ClearCache(CacheKeys.LoginData + AuthUserId);
+            return RedirectToAction("List");
         }
         [HttpPost]
         [Route("DeleteLoginData")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteLoginData(string encrypted_id)
-        {
-
-            var dataId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, "QueryStringsEncryptions"));
-
+        public async Task<IActionResult> DeleteLoginData(string encrypted_id){
+            var dataId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
             await _apiService.DeleteData<LoginData>(dataId);
-
-            return RedirectToAction(nameof(Index));
+            _cacheService.ClearCache(CacheKeys.LoginData + AuthUserId);
+            return RedirectToAction("List");
         }
     }
 }

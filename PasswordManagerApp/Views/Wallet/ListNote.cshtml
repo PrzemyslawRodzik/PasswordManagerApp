@@ -93,19 +93,27 @@
                                 <div class="item-heading">Password</div>
                                 <div>
                                     <a href="">@Html.DisplayFor(modelItem => item.Details)</a>
-                                    
- <a class="btn btn-primary btn-sm rounded-s"
-               data-ajax="true"
-               data-ajax-method="GET"
-               data-ajax-mode="replace"
-               data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
-               data-ajax-update="#content"
-               data-ajax-url="@Url.Action("AddOrEditNote","Note", new { encrypted_id = @encryptedFields[item.Id] })"
-               data-toggle="modal" data-target="#modalCenter"> Edit </a>
+
+                                    <a class="btn btn-primary btn-sm rounded-s"
+                                       data-ajax="true"
+                                       data-ajax-method="GET"
+                                       data-ajax-mode="replace"
+                                       data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
+                                       data-ajax-update="#content"
+                                       data-ajax-url="@Url.Action("AddOrEditNote","Note", new { encrypted_id = @encryptedFields[item.Id] })"
+                                       data-toggle="modal" data-target="#modalCenter"> Edit </a>
 
                                     <form asp-controller="Note" asp-action="DeleteNote" asp-route-encrypted_id="@encryptedFields[item.Id]">
                                         <input type="submit" value="Delete" />
                                     </form>
+                                    <a class="btn btn-primary btn-sm rounded-s"
+                                       data-ajax="true"
+                                       data-ajax-method="GET"
+                                       data-ajax-mode="replace"
+                                       data-ajax-complete="settingsFadeIn();"
+                                       data-ajax-update="#content"
+                                       data-ajax-url="@Url.Action("GetNoteById","Note",new { encrypted_id = @encryptedFields[item.Id] })"
+                                       data-toggle="modal" data-target="#modalCenter"> Details </a>
                                 </div>
                             </div>
 
@@ -161,7 +169,14 @@
 
     <script>
 
-        
+       
+
+        function switchVisibility()
+        {
+            const passwordField = document.querySelector('#encArea')
+            if (passwordField.getAttribute('type') === 'password') passwordField.setAttribute('type', 'text')
+            else passwordField.setAttribute('type', 'password')
+        }
 
         function settingsFadeIn() {
 
@@ -186,7 +201,7 @@
 
         }
 
-
+       
 
 
 

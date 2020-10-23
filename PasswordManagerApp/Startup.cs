@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using PasswordManagerApp.Cache;
 using PasswordManagerApp.Extensions;
 using PasswordManagerApp.Handlers;
 using PasswordManagerApp.Models;
@@ -36,6 +37,7 @@ namespace PasswordManagerApp
                 {
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 })
+        
             
             
             
@@ -50,11 +52,11 @@ namespace PasswordManagerApp
                   
                   });
 
-
+            services.AddCloudscribePagination();
             services.AddHttpClient<ApiService>(c =>
             {
-               c.BaseAddress = new Uri("https://localhost:44324/api/");
-             // c.BaseAddress = new Uri("https://localhost:5006/api/");
+               //c.BaseAddress = new Uri("https://localhost:44324/api/");
+              c.BaseAddress = new Uri("https://localhost:5006/api/");
                 
                 
 
@@ -71,9 +73,9 @@ namespace PasswordManagerApp
 
 
 
-
-
-            
+            services.AddScoped<ICacheService, CacheService>();
+            services.AddScoped<ICacheProvider, CacheProvider>();
+            services.AddSingleton<EncryptionService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<JwtHelper>();
             services.AddScoped<LogInHandler>();
@@ -94,6 +96,7 @@ namespace PasswordManagerApp
             
 
             services.ConfigureScheduleTasks();
+            
 
             
           

@@ -22,7 +22,7 @@
             document.write('<link rel="stylesheet" id="theme-style" href="../css/app-' + themeName + '.css">');
         }
         else {
-            document.write('<link rel="stylesheet" id="theme-style" href="../css/app-blue.css">');
+            document.write('<link rel="stylesheet" id="theme-style" href="../css/app-purple.css">');
         }
     </script>
 </head>
@@ -156,12 +156,12 @@
                     </div>
                     <nav class="menu">
                         <ul class="sidebar-menu metismenu" id="sidebar-menu">
-                            <li class="active">
+                            <li >
                                 <a asp-controller="Wallet" asp-action="Index">
                                     <i class="fa fa-home"></i> Dashboard
                                 </a>
                             </li>
-                            <li>
+                            <li class="active">
                                 <a asp-controller="LoginData" asp-action="List">
                                     <i class="fa fa-lock "></i> Login Data
                                 </a>

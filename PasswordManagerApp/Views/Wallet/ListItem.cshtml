@@ -1,243 +1,235 @@
-﻿@model IEnumerable<PasswordManagerApp.Models.LoginData>
-
+﻿@model cloudscribe.Pagination.Models.PagedResult<LoginData>
+@addTagHelper *, cloudscribe.Web.Pagination
 @{
     ViewData["Title"] = "ListItem";
+    ViewData["Controller"] = "LoginData";
+    ViewData["Action"] = "List";
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 
-
     var encryptedFields = ViewBag.EncryptedIds as Dictionary<int, string>;
+    var totalItems = (int)Model.TotalItems;
+
 }
 
-<article class="content items-list-page">
-    <div class="title-search-block">
-        <div class="title-block">
-            <div class="row">
-                <div class="col-md-6">
-                    <h3 class="title">
-                        LoginDatas <a class="btn btn-primary btn-sm rounded-s"
-                                      data-ajax="true"
-                                      data-ajax-method="GET"
-                                      data-ajax-mode="replace"
-                                      data-ajax-complete="settingsFadeIn(); renewLoginDataValidation();"
-                                      data-ajax-update="#content"
-                                      data-ajax-url="@Url.Action("AddOrEditLoginData","LoginData")"
-                                      data-toggle="modal" data-target="#modalCenter"> Add New </a>
-                    </h3>
-                    <!-- Modal -->
-                    <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
+    <article class="content items-list-page">
+        <script type="text/javascript">
+            function submitform() {
+                document.myformDelete.submit();
+            }
+        </script>
+        <div class="title-search-block">
+            <div class="title-block">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="title">
+                            LoginDatas <a class="btn btn-primary btn-sm rounded-s"
+                                          data-ajax="true"
+                                          data-ajax-method="GET"
+                                          data-ajax-mode="replace"
+                                          data-ajax-complete="settingsFadeIn(); renewLoginDataValidation();"
+                                          data-ajax-update="#content"
+                                          data-ajax-url="@Url.Action("AddOrEditLoginData","LoginData")"
+                                          data-toggle="modal" data-target="#modalCenter"> Add New </a>
+                        </h3>
 
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <div id="content"></div>
-                                </div>
+                        <!-- Details -->
+                        <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <a value=""></a>
+                                        <!--  Login data details-->
+                                        Add or edit your login data
 
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div id="content"></div>
+                                    </div>
+
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="action dropdown">
-                        <button class="btn  btn-sm rounded-s btn-secondary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> More actions... </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <a class="dropdown-item" href="#"><i class="fa fa-pencil-square-o icon"></i>Mark as a draft</a>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-close icon"></i>Delete</a>
-                        </div>
-                    </div>
+                        <!-- Modal -->
+                        <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        Add or edit your login data
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div id="content"></div>
+                                    </div>
 
-                    <h3 class="title">
-                    </h3>
-                    <div id="content"></div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+
+                        <h3 class="title">
+                        </h3>
+                        <div id="content"></div>
+                    </div>
                 </div>
             </div>
+            <div class="items-search">
+                <form class="form-inline" asp-action="List" asp-controller="LoginData" method="get">
+                    <div class="input-group">
+                        <input type="text" class="form-control boxed rounded-s" name="searchString" placeholder="Search for...">
+                        <a asp-action="List">X</a>
+                        <span class="input-group-btn">
+                            <button class="btn btn-secondary rounded-s" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="items-search">
-            <form class="form-inline">
-                <div class="input-group">
-                    <input type="text" class="form-control boxed rounded-s" placeholder="Search for...">
-                    <span class="input-group-btn">
-                        <button class="btn btn-secondary rounded-s" type="button">
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </span>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="card items">
-        <ul class="item-list striped">
-            <li class="item item-list-header">
-                <div class="item-row">
-                    <div class="item-col fixed item-col-check">
-                        <label class="item-check" id="select-all-items">
-                            <input type="checkbox" class="checkbox">
-                            <span></span>
-                        </label>
-                    </div>
-
-                    <div class="item-col item-col-header item-col-sales">
-                        <div>
-                            <span>@Html.DisplayNameFor(model => model.Name)</span>
-                        </div>
-                    </div>
-                    <div class="item-col item-col-header item-col-sales">
-                        <div>
-                            <span>@Html.DisplayNameFor(model => model.Website)</span>
-                        </div>
-                    </div>
-                    <div class="item-col item-col-header item-col-sales">
-                        <div>
-                            <span>@Html.DisplayNameFor(model => model.Login)</span>
-                        </div>
-                    </div>
-                    <div class="item-col item-col-header item-col-stats">
-                        <div class="no-overflow">
-                            <span>@Html.DisplayNameFor(model => model.Email)</span>
-                        </div>
-                    </div>
-                    <div class="item-col item-col-header item-col-stats">
-                        <div class="no-overflow">
-                            <span>@Html.DisplayNameFor(model => model.Password)</span>
-                        </div>
-                    </div>
-
-
-                    <div class="item-col item-col-header item-col-date">
-                        <div>
-                            <span>Published</span>
-                        </div>
-                    </div>
-                    <div class="item-col item-col-header fixed item-col-actions-dropdown">
-                    </div>
-                </div>
-            </li>
-
-            @foreach (var item in Model)
-            {
-                <li class="item">
+        <div class="card items">
+            <ul class="item-list striped">
+                <li class="item item-list-header">
                     <div class="item-row">
-                        <div class="item-col fixed item-col-check">
-                            <label class="item-check" id="select-all-items">
-                                <input type="checkbox" class="checkbox">
-                                <span></span>
-                            </label>
-                        </div>
-                        <div class="item-col fixed item-col-img md">
-                            <a href="item-editor.html">
-                                <div class="item-img rounded" style="background-image: url(https://s3.amazonaws.com/uifaces/faces/twitter/brad_frost/128.jpg)"></div>
-                            </a>
-                        </div>
-                        <div class="item-col fixed pull-left item-col-sales">
-                            <div class="item-heading">@Html.DisplayNameFor(modelItem => item.Name)</div>
-                            <div>
-                                <a href="item-editor.html" class="">
-                                    <h4 class="item-title"> @Html.DisplayFor(modelItem => item.Name) </h4>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="item-col item-col-sales">
-                            <div class="item-heading">@Html.DisplayNameFor(modelItem => item.Website)</div>
-                            <div> @Html.DisplayFor(modelItem => item.Website) </div>
-                        </div>
-                        <!--
-                                    <div class="item-col item-col-stats no-overflow">
-                                        <div class="item-heading">@Html.DisplayNameFor(modelItem => item.Login)</div>
-                                        <div class="no-overflow">
-                                            <div class="item-stats sparkline" data-type="bar"></div>
-                                        </div>
-                                    </div>
-                            -->
-                        <div class="item-col item-col-category no-overflow">
-                            <div class="item-heading">Login</div>
-                            <div class="no-overflow">
-                                <a href="">@Html.DisplayFor(modelItem => item.Login)</a>
-                            </div>
-                        </div>
-                        <div class="item-col item-col-category no-overflow">
-                            <div class="item-heading">Email</div>
-                            <div class="no-overflow">
-                                <a href="">@Html.DisplayFor(modelItem => item.Email)</a>
-                            </div>
-                        </div>
-                        <div class="item-col item-col-author">
-                            <div class="item-heading">Password</div>
-                            <div class="no-overflow">
-                                <a href="">@Html.DisplayFor(modelItem => item.Password)</a>
-                            </div>
-                        </div>
-                        <div class="item-col item-col-date">
-                            <div class="item-heading">Published</div>
-                            <div class="no-overflow">@Html.DisplayFor(modelItem => item.ModifiedDate)</div>
-                        </div>
-                        <div class="item-col fixed item-col-actions-dropdown">
-                            <div class="item-actions-dropdown">
-                                <a class="item-actions-toggle-btn">
-                                    <span class="inactive">
-                                        <i class="fa fa-cog"></i>
-                                    </span>
-                                    <span class="active">
-                                        <i class="fa fa-chevron-circle-right"></i>
-                                    </span>
-                                </a>
-                                <div class="item-actions-block">
-                                    <ul class="item-actions-list">
-                                        <li>
-                                            <form asp-action="DeleteLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
-                                                <button style="font-size:24px; color:red"> <i class="fa fa-trash-o"></i></button>
-                                            </form>
-                                            <!--  <a class="remove" asp-action="DeleteLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]" data-toggle="modal" data-target="#confirm-modal">
-                                                  <i class="fa fa-trash-o "></i>
-                                              </a> -->
-                                        </li>
 
-                                        <li>
-                                            <a class="edit" asp-action="AddOrEditLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]">
-                                                <i class="fa fa-pencil"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
+
+                        <div class="item-col item-col-header item-col-title">
+                            <div>
+                                <span>Name</span>
                             </div>
+                        </div>
+
+                        <div class="item-col item-col-header item-col-title">
+                            <div>
+                                <span>Website</span>
+                            </div>
+                        </div>
+
+
+                        <div class="item-col item-col-header fixed item-col-actions-dropdown">
                         </div>
                     </div>
                 </li>
-            }
+                
+                @foreach (var item in Model.Data)
+                {   
+                    <li class="item">
+                        <div class="item-row">
+
+
+                            <div class="item-col fixed pull-left item-col-title">
+                                <div class="item-heading">Name</div>
+                                <div>
+                                    
+                                        
+                                    
+                                    <a class="item-title" data-ajax="true"
+                                                   data-ajax-method="GET"
+                                                   data-ajax-mode="replace"
+                                                   data-ajax-complete="settingsFadeIn();"
+                                                   data-ajax-update="#content"
+                                                   data-ajax-url="@Url.Action("GetLoginDataById","LoginData",new { encrypted_id = @encryptedFields[item.Id] })"
+                                                   data-toggle="modal" data-target="#modalCenter" >
+                                                       @Html.DisplayFor(modelItem => item.Name) 
+                                                </a>
+                                </div>
+                            </div>
+                            <div class="item-col fixed pull-left item-col-title">
+                                <div class="item-heading">Website</div>
+                                <div>
+                                    <a href="#" class="">
+                                        <h4 class="item-title">  @Html.DisplayFor(modelItem => item.Website) </h4>
+                                    </a>
+                                </div>
+                            </div>
 
 
 
 
-        </ul>
-    </div>
-    <nav class="text-right">
-        <ul class="pagination">
-            <li class="page-item">
-                <a class="page-link" href=""> Prev </a>
-            </li>
-            <li class="page-item active">
-                <a class="page-link" href=""> 1 </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href=""> 2 </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href=""> 3 </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href=""> 4 </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href=""> 5 </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href=""> Next </a>
-            </li>
-        </ul>
-    </nav>
-</article>
+                            <div class="item-col fixed item-col-actions-dropdown">
+                                <div class="item-actions-dropdown">
+                                    <a class="item-actions-toggle-btn">
+                                        <span class="inactive">
+                                            <i class="fa fa-cog"></i>
+                                        </span>
+                                        <span class="active">
+                                            <i class="fa fa-chevron-circle-right"></i>
+                                        </span>
+                                    </a>
+                                    <div class="item-actions-block">
+                                        <ul class="item-actions-list">
+                                            <li>
+                                                <a class="fa fa-info-circle"
+                                                   data-ajax="true"
+                                                   data-ajax-method="GET"
+                                                   data-ajax-mode="replace"
+                                                   data-ajax-complete="settingsFadeIn();"
+                                                   data-ajax-update="#content"
+                                                   data-ajax-url="@Url.Action("GetLoginDataById","LoginData",new { encrypted_id = @encryptedFields[item.Id] })"
+                                                   data-toggle="modal" data-target="#modalCenter" >
+                                                </a>
+
+                                            </li>
+
+
+                                            <li>
+                                                <a class="fa fa-pencil-square-o"
+                                                   data-ajax="true"
+                                                   data-ajax-method="GET"
+                                                   data-ajax-mode="replace"
+                                                   data-ajax-complete="settingsFadeIn(); renewLoginDataValidation();"
+                                                   data-ajax-update="#content"
+                                                   data-ajax-url="@Url.Action("AddOrEditLoginData","LoginData",new { Encrypted_id=@encryptedFields[item.Id]} )"
+                                                   data-toggle="modal" data-target="#modalCenter" ></a>
+
+
+                                                <!-- <a class="edit" data-toggle="modal" data-target="#modalCenter" asp-action="AddOrEditLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]">
+            <i class="fa fa-pencil"></i>
+        </a>   -->
+                                            </li>
+                                            <li>
+                                                <form name="myformDelete" asp-action="DeleteLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
+                                                    <a href="javascript: submitform()" class="remove" data-toggle="modal" data-target="#confirm-modal" style="font-size:24px; color:gray"> <i class="fa fa-trash-o"></i></a>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                }
+
+
+
+
+                </ul>
+        </div>
+        
+       
+                <nav class="text-right">
+                        <ul class="pagination">
+                           <partial name="_PaginationPartial" view-data="ViewData" model="Model" />
+                        </ul>
+                </nav>
+       
+        
+            
+                
+ 
+              
+            
+            
+        
+    </article>
 
 
 
@@ -247,37 +239,63 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
 
-    <script>
+<script>
 
 
 
-        function settingsFadeIn() {
+    function settingsFadeIn() {
 
-            if ($('#content').length) {
-                $('#content').fadeOut('slow');
-                $('#content').fadeIn('slow');
-
-            }
-
-
-        }
-        function renewLoginDataValidation() {
-
-
-            // Remove validation.
-            $(".loginDataForm").removeData("validator").removeData("unobtrusiveValidation");
-
-            // Add validation again.
-            $.validator.unobtrusive.parse(".loginDataForm");
-
+        if ($('#content').length) {
+            $('#content').fadeOut('slow');
+            $('#content').fadeIn('slow');
 
         }
 
 
+    }
+    function renewLoginDataValidation() {
+
+
+        // Remove validation.
+        $(".loginDataForm").removeData("validator").removeData("unobtrusiveValidation");
+
+        // Add validation again.
+        $.validator.unobtrusive.parse(".loginDataForm");
+
+
+    }
 
 
 
-    </script>
+
+
+
+
+    function switchVisibility() {
+        const passwordField = document.querySelector('#encArea')
+        if (passwordField.getAttribute('type') === 'password') passwordField.setAttribute('type', 'text')
+        else passwordField.setAttribute('type', 'password')
+    }
+
+  function ajaxPasswordCall(){
+
+$.ajax({
+  url: "/settings/passwordgeneratequick",
+  type: "get", //send it through get method
+  data: { 
+    
+  },
+  success: function(response) {
+    $("#encArea").val(response);
+  },
+  
+});
+
+}
+</script>
+
+
+  
 
 
 

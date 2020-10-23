@@ -23,12 +23,14 @@ namespace PasswordManagerApp.Services
 
         private readonly HttpClient _client;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly EncryptionService _mock;
 
-        public ApiService(HttpClient client, IHttpContextAccessor httpContextAccessor)
+        public ApiService(HttpClient client, IHttpContextAccessor httpContextAccessor, EncryptionService mock)
          {
             _httpContextAccessor = httpContextAccessor;
             client.DefaultRequestHeaders.Authorization = GetAuthJwtTokenFromCookie();
             _client = client;
+            _mock = mock;
         }
 
         private AuthenticationHeaderValue GetAuthJwtTokenFromCookie() 
@@ -43,6 +45,15 @@ namespace PasswordManagerApp.Services
             if (response.IsSuccessStatusCode)
                 return true;
             return false;
+        }
+
+        public async Task<Dictionary<string,int>> GetUserStatisticData()
+        {
+            
+            var response = await _client.GetAsync("statistics/user-data");
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<Dictionary<string,int>>(responseString);
         }
 
         #region Generic CRUD api calls
