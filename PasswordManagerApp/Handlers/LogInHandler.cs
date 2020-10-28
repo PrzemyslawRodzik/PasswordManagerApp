@@ -43,11 +43,9 @@ namespace PasswordManagerApp.Handlers
 
         public void HandleNewDeviceLogIn(int userId)
         {
-            
             var c = cookieHandler.GetClientInfo();
             string browser = c.UA.Family.ToString() + " " + c.UA.Major.ToString();
             string osName = c.OS.ToString();
-
             string guidDevice = "";
             bool IsUserGuidDeviceMatch = true;
 

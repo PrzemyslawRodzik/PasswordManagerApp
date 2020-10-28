@@ -39,15 +39,6 @@ namespace PasswordManagerApp.Handlers
         public void CreateCookie(string key, string value, int? expireTime)
         {
             string protectedCookieData = "";
-            string decryptedCookieData = "";
-            if (CheckIfCookieExist(key))
-            {
-                decryptedCookieData = ReadAndDecryptCookie(key);
-                value = decryptedCookieData + value;
-
-            }
-            
-            
             protectedCookieData = EncryptCookieData(value);
             CookieOptions option = new CookieOptions();
             option.HttpOnly = true;
@@ -77,7 +68,15 @@ namespace PasswordManagerApp.Handlers
 
             //Get a data protector to use with either approach
             var dataProtector = _protector;
-            return dataProtector.Unprotect(cookieValue);
+            try
+            {
+                return dataProtector.Unprotect(cookieValue);
+            }
+            catch (Exception)
+            {
+                return "Forged";
+            }
+            
             
 
          /*

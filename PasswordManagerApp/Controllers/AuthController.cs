@@ -94,28 +94,26 @@ namespace PasswordManagerApp.Controllers
         {   
             var apiResponse = await _apiService.LogIn(model);
             if (!apiResponse.Success)
-              {
+            {
                 ModelState.AddModelError("Error", apiResponse.Messages.First());
                 return View(new LoginViewModel());
-              }
+            }
             if (apiResponse.TwoFactorLogIn)
-              {
-                _encryptionService.AddOrUpdateEncryptionKey(apiResponse.UserId.ToString(), model.Password);
-                TempData["id"] = dataProtectionHelper.Encrypt(apiResponse.UserId.ToString(),"QueryStringsEncryptions");
-                  return RedirectToAction(actionName: "TwoFactorLogIn");
-              }
-
+            {
+               _encryptionService.AddOrUpdateEncryptionKey(apiResponse.UserId.ToString(), model.Password);
+               TempData["id"] = dataProtectionHelper.Encrypt(apiResponse.UserId.ToString(),"QueryStringsEncryptions");
+               return RedirectToAction(actionName: "TwoFactorLogIn");
+            }
             ClaimsPrincipal claimsPrincipal;
             AuthenticationProperties authProperties;
             var isSuccess = _jwtHelper.ValidateToken(apiResponse.AccessToken, out claimsPrincipal, out authProperties);
             if (!isSuccess)
-              { 
-                    ModelState.AddModelError("Error", "Json Web Token is invalid.");
-                    return View(new LoginViewModel());
-              }
+            { 
+               ModelState.AddModelError("Error", "Json Web Token is invalid.");
+               return View(new LoginViewModel());
+            }
              await _logInHandler.LogInUser(claimsPrincipal, authProperties);
-            _encryptionService.AddOrUpdateEncryptionKey(claimsPrincipal.Identity.Name, model.Password);
-            
+             _encryptionService.AddOrUpdateEncryptionKey(claimsPrincipal.Identity.Name, model.Password);
             return RedirectToAction(controllerName: "Wallet", actionName: "Index");
         }
             
@@ -230,8 +228,7 @@ namespace PasswordManagerApp.Controllers
               }
             await _logInHandler.LogInUser(claimsPrincipal, authProperties);
             _encryptionService.AddOrUpdateEncryptionKey(claimsPrincipal.Identity.Name, model.Password);
-            return RedirectToAction(controllerName: "Wallet", actionName: "Index");
-           
+            return RedirectToAction(controllerName: "Wallet", actionName: "Index");  
         }
         [Authorize]
         [Route("logout")]

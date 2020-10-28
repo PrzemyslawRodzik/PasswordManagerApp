@@ -77,7 +77,7 @@ namespace PasswordManagerApp.Controllers
             var c = cookieHandler.GetClientInfo();
             VisitorAgent visitor = new VisitorAgent();
             visitor.Browser = c.UA.Family.ToString().ToString() + " " + c.UA.Major.ToString();
-            visitor.OperatingSystem = c.OS.Family.ToString();
+            visitor.OperatingSystem = c.OS.Family.ToString()+" "+ c.OS.Major.ToString();
             visitor.Country = countryName.Result;
             visitor.VisitTime = DateTime.UtcNow.ToLocalTime().ToString("yyyy-MM-dd' 'HH:mm:ss");
             
