@@ -47,7 +47,7 @@ namespace PasswordManagerApp.Models
         public ICollection<Totp_user> Totp_Users { get; set; }
         public ICollection<LoginData> LoginDatas { get; set; }
         public ICollection<CreditCard> CreditCards { get; set; }
-        public ICollection<PaypallAcount> PaypallAcounts { get; set; }
+        public ICollection<PaypalAccount> PaypalAccounts { get; set; }
         public ICollection<Note> Notes { get; set; }
         public ICollection<SharedLoginData> SharedLoginDatas { get; set; }
 

@@ -48,24 +48,22 @@ namespace PasswordManagerApp.Handlers
             string osName = c.OS.ToString();
             string guidDevice = "";
             bool IsUserGuidDeviceMatch = true;
-
             var deviceCookieExist = cookieHandler.CheckIfCookieExist("DeviceInfo");
             if (deviceCookieExist)
             {
                 var GuidDeviceFromCookie = cookieHandler.ReadAndDecryptCookie("DeviceInfo");
-                IsUserGuidDeviceMatch = _apiService.CheckUserGuidDeviceInDb(dataToSHA256(GuidDeviceFromCookie),userId); 
+                IsUserGuidDeviceMatch = _apiService.CheckUserGuidDeviceInDb(
+                    dataToSHA256(GuidDeviceFromCookie),userId); 
                 if (IsUserGuidDeviceMatch)
                     return;
-            
             }
             if(deviceCookieExist==false || IsUserGuidDeviceMatch==false)
             {
                guidDevice = Guid.NewGuid().ToString();
                cookieHandler.CreateCookie("DeviceInfo", guidDevice, null);
-               _apiService.HandleNewDeviceLogIn(GetUserIpAddress(), dataToSHA256(guidDevice),userId,osName, browser);
-
+               _apiService.HandleNewDeviceLogIn(GetUserIpAddress(), 
+                   dataToSHA256(guidDevice),userId,osName, browser);
             }
-            
         }
         private string GetUserIpAddress() => _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
         private string dataToSHA256(string data)

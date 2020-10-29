@@ -11,225 +11,229 @@
 
 }
 
-    <article class="content items-list-page">
-        <script type="text/javascript">
-            function submitform() {
-                document.myformDelete.submit();
-            }
-        </script>
-        <div class="title-search-block">
-            <div class="title-block">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h3 class="title">
-                            LoginDatas <a class="btn btn-primary btn-sm rounded-s"
-                                          data-ajax="true"
-                                          data-ajax-method="GET"
-                                          data-ajax-mode="replace"
-                                          data-ajax-complete="settingsFadeIn(); renewLoginDataValidation();"
-                                          data-ajax-update="#content"
-                                          data-ajax-url="@Url.Action("AddOrEditLoginData","LoginData")"
-                                          data-toggle="modal" data-target="#modalCenter"> Add New </a>
-                        </h3>
+<article class="content items-list-page">
+    <script type="text/javascript">
+        function submitform() {
+            document.myformDelete.submit();
+        }
+    </script>
+    <div class="title-search-block">
+        <div class="title-block">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 class="title">
+                        LoginDatas <a class="btn btn-primary btn-sm rounded-s"
+                                      data-ajax="true"
+                                      data-ajax-method="GET"
+                                      data-ajax-mode="replace"
+                                      data-ajax-complete="settingsFadeIn(); renewLoginDataValidation();"
+                                      data-ajax-update="#content"
+                                      data-ajax-url="@Url.Action("AddOrEditLoginData","LoginData")"
+                                      data-toggle="modal" data-target="#modalCenter"> Add New </a>
+                    </h3>
 
-                        <!-- Details -->
-                        <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <a value=""></a>
-                                        <!--  Login data details-->
-                                        Add or edit your login data
+                    <!-- Details -->
+                    <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <a value=""></a>
+                                    <!--  Login data details-->
+                                    
 
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div id="content"></div>
-                                    </div>
-
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
+                                <div class="modal-body">
+                                    <div id="content"></div>
+                                </div>
+
                             </div>
                         </div>
-                        <!-- Modal -->
-                        <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        Add or edit your login data
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div id="content"></div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-
-
-
-
-
-
-                        <h3 class="title">
-                        </h3>
-                        <div id="content"></div>
                     </div>
+                    <!-- Modal -->
+                    <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div id="contentDetails"></div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+
+                    <h3 class="title">
+                    </h3>
+                    <div id="content"></div>
                 </div>
             </div>
-            <div class="items-search">
-                <form class="form-inline" asp-action="List" asp-controller="LoginData" method="get">
-                    <div class="input-group">
-                        <input type="text" class="form-control boxed rounded-s" name="searchString" placeholder="Search for...">
-                        <a asp-action="List">X</a>
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary rounded-s" type="submit">
-                                <i class="fa fa-search"></i>
-                            </button>
-                        </span>
-                    </div>
-                </form>
-            </div>
         </div>
-        <div class="card items">
-            <ul class="item-list striped">
-                <li class="item item-list-header">
+        <div class="items-search">
+            <form class="form-inline" asp-action="List" asp-controller="LoginData" method="get">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <input type="text" class="form-control boxed rounded-s" name="searchString" placeholder="Search for...">
+
+                        <button class="btn btn-secondary rounded-s" asp-action="List">
+                            <i class="fa fa-backward"></i>
+                        </button>
+                        <button class="btn btn-secondary rounded-s" type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card items">
+        <ul class="item-list striped">
+            <li class="item item-list-header">
+                <div class="item-row">
+
+
+                    <div class="item-col item-col-header item-col-title">
+                        <div>
+                            <span>Name</span>
+                        </div>
+                    </div>
+
+                    <div class="item-col item-col-header item-col-title">
+                        <div>
+                            <span>Website</span>
+                        </div>
+                    </div>
+
+
+                    <div class="item-col item-col-header fixed item-col-actions-dropdown">
+                    </div>
+                </div>
+            </li>
+
+            @foreach (var item in Model.Data)
+            {
+                <li class="item">
                     <div class="item-row">
 
 
-                        <div class="item-col item-col-header item-col-title">
+                        <div class="item-col fixed pull-left item-col-title">
+                            <div class="item-heading">Name</div>
                             <div>
-                                <span>Name</span>
+
+
+
+                                <a class="item-title" data-ajax="true"
+                                   data-ajax-method="GET"
+                                   data-ajax-mode="replace"
+                                   data-ajax-complete="settingsFadeIn();"
+                                   data-ajax-update="#content"
+                                   data-ajax-url="@Url.Action("GetLoginDataById","LoginData",new { encrypted_id = @encryptedFields[item.Id] })"
+                                   data-toggle="modal" data-target="#modalCenter">
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </a>
+                            </div>
+                        </div>
+                        <div class="item-col fixed pull-left item-col-title">
+                            <div class="item-heading">Website</div>
+                            <div>
+                                <a href="#" class="">
+                                    <h4 class="item-title">  @Html.DisplayFor(modelItem => item.Website) </h4>
+                                </a>
                             </div>
                         </div>
 
-                        <div class="item-col item-col-header item-col-title">
-                            <div>
-                                <span>Website</span>
+
+
+
+                        <div class="item-col fixed item-col-actions-dropdown">
+                            <div class="item-actions-dropdown">
+                                <a class="item-actions-toggle-btn">
+                                    <span class="inactive">
+                                        <i class="fa fa-cog"></i>
+                                    </span>
+                                    <span class="active">
+                                        <i class="fa fa-chevron-circle-right"></i>
+                                    </span>
+                                </a>
+                                <div class="item-actions-block">
+                                    <ul class="item-actions-list">
+                                        <li>
+                                            <a class="fa fa-info-circle"
+                                               data-ajax="true"
+                                               data-ajax-method="GET"
+                                               data-ajax-mode="replace"
+                                               data-ajax-complete="settingsFadeIn();"
+                                               data-ajax-update="#content"
+                                               data-ajax-url="@Url.Action("GetLoginDataById","LoginData",new { encrypted_id = @encryptedFields[item.Id] })"
+                                               data-toggle="modal" data-target="#modalCenter">
+                                            </a>
+
+                                        </li>
+
+
+                                        <li>
+                                            <a class="fa fa-pencil-square-o"
+                                               data-ajax="true"
+                                               data-ajax-method="GET"
+                                               data-ajax-mode="replace"
+                                               data-ajax-complete="settingsFadeIn(); renewLoginDataValidation();"
+                                               data-ajax-update="#content"
+                                               data-ajax-url="@Url.Action("AddOrEditLoginData","LoginData",new { Encrypted_id=@encryptedFields[item.Id]} )"
+                                               data-toggle="modal" data-target="#modalCenter"></a>
+
+
+                                            <!-- <a class="edit" data-toggle="modal" data-target="#modalCenter" asp-action="AddOrEditLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]">
+                                                <i class="fa fa-pencil"></i>
+                                            </a>   -->
+                                        </li>
+                                        <li>
+                                            <form name="myformDelete" asp-action="DeleteLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
+                                                <a href="javascript: submitform()" class="remove" data-toggle="modal" data-target="#confirm-modal" style="font-size:24px; color:gray"> <i class="fa fa-trash-o"></i></a>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
-
-
-                        <div class="item-col item-col-header fixed item-col-actions-dropdown">
                         </div>
                     </div>
                 </li>
-                
-                @foreach (var item in Model.Data)
-                {   
-                    <li class="item">
-                        <div class="item-row">
-
-
-                            <div class="item-col fixed pull-left item-col-title">
-                                <div class="item-heading">Name</div>
-                                <div>
-                                    
-                                        
-                                    
-                                    <a class="item-title" data-ajax="true"
-                                                   data-ajax-method="GET"
-                                                   data-ajax-mode="replace"
-                                                   data-ajax-complete="settingsFadeIn();"
-                                                   data-ajax-update="#content"
-                                                   data-ajax-url="@Url.Action("GetLoginDataById","LoginData",new { encrypted_id = @encryptedFields[item.Id] })"
-                                                   data-toggle="modal" data-target="#modalCenter" >
-                                                       @Html.DisplayFor(modelItem => item.Name) 
-                                                </a>
-                                </div>
-                            </div>
-                            <div class="item-col fixed pull-left item-col-title">
-                                <div class="item-heading">Website</div>
-                                <div>
-                                    <a href="#" class="">
-                                        <h4 class="item-title">  @Html.DisplayFor(modelItem => item.Website) </h4>
-                                    </a>
-                                </div>
-                            </div>
+            }
 
 
 
 
-                            <div class="item-col fixed item-col-actions-dropdown">
-                                <div class="item-actions-dropdown">
-                                    <a class="item-actions-toggle-btn">
-                                        <span class="inactive">
-                                            <i class="fa fa-cog"></i>
-                                        </span>
-                                        <span class="active">
-                                            <i class="fa fa-chevron-circle-right"></i>
-                                        </span>
-                                    </a>
-                                    <div class="item-actions-block">
-                                        <ul class="item-actions-list">
-                                            <li>
-                                                <a class="fa fa-info-circle"
-                                                   data-ajax="true"
-                                                   data-ajax-method="GET"
-                                                   data-ajax-mode="replace"
-                                                   data-ajax-complete="settingsFadeIn();"
-                                                   data-ajax-update="#content"
-                                                   data-ajax-url="@Url.Action("GetLoginDataById","LoginData",new { encrypted_id = @encryptedFields[item.Id] })"
-                                                   data-toggle="modal" data-target="#modalCenter" >
-                                                </a>
-
-                                            </li>
+        </ul>
+    </div>
 
 
-                                            <li>
-                                                <a class="fa fa-pencil-square-o"
-                                                   data-ajax="true"
-                                                   data-ajax-method="GET"
-                                                   data-ajax-mode="replace"
-                                                   data-ajax-complete="settingsFadeIn(); renewLoginDataValidation();"
-                                                   data-ajax-update="#content"
-                                                   data-ajax-url="@Url.Action("AddOrEditLoginData","LoginData",new { Encrypted_id=@encryptedFields[item.Id]} )"
-                                                   data-toggle="modal" data-target="#modalCenter" ></a>
-
-
-                                                <!-- <a class="edit" data-toggle="modal" data-target="#modalCenter" asp-action="AddOrEditLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]">
-            <i class="fa fa-pencil"></i>
-        </a>   -->
-                                            </li>
-                                            <li>
-                                                <form name="myformDelete" asp-action="DeleteLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
-                                                    <a href="javascript: submitform()" class="remove" data-toggle="modal" data-target="#confirm-modal" style="font-size:24px; color:gray"> <i class="fa fa-trash-o"></i></a>
-                                                </form>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                }
+    <nav class="text-right">
+        <ul class="pagination">
+            <partial name="_PaginationPartial" view-data="ViewData" model="Model" />
+        </ul>
+    </nav>
 
 
 
 
-                </ul>
-        </div>
-        
-       
-                <nav class="text-right">
-                        <ul class="pagination">
-                           <partial name="_PaginationPartial" view-data="ViewData" model="Model" />
-                        </ul>
-                </nav>
-       
-        
-            
-                
- 
-              
-            
-            
-        
-    </article>
+
+
+
+
+
+</article>
 
 
 
@@ -239,63 +243,92 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
 
-<script>
+    <script>
 
 
 
-    function settingsFadeIn() {
+        function settingsFadeIn() {
 
-        if ($('#content').length) {
-            $('#content').fadeOut('slow');
-            $('#content').fadeIn('slow');
+            if ($('#content').length) {
+                $('#content').fadeOut('slow');
+                $('#content').fadeIn('slow');
+
+            }
+
+
+        }
+        function renewLoginDataValidation() {
+
+
+            // Remove validation.
+            $(".loginDataForm").removeData("validator").removeData("unobtrusiveValidation");
+
+            // Add validation again.
+            $.validator.unobtrusive.parse(".loginDataForm");
+
+            
+            $("#encArea").on('change keypress paste input', function (e) {
+               
+                $("#resultArea").text(' ');
+            });
+
+            
+            
+
 
         }
 
 
-    }
-    function renewLoginDataValidation() {
-
-
-        // Remove validation.
-        $(".loginDataForm").removeData("validator").removeData("unobtrusiveValidation");
-
-        // Add validation again.
-        $.validator.unobtrusive.parse(".loginDataForm");
-
-
-    }
 
 
 
 
 
+        function switchVisibility() {
+            const passwordField = document.querySelector('#encArea')
+            if (passwordField.getAttribute('type') === 'password') passwordField.setAttribute('type', 'text')
+            else passwordField.setAttribute('type', 'password')
+        }
+
+        function ajaxPasswordCall() {
+
+            $.ajax({
+                url: "/settings/passwordgeneratequick",
+                type: "get",
+                data: {
+
+                },
+                success: function (response) {
+                    $("#encArea").val(response);
+                },
+
+            });
+
+        }
+
+        
+
+        function ajaxHibpCall() {
+
+            $.ajax({
+                url: "/settings/hibpcheck",
+                type: "post",
+                data: {
+                    password: $("#encArea").val()
+                },
+                success: function (response) {
+                    $("#resultArea").text(response);
+                    $('#resultArea').fadeOut('slow');
+                    $('#resultArea').fadeIn('slow');
+                },
+
+            });
+
+        }
+    </script>
 
 
-    function switchVisibility() {
-        const passwordField = document.querySelector('#encArea')
-        if (passwordField.getAttribute('type') === 'password') passwordField.setAttribute('type', 'text')
-        else passwordField.setAttribute('type', 'password')
-    }
-
-  function ajaxPasswordCall(){
-
-$.ajax({
-  url: "/settings/passwordgeneratequick",
-  type: "get", //send it through get method
-  data: { 
     
-  },
-  success: function(response) {
-    $("#encArea").val(response);
-  },
-  
-});
-
-}
-</script>
-
-
-  
 
 
 

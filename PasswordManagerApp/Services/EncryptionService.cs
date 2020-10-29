@@ -71,9 +71,10 @@ namespace PasswordManagerApp.Services
                 return AESHelper.DecryptAES(encData, myAes.Key);
             }   
         }
-            
-            
         
+
+
+
         private string ToBase64String(byte[] data) => Convert.ToBase64String(data);
         private byte[] dataToSHA256(string data)
         {

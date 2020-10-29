@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +36,8 @@ namespace PasswordManagerApp.Controllers
             _encryptionService = encryptionService;
         }
 
+        public string AuthUserId { get { return HttpContext.User.Identity.Name; } }
+
         public IActionResult Index()
         {
             PopulateForm();
@@ -66,6 +69,19 @@ namespace PasswordManagerApp.Controllers
         [HttpGet]
         [Route("passwordgeneratequick")]
         public string PasswordGeneratorQuick() => new Password(true,true,true,true,13).Next();
+
+        [HttpPost]
+        [Route("hibpcheck")]
+        public string HibpCheck(string password)
+        {
+           var hibpResult =  PwnedPasswords.IsPasswordPwnedAsync(password, new CancellationToken(), null).Result;
+            if (hibpResult <= 0)
+                return "Your password is OK :)";
+            else
+                return $"Your password have been pwned {hibpResult}. Please, change your password.";
+        }
+
+        
 
 
         [HttpPost]
@@ -121,6 +137,7 @@ namespace PasswordManagerApp.Controllers
             
              if(apiResponse.Success)
                 {
+                _encryptionService.AddOrUpdateEncryptionKey(AuthUserId, model.NewPassword);
                     ViewBag.Message = apiResponse.Messages.First();
                     return PartialView("~/Views/Shared/_NotificationAlert.cshtml");
                 }

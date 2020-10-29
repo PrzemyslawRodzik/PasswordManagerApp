@@ -15,10 +15,10 @@ namespace PasswordManagerApp.Models.ViewModels
         public string Id { get; set; }
         [Required]
         [StringLength(20, ErrorMessage = "{0} length must be between {2} and {1}.", MinimumLength = 3)]
-        public string Name { get; set; }
+        public  string Name { get; set; }
         
         [Required(ErrorMessage = "Please enter password")]
-       // [DataType(DataType.Password)]
+       
         public string Password { get; set; }
         
         [Required(ErrorMessage = "Please enter confirm password")]
@@ -39,6 +39,15 @@ namespace PasswordManagerApp.Models.ViewModels
 
         
         public DateTime ModifiedDate { get; set; }
+
+
+
+
+        
+
+        
+
+
 
 
     }

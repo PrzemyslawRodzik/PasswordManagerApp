@@ -56,7 +56,7 @@ namespace PasswordManagerApp
             services.AddHttpClient<ApiService>(c =>
             {
                c.BaseAddress = new Uri("https://localhost:44324/api/");
-              //c.BaseAddress = new Uri("https://localhost:5006/api/");
+             // c.BaseAddress = new Uri("https://localhost:5006/api/");
                 
                 
 
@@ -87,8 +87,7 @@ namespace PasswordManagerApp
          */
 
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(Configuration.GetConnectionString("SqliteConnection")));
+            
 
 
 
@@ -111,7 +110,7 @@ namespace PasswordManagerApp
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext applicationDbContext)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
 
 

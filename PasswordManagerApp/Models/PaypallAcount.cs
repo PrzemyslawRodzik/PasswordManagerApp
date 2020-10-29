@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PasswordManagerApp.Models
 {   [Table("paypall_account")]
-    public class PaypallAcount : UserRelationshipModel
+    public class PaypalAccount : UserRelationshipModel
     {   [Key]
         public int Id { get; set; }
 

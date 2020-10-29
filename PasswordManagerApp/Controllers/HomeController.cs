@@ -76,8 +76,8 @@ namespace PasswordManagerApp.Controllers
             var countryName = GetVisitorLocationAsync(Request.HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString());
             var c = cookieHandler.GetClientInfo();
             VisitorAgent visitor = new VisitorAgent();
-            visitor.Browser = c.UA.Family.ToString().ToString() + " " + c.UA.Major.ToString();
-            visitor.OperatingSystem = c.OS.Family.ToString()+" "+ c.OS.Major.ToString();
+            visitor.Browser = c.UA.Family + " " + c.UA.Major;
+            visitor.OperatingSystem = c.OS.Family+" "+  c.OS.Major;
             visitor.Country = countryName.Result;
             visitor.VisitTime = DateTime.UtcNow.ToLocalTime().ToString("yyyy-MM-dd' 'HH:mm:ss");
             

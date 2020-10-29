@@ -24,6 +24,6 @@ namespace PasswordManagerApp.Models
         public string Country { get; set; }
         [Required]
         [Column("visit_time")]
-        public String VisitTime { get; set; }
+        public string VisitTime { get; set; }
     }
 }

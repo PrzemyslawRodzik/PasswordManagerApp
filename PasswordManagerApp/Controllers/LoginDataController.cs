@@ -84,7 +84,8 @@ namespace PasswordManagerApp.Controllers
             var loginDataId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
             var logins = await _cacheService.GetOrCreateCachedResponse<LoginData>(CacheKeys.LoginData + AuthUserId, () => _apiService.GetAllUserData<LoginData>(Int32.Parse(AuthUserId)));
             var loginData = logins.FirstOrDefault(x => x.Id == loginDataId);
-            return PartialView("Views/Forms/DetailsLoginData.cshtml", DecryptModel(loginData));
+             return PartialView("Views/Forms/DetailsLoginData.cshtml", DecryptModel(loginData));
+            
         }
         public async Task<IActionResult> AddOrEditLoginData(string encrypted_id)
         {
