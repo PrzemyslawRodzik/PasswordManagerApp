@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace PasswordManagerApp.Models
 {
     [Table("login_data")]
-    public class LoginData: UserRelationshipModel,ISearchable
+    public class LoginData: UserRelationshipModel,ISearchable,ICompromisedModel,IPasswordModel
     {
 
         [Key]
@@ -29,6 +29,9 @@ namespace PasswordManagerApp.Models
         [Required]
         [Column("compromised")]
         public int Compromised { get; set; }
+        [Required]
+        [Column("out-of-date")]
+        public int OutOfDate { get; set; } = 0;
         [Required]
         [Column("modified_date")]
         public DateTime ModifiedDate { get; set; }

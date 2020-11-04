@@ -8,12 +8,11 @@ namespace PasswordManagerApp.Services
 {
     public interface IUserService
     {
-       // event EventHandler<Message> EmailSendEvent;
+       
         
-        int GetAuthUserId();
+        
 
-        void InformUserAboutOldPasswords(int userId);
-        void InformAllUsersAboutOldPasswords();
+        
         
         
     }

@@ -32,11 +32,13 @@ namespace PasswordManagerApp.Controllers
         
         private readonly ApiService _apiService;
         private readonly ICacheService _cache;
+        
 
         public WalletController(ApiService apiService, ICacheService cache)
         {
             _apiService = apiService;
             _cache = cache;
+            
         }
 
         [Route("dashboard")]
@@ -48,9 +50,12 @@ namespace PasswordManagerApp.Controllers
             ViewBag.StatisticData = dictionary;
             ViewBag.UserEmail = HttpContext.User.Claims.FirstOrDefault(x => x.Type.Equals(ClaimTypes.Email)).Value;
 
+            
             return View("Views/Wallet/IndexDashboard.cshtml");
 
         }
+
+        
 
     }
 }

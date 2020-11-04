@@ -12,40 +12,24 @@ using Quartz;
 
 namespace PasswordManagerApp.ScheludeTasks.Jobs
 {   
- [DisallowConcurrentExecution]   
+  
 public class PasswordBreachCheckJob : IJob
     {
-        
-        private readonly IUserService _userService;
-        
-        //private readonly IEmailSender _emailSender;
-        
-        
+        private readonly NotificationService _notificationService;
 
-    
-        public PasswordBreachCheckJob(IUserService userService)
+        public PasswordBreachCheckJob(NotificationService notificationService)
         {
-            _userService = userService;
+            _notificationService = notificationService;
         }   
            
         
-        private void CheckMasterPasswordBreach()
-        {
-              /*  var authUserId = _userService.GetAuthUserId();
-                if(authUserId == -1)
-                    return;
-                
-                string password = _unitOfWork.Users.Find<User>(authUserId).Password;
-                var isPwned = PwnedPasswords.IsPasswordPwnedAsync(password, new CancellationToken(), null).Result;
-            */
-               
-        }
+        
         public Task Execute(IJobExecutionContext context)
-        {    
-                
-            //CheckMasterPasswordBreach();
-            
+        {
 
+            _notificationService.InformUsersAboutPasswordsBreach();
+
+            
 
             return Task.CompletedTask;
 

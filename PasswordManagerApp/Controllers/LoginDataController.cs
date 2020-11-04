@@ -26,19 +26,22 @@ namespace PasswordManagerApp.Controllers
     [Authorize]
     public class LoginDataController : Controller
     {
+        
         public DataProtectionHelper dataProtectionHelper;
         private readonly ApiService _apiService;
         private readonly EncryptionService _encryptionService;
         private readonly ICacheService _cacheService;
         private readonly IConfiguration _config;
+        private readonly NotificationService _notify;
 
-        public LoginDataController(IDataProtectionProvider provider,ApiService apiService, EncryptionService encryptionService, ICacheService cacheService,IConfiguration config)
+        public LoginDataController(IDataProtectionProvider provider,ApiService apiService, EncryptionService encryptionService, ICacheService cacheService,IConfiguration config, NotificationService notify)
         {
             dataProtectionHelper = new DataProtectionHelper(provider);
             _apiService = apiService;
             _encryptionService = encryptionService;
             _cacheService = cacheService;
             _config = config;
+            _notify = notify;
         }   
         
         public string AuthUserId { get { return HttpContext.User.Identity.Name; } }
@@ -84,8 +87,14 @@ namespace PasswordManagerApp.Controllers
             var loginDataId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
             var logins = await _cacheService.GetOrCreateCachedResponse<LoginData>(CacheKeys.LoginData + AuthUserId, () => _apiService.GetAllUserData<LoginData>(Int32.Parse(AuthUserId)));
             var loginData = logins.FirstOrDefault(x => x.Id == loginDataId);
-             return PartialView("Views/Forms/DetailsLoginData.cshtml", DecryptModel(loginData));
+            var decryptedLoginData = DecryptModel(loginData);
+            OnDataView(new LoginData { Name = loginData.Name, Password = decryptedLoginData.Password, UserId = loginData.UserId });
+            return PartialView("Views/Forms/DetailsLoginData.cshtml", decryptedLoginData);
             
+        }
+        private void OnDataView(IPasswordModel e)
+        {
+            _notify.DataViewEvent(e);
         }
         public async Task<IActionResult> AddOrEditLoginData(string encrypted_id)
         {
@@ -107,6 +116,7 @@ namespace PasswordManagerApp.Controllers
 
         private LoginDataViewModel DecryptModel(LoginData model)
         {
+            
            return new LoginDataViewModel
             {
                 Login = model.Login,
@@ -117,6 +127,8 @@ namespace PasswordManagerApp.Controllers
                 Name = model.Name,
 
             };
+            
+            
 
         }
 
@@ -145,7 +157,13 @@ namespace PasswordManagerApp.Controllers
             else
               await _apiService.CreateUpdateData<LoginData>(loginData, loginData.Id);
             _cacheService.ClearCache(CacheKeys.LoginData + AuthUserId);
-            return RedirectToAction("List");
+            OnDataEdit(loginData);
+             return RedirectToAction("List");
+            
+        }
+        private async void OnDataEdit(ICompromisedModel e)
+        {   await Task.Delay(2000);
+            _notify.DataEditEvent(e);
         }
         [HttpPost]
         [Route("DeleteLoginData")]

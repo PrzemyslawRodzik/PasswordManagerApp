@@ -8,46 +8,21 @@ using System.Text;
 
 using Microsoft.AspNetCore.DataProtection;
 using PasswordManagerApp.Handlers;
-
+using PasswordManagerApp.RealTimeAlerts;
+using Microsoft.AspNetCore.SignalR;
+using System.Threading.Tasks;
 
 namespace PasswordManagerApp.Services
 {
     public class UserService : IUserService
     {
 
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public DataProtectionHelper dataProtectionHelper;
-        
-
-        public UserService(IHttpContextAccessor httpContextAccessor, IDataProtectionProvider provider)
+        public UserService()
         {
+
             
-            _httpContextAccessor = httpContextAccessor;
-            dataProtectionHelper = new DataProtectionHelper(provider);
-
+            
         }
-
-
-
-        
-        public int GetAuthUserId()
-        {
-
-            try
-            {
-                int id = Int32.Parse(_httpContextAccessor.HttpContext.User.Identity.Name);
-
-                return id;
-            }
-            catch (NullReferenceException)
-            {
-                return -1;
-            }
-
-        }
-        
-        
 
         public void InformAllUsersAboutOldPasswords()
         {
@@ -82,26 +57,7 @@ namespace PasswordManagerApp.Services
 
 
         }
-        public void InformUserAboutOldPasswords(int userId)
-        {
-            
-           /*
-            string userEmail = GetById(userId).Email;
-            var allUserLoginData = _unitOfWork.Context.LoginDatas.Where(x => x.UserId == userId).ToList();
-            if (allUserLoginData is null)
-                return;
-            var loginDataListWithOldPasswords = allUserLoginData.Where(x => (DateTime.UtcNow.ToLocalTime() - x.ModifiedDate).Days >= 30).ToList();
-            if (loginDataListWithOldPasswords is null)
-                return;
-            string websitesList = "";
-
-            loginDataListWithOldPasswords.ForEach(x => websitesList += x.Website + ", ");
-
-            string message = $"wykryto {loginDataListWithOldPasswords.Count} hasła nie zmieniane od 30 dni dla podanych stron internetowych : {websitesList}.";
-
-            //  _emailSender.SendEmailAsync(new Message(new string[] { userEmail },"PasswordManagerApp stare hasła", message));
-            */
-        }
+        
  
     }
 

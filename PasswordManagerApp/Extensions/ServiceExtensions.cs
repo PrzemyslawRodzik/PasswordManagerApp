@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using PasswordManagerApp.ScheludeTasks.Jobs;
+using Microsoft.AspNetCore.Http;
 
 namespace PasswordManagerApp.Extensions
 {
@@ -23,21 +24,28 @@ namespace PasswordManagerApp.Extensions
         
         public static void ConfigureScheduleTasks(this IServiceCollection services)
         {
-           
+
             
             services.AddSingleton<IJobFactory, QuartzJobFactory>();
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             services.AddSingleton<QuartzJobRunner>();
             
             services.AddScoped<OldPasswordsCheckJob>();
+            services.AddScoped<PasswordBreachCheckJob>();
               
-            services.AddSingleton(
+           /* services.AddSingleton(
                 new List<JobMetadata>(){
-                                        new JobMetadata(Guid.NewGuid(), typeof(OldPasswordsCheckJob), "OldPasswordsCheckJobForAll", "0 0 0 5 * ? *"), // co miesiac o polnocy 5 dnia miesiaca
-                                        new JobMetadata(Guid.NewGuid(), typeof(OldPasswordsCheckJob), "OldPasswordsCheckJobForSpecificUser", "0 0 5/3 ? * * *") // co 3 godziny zaczynając od 5 rano
-                                    }.AsEnumerable()
+                  new JobMetadata(Guid.NewGuid(), typeof(OldPasswordsCheckJob), "OldPasswordsCheckJob", "0 0 12 1/1 * ? *"), // codziennie o 12:00  
+                  new JobMetadata(Guid.NewGuid(), typeof(PasswordBreachCheckJob), "PasswordBreachCheckJob", "0 0 0/3 1/1 * ? *") // co 3 godziny
+                  
+                }.AsEnumerable()
                 );
-              
+            */
+           
+            
+            //services.AddSingleton(new JobMetadata(Guid.NewGuid(), typeof(PasswordBreachCheckJob), "PasswordBreachCheckForLoggedUsers", "0 0/3 * 1/1 * ? *"));
+
+
             services.AddHostedService<QuartzHostedService>();
         }
     }

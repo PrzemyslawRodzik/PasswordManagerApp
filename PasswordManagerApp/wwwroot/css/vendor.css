@@ -17897,6 +17897,19 @@ a.text-dark:hover, a.text-dark:focus {
 .text-decoration-none {
   text-decoration: none !important;
 }
+.exclamationIcon {
+    position:relative;
+}    
+.exclamationIcon:before {
+    content: "\f12a";  /* this is your text. You can also use UTF-8 character codes as I do here */
+    font-family: FontAwesome;
+    left:10px;
+    position:absolute;
+    top:0;
+ }
+
+
+
 
 .text-break {
   word-break: break-word !important;

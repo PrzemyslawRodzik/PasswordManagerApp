@@ -20,22 +20,33 @@ namespace PasswordManagerApp.Services
 {
     public class ApiService
     {
-
+        public event EventHandler<ICompromisedModel> DataEditEvent;
         private readonly HttpClient _client;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly EncryptionService _mock;
+        
 
-        public ApiService(HttpClient client, IHttpContextAccessor httpContextAccessor, EncryptionService mock)
+        public ApiService(HttpClient client, IHttpContextAccessor httpContextAccessor)
          {
             _httpContextAccessor = httpContextAccessor;
             client.DefaultRequestHeaders.Authorization = GetAuthJwtTokenFromCookie();
             _client = client;
-            _mock = mock;
+            
         }
 
-        private AuthenticationHeaderValue GetAuthJwtTokenFromCookie() 
-            => 
-            new AuthenticationHeaderValue("Bearer", _httpContextAccessor.HttpContext.User.FindFirst("Access_token")?.Value);
+        private AuthenticationHeaderValue GetAuthJwtTokenFromCookie()
+        {
+            try
+            {
+                
+               return  new AuthenticationHeaderValue("Bearer", _httpContextAccessor.HttpContext.User.FindFirst("Access_token")?.Value);
+            }
+            catch (Exception)
+            {
+                return new AuthenticationHeaderValue("Bearer", "");
+            }
+        }
+            
+            
 
         public  bool CheckEmailAvailability(string email)
         {
@@ -56,17 +67,57 @@ namespace PasswordManagerApp.Services
             return JsonConvert.DeserializeObject<Dictionary<string,int>>(responseString);
         }
 
+        public Dictionary<string, string> CheckOutOfDate(string[] activeUsers)
+        {
+            HttpResponseMessage response;
+            StringContent content = new StringContent(JsonConvert.SerializeObject(activeUsers), Encoding.UTF8, "application/json");
+            response = _client.PostAsync("logindatas/check-out-of-date", content).Result;
+
+            var responseString =  response.Content.ReadAsStringAsync().Result;
+
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(responseString);
+        }
+
+        public async Task<bool> UpdateMany<T>(List<T> models)
+        {
+            HttpResponseMessage response;
+            string typeName = typeof(T).Name;
+            typeName += "s";
+            StringContent content = new StringContent(JsonConvert.SerializeObject(models), Encoding.UTF8, "application/json");
+            
+             response = await _client.PutAsync($"{typeName}/updateMany", content);
+            if (response.IsSuccessStatusCode)
+                return true;
+            return false;
+            
+
+        }
+
+        public Dictionary<string, string> CheckPasswordBreach(string[] activeUsers)
+        {
+            HttpResponseMessage response;
+            StringContent content = new StringContent(JsonConvert.SerializeObject(activeUsers), Encoding.UTF8, "application/json");
+            response = _client.PostAsync("logindatas/check-password-breach", content).Result;
+
+            var responseString = response.Content.ReadAsStringAsync().Result;
+
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(responseString);
+        }
+
+
+
         #region Generic CRUD api calls
 
         public async Task<IEnumerable<T>> GetAllUserData<T>(int userId, int? compromised = null) where T : class
         {
             string typeName = typeof(T).Name;
             typeName += "s";
-            var response = await _client.GetAsync($"{typeName}?userId={userId}");
+            var response = await _client.GetAsync($"{typeName}?userId={userId}&compromised={compromised}");
             
             response.EnsureSuccessStatusCode();
+            
 
-             var responseString = await response.Content.ReadAsStringAsync();
+            var responseString = await response.Content.ReadAsStringAsync();
                 
             return  JsonConvert.DeserializeObject<IEnumerable<T>>(responseString);
 
@@ -82,6 +133,16 @@ namespace PasswordManagerApp.Services
             return false;
         }
 
+        public  Task UpdatePasswordStatus(int userId, int compromised)
+        {
+            HttpResponseMessage response;
+            StringContent content = new StringContent(JsonConvert.SerializeObject(new { UserId = userId, Compromised = compromised }), Encoding.UTF8, "application/json");
+            response = _client.PostAsync("users/update-password-status", content).Result;
+            return Task.CompletedTask;
+            
+        }
+
+        
         public bool  CheckLoginDuplicate(string website, string login)
         {
             HttpResponseMessage response;
@@ -128,6 +189,8 @@ namespace PasswordManagerApp.Services
                 response = await _client.PutAsync($"{typeName}/{id}", content);
             
             response.EnsureSuccessStatusCode();
+            if(entity is ICompromisedModel)
+                OnDataEditEvent(entity as ICompromisedModel);
 
             var responseString = await response.Content.ReadAsStringAsync();
 
@@ -258,5 +321,12 @@ namespace PasswordManagerApp.Services
         }
 
         #endregion
+
+
+        public  void OnDataEditEvent(ICompromisedModel model)
+        {
+            
+           // DataEditEvent?.Invoke(this, model);
+        }
     }
 }

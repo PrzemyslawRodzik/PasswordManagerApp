@@ -3,6 +3,8 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +14,7 @@ using PasswordManagerApp.Cache;
 using PasswordManagerApp.Extensions;
 using PasswordManagerApp.Handlers;
 using PasswordManagerApp.Models;
+using PasswordManagerApp.RealTimeAlerts;
 using PasswordManagerApp.Services;
 
 
@@ -33,6 +36,7 @@ namespace PasswordManagerApp
             services.AddHttpClient();
             services.AddHttpContextAccessor();
             services.AddDataProtection();
+            services.AddSignalR();
             services.AddControllersWithViews().AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
@@ -55,8 +59,8 @@ namespace PasswordManagerApp
             services.AddCloudscribePagination();
             services.AddHttpClient<ApiService>(c =>
             {
-               c.BaseAddress = new Uri("https://localhost:44324/api/");
-             // c.BaseAddress = new Uri("https://localhost:5006/api/");
+               //c.BaseAddress = new Uri("https://localhost:44324/api/");
+              c.BaseAddress = new Uri("https://localhost:5006/api/");
                 
                 
 
@@ -71,12 +75,13 @@ namespace PasswordManagerApp
             });
 
 
-
+            services.AddSingleton<IUserIdProvider, IdBasedUserIdProvider>();
 
             services.AddScoped<ICacheService, CacheService>();
             services.AddScoped<ICacheProvider, CacheProvider>();
             services.AddSingleton<EncryptionService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<NotificationService>();
             services.AddScoped<JwtHelper>();
             services.AddScoped<LogInHandler>();
 
@@ -89,7 +94,7 @@ namespace PasswordManagerApp
 
             
 
-
+            
 
 
             
@@ -145,6 +150,7 @@ namespace PasswordManagerApp
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapHub<NotificationHub>("/notificationhub");
             });
         }
     }

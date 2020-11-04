@@ -1,5 +1,14 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
+using PasswordManagerApp.ApiResponses;
+using PasswordManagerApp.Models;
+using PasswordManagerApp.RealTimeAlerts;
 using PasswordManagerApp.Services;
 using Quartz;
 
@@ -10,53 +19,33 @@ namespace PasswordManagerApp.ScheludeTasks.Jobs
 
 public class OldPasswordsCheckJob : IJob
     {
-        
-        private readonly IUserService _userService;
-        
-        private readonly ILogger<OldPasswordsCheckJob> _logger;
+        private readonly NotificationService _notificationService;
 
-    
-        public OldPasswordsCheckJob(IUserService userService, ILogger<OldPasswordsCheckJob> logger )
+        public OldPasswordsCheckJob(NotificationService notificationService)
         {
-             
-            _userService = userService;
-            _logger = logger;
-            
+
+            _notificationService = notificationService;
+
         }
-        
-
-                
-       private void InformUsers()
-       {
-           var userId =  _userService.GetAuthUserId();
-                if(userId == -1)
-                    return;
-                _userService.InformUserAboutOldPasswords(userId);
-       }
-            
-       
         public Task Execute(IJobExecutionContext context)
-        {
+        {   
              string jobInstanceDescription =  context.JobDetail.Description;
-             if(jobInstanceDescription.Equals("OldPasswordsCheckJobForSpecificUser") )
-             {   
-                 InformUsers();
-                 _logger.LogInformation(jobInstanceDescription);
+             if(jobInstanceDescription.Equals("OldPasswordsCheckJobForLoggedUsers") )
+             {
+                _notificationService.InformUsersAboutOldPasswords();
+                
              }
                 
             if(jobInstanceDescription.Equals("OldPasswordsCheckJobForAll") )  
              {
-                 _userService.InformAllUsersAboutOldPasswords();
-                    _logger.LogInformation(jobInstanceDescription);
+                
+                    
              }
             
-
          return Task.CompletedTask;
+       }
+
+
        
-           
-
-        }
-
-        
     }
 }

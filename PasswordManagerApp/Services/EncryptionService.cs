@@ -5,17 +5,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace PasswordManagerApp.Services
 {
 
     public class EncryptionService
     {
+        
+
+        
         private readonly Dictionary<string, byte[]> _userSymmetricKeys;
 
         public EncryptionService()
         {
+            
             _userSymmetricKeys = new Dictionary<string, byte[]>();
+        }
+
+        public Dictionary<string, byte[]> GetUserSymmetricKeys()
+        {
+            return _userSymmetricKeys;
         }
         public byte[] GetEncryptionKeyById(string userId)
         {
@@ -29,6 +39,8 @@ namespace PasswordManagerApp.Services
                 _userSymmetricKeys.Remove(userId);
 
             _userSymmetricKeys.Add(userId, symmetric_key);
+            
+
         }   
         public void RemoveEncryptionKey(string userId)
         {
@@ -40,11 +52,10 @@ namespace PasswordManagerApp.Services
             _userSymmetricKeys.Clear();
         }
 
-        public List<byte[]> GetAllEncryptionKeys()
-        {
-            return _userSymmetricKeys.Values.ToList();
+        public string[] GetActiveUsers() => _userSymmetricKeys.Keys.ToArray();
 
-        }
+
+
         public string Encrypt(string userId, string data) 
         {
             using (Aes myAes = Aes.Create())
@@ -82,7 +93,7 @@ namespace PasswordManagerApp.Services
             return mysha256.ComputeHash(Encoding.UTF8.GetBytes(data));
         }
 
-
+        
     }
 
 

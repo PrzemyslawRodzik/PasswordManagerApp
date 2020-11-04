@@ -17,6 +17,7 @@ namespace PasswordManagerApp.Handlers
 {
     public class LogInHandler
     {
+        
         private readonly IHttpContextAccessor _httpContextAccessor;
         public CookieHandler cookieHandler;
         public ApiService _apiService;
@@ -35,9 +36,11 @@ namespace PasswordManagerApp.Handlers
 
             _ = _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authProperties);
             HandleNewDeviceLogIn(Int32.Parse(claimsPrincipal.Identity.Name));
+            
             await Task.CompletedTask;
 
         }
+        
 
 
 
