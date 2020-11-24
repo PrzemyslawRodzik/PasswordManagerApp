@@ -54,7 +54,7 @@
                     <div class="modal-content">
 
                         <div class="modal-header">
-                           
+                           Add Or Edit Phone
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -144,15 +144,17 @@
                                         </a>
                                         <div class="item-actions-block">
                                             <ul class="item-actions-list">
-
                                                 <li>
-                                                    <form asp-action="DeletePhone" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
-                                                        <button style="font-size:24px; color:red"> <i class="fa fa-trash-o"></i></button>
+                                                    <a class="fa fa-info-circle"
+                                                       data-ajax="true"
+                                                       data-ajax-method="GET"
+                                                       data-ajax-mode="replace"
+                                                       data-ajax-complete="settingsFadeIn();"
+                                                       data-ajax-update="#content"
+                                                       data-ajax-url="@Url.Action("GetPhoneById","Phone",new { encrypted_id = @encryptedFields[item.Id] })"
+                                                       data-toggle="modal" data-target="#modalCenter">
+                                                    </a>
 
-                                                    </form>
-                                                    <!-- <a class="remove" asp-action="DeleteNote" asp-route-encrypted_id="@encryptedFields[item.Id]" data-toggle="modal" data-target="#confirm-modal">
-                                                    <i class="fa fa-trash-o "></i>
-                                                </a> -->
                                                 </li>
 
                                                 <li>
@@ -160,6 +162,18 @@
                                                         <i class="fa fa-pencil"></i>
                                                     </a>
                                                 </li>
+
+                                                <li>
+                                                    <form asp-action="DeletePhone" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
+                                                        <button style="font-size:24px; color:red"> <i class="fa fa-trash-o"></i></button>
+
+                                                    </form>
+                                                    <!-- <a class="remove" asp-action="DeleteNote" asp-route-encrypted_id="@encryptedFields[item.Id]" data-toggle="modal" data-target="#confirm-modal">
+            <i class="fa fa-trash-o "></i>
+        </a> -->
+                                                </li>
+
+
 
                                             </ul>
                                         </div>

@@ -95,7 +95,7 @@
                         <li class="profile dropdown">
                             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                                 
-                                <span class="name"> <!-- @ViewBag.UserEmail  --> Email@Email@gmail.com  </span>
+                                <span class="name"> <!-- @ViewBag.UserEmail  --> Email@gmail.com  </span>
                             </a>
                             <div class="dropdown-menu profile-dropdown-menu" aria-labelledby="dropdownMenu1">
                                 <a class="dropdown-item" href="#">
@@ -131,50 +131,51 @@
                         </div>
                     </div>
                     <nav class="menu">
-                        <ul class="sidebar-menu metismenu" id="sidebar-menu">
-                            <li>
-                                <a asp-controller="Wallet" asp-action="Index">
-                                    <i class="fa fa-home"></i> Dashboard
-                                </a>
-                            </li>
-                            <li class="active">
-                                <a asp-controller="LoginData" asp-action="List">
-                                    <i class="fa fa-lock "></i> Login Data
-                                </a>
-                            </li>
-                            <li>
-                                <a asp-action="Personal" asp-controller="Personal">
-                                    <i class="fa fa-pencil-square-o"></i> Personal Data
-                                </a>
-                            </li>
-                            <li>
-                                <a asp-action="Note" asp-controller="Note">
-                                    <i class="fa fa-file-text-o"></i> Notes
-                                </a>
-                            </li>
-                            <li>
-                                <a asp-action="List" asp-controller="Payments">
-                                    <i class="fa fa-credit-card"></i> Payments
-                                </a>
-                            </li>
-                            <li>
-                                <a href="forms.html">
-                                    <i class="fa fa-users"></i> Sharing center
-                                </a>
-                            </li>
-                            <li>
-                                <a asp-controller="Notification" asp-action="Index">
-                                    <i class="fa fa-bell-o"></i> Notifications
-                                </a>
-                            </li>
-                            <li>
-                                <a asp-controller="Settings" asp-action="Index">
-                                    <i class="fa fa-wrench"></i> Settings
-                                </a>
-                            </li>
+                       
+                            <ul class="sidebar-menu metismenu" id="sidebar-menu">
+                                <li>
+                                    <a asp-controller="Wallet" asp-action="Index">
+                                        <i class="fa fa-home"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li >
+                                    <a asp-controller="LoginData" asp-action="List">
+                                        <i class="fa fa-lock "></i> Login Data
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-action="Personal" asp-controller="Personal">
+                                        <i class="fa fa-pencil-square-o"></i> Personal Data
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-action="Note" asp-controller="Note">
+                                        <i class="fa fa-file-text-o"></i> Notes
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-action="List" asp-controller="Payments">
+                                        <i class="fa fa-credit-card"></i> Payments
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="forms.html">
+                                        <i class="fa fa-users"></i> Sharing center
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Notification" asp-action="Index">
+                                        <i class="fa fa-bell-o"></i> Notifications
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Settings" asp-action="Index">
+                                        <i class="fa fa-wrench"></i> Settings
+                                    </a>
+                                </li>
 
 
-                        </ul>
+                            </ul>
                     </nav>
                 </div>
                 <footer class="sidebar-footer">

@@ -51,7 +51,7 @@
                     <div class="modal-content">
 
                         <div class="modal-header">
-                          
+                          Add Or Edit Address
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -183,21 +183,34 @@
                                                 @if ((encryptedFields.Count > 0))
                                                 {
                                                     <li>
+                                                        <a class="fa fa-info-circle"
+                                                           data-ajax="true"
+                                                           data-ajax-method="GET"
+                                                           data-ajax-mode="replace"
+                                                           data-ajax-complete="settingsFadeIn();"
+                                                           data-ajax-update="#content"
+                                                           data-ajax-url="@Url.Action("GetAddressById","Address",new { encrypted_id = @encryptedFields[item.Id] })"
+                                                           data-toggle="modal" data-target="#modalCenter">
+                                                        </a>
+
+                                                    </li>
+                                                    <li>
+                                                        <a class="edit" asp-action="AddOrEditAddress" asp-route-encrypted_id="@encryptedFields[item.Id]">
+                                                            <i class="fa fa-pencil"></i>
+                                                        </a>
+                                                    </li>
+                                                    <li>
                                                         <form asp-action="DeleteAddress" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
                                                             <button style="font-size:24px; color:red"> <i class="fa fa-trash-o"></i></button>
                                                             <!--   <input text="<i class='fa fa-trash-o'></i>" type="submit" /><i class="fa fa-trash-o"></i> -->
 
                                                         </form>
                                                         <!--   <a class="remove" asp-action="DeleteAddress" asp-route-encrypted_id="@encryptedFields[item.Id]" data-toggle="modal" data-target="#confirm-modal">
-                                                        <i class="fa fa-trash-o "></i>
-                                                    </a> -->
+                <i class="fa fa-trash-o "></i>
+            </a> -->
                                                     </li>
 
-                                                    <li>
-                                                        <a class="edit" asp-action="AddOrEditAddress" asp-route-encrypted_id="@encryptedFields[item.Id]">
-                                                            <i class="fa fa-pencil"></i>
-                                                        </a>
-                                                    </li>
+
                                                 }
                                             </ul>
                                         </div>
