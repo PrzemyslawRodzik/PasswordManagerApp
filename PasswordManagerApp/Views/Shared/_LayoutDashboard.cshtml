@@ -65,7 +65,7 @@
                                 
                                 <i class="fa fa-bell-o" style="font-size:20px;color:red"></i>
                                 <sup>
-                                    <span class="counter">8</span>
+                                    <span class="counter"></span>
                                 </sup>
                             </a>
                             <div class="dropdown-menu notifications-dropdown-menu">
@@ -95,13 +95,13 @@
                         <li class="profile dropdown">
                             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                                 
-                                <span class="name"> @ViewBag.UserEmail email.email.com  </span>
+                                <span class="name"> <!-- @ViewBag.UserEmail  --> Email@Email@gmail.com  </span>
                             </a>
                             <div class="dropdown-menu profile-dropdown-menu" aria-labelledby="dropdownMenu1">
                                 <a class="dropdown-item" href="#">
                                     <i class="fa fa-user icon"></i> Profile
                                 </a>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" asp-controller="Notification" asp-action="Index">
                                     <i class="fa fa-bell icon"></i> Notifications
                                 </a>
                                 <a class="dropdown-item" asp-controller="Settings" asp-action="Index">
@@ -143,7 +143,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="forms.html">
+                                <a asp-action="Personal" asp-controller="Personal">
                                     <i class="fa fa-pencil-square-o"></i> Personal Data
                                 </a>
                             </li>
@@ -153,7 +153,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="forms.html">
+                                <a asp-action="List" asp-controller="Payments">
                                     <i class="fa fa-credit-card"></i> Payments
                                 </a>
                             </li>
@@ -163,7 +163,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="forms.html">
+                                <a asp-controller="Notification" asp-action="Index">
                                     <i class="fa fa-bell-o"></i> Notifications
                                 </a>
                             </li>

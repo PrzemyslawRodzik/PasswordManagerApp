@@ -1,5 +1,4 @@
 ﻿
-
 @model IEnumerable<PasswordManagerApp.Models.Note>
 
 @{
@@ -11,152 +10,201 @@
 <h1>ListNote</h1>
 
 <article class="content items-list-page">
+    <div class="title-search-block">
+        <div class="items-search">
+            <form class="form-inline" asp-action="List" asp-controller="LoginData" method="get">
+                <div class="input-group">
 
-    <div>
-        <h3 class="title">
-            Notes
-            <a class="btn btn-primary btn-sm rounded-s"
-               data-ajax="true"
-               data-ajax-method="GET"
-               data-ajax-mode="replace"
-               data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
-               data-ajax-update="#content"
-               data-ajax-url="@Url.Action("AddOrEditNote","Note")"
-               data-toggle="modal" data-target="#modalCenter"> Add New </a>
+                    <span class="input-group-btn">
+                        <input type="text" class="form-control boxed rounded-s" name="searchString" placeholder="Search for...">
 
-           
-            
-
-        </h3>
-        <!-- Modal -->
-        <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                        <button class="btn btn-secondary rounded-s" asp-action="List">
+                            <i class="fa fa-backward"></i>
                         </button>
-                    </div>
-                    <div class="modal-body">
-                        <div id="content"></div>
-                    </div>
-                    
+                        <button class="btn btn-secondary rounded-s" type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
                 </div>
+            </form>
+        </div>
+    </div>
+
+    <h3 class="title">
+        Notes
+        <a class="btn btn-primary btn-sm rounded-s"
+           data-ajax="true"
+           data-ajax-method="GET"
+           data-ajax-mode="replace"
+           data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
+           data-ajax-update="#content"
+           data-ajax-url="@Url.Action("AddOrEditNote","Note")"
+           data-toggle="modal" data-target="#modalCenter"> Add New </a>
+
+
+
+
+    </h3>
+    <!-- Modal -->
+    <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="content"></div>
+                </div>
+
             </div>
         </div>
-        
-        <div class="card items">
+    </div>
 
-            <ul class="item-list striped">
-                <li class="item item-list-header">
 
+
+
+
+    <div class="items-search">
+        <form class="form-inline" asp-action="Note" asp-controller="Note" method="get">
+            <div class="input-group">
+
+                <span class="input-group-btn">
+                    <input type="text" class="form-control boxed rounded-s" name="searchString" placeholder="Search for...">
+
+                    <button class="btn btn-secondary rounded-s" asp-action="Note">
+                        <i class="fa fa-backward"></i>
+                    </button>
+                    <button class="btn btn-secondary rounded-s" type="submit">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+
+
+
+    <div class="card items" style="margin-top:20px;">
+
+        <ul class="item-list striped">
+            <li class="item item-list-header">
+
+                <div class="item-row">
+
+
+                    <div class="item-col item-col-header item-col-title">
+                        <div>
+                            <span>Name</span>
+                        </div>
+                    </div>
+
+
+
+
+
+
+                    <div class="item-col item-col-header fixed item-col-actions-dropdown">
+                    </div>
+                </div>
+            </li>
+
+
+
+            @foreach (var item in Model)
+            {
+
+
+
+                <li class="item">
                     <div class="item-row">
 
 
-                        <div class="item-col item-col-header fa-align-right item-col-sales">
+
+                        <div class="item-col fixed pull-left item-col-title">
+                            <div class="item-heading">Name</div>
                             <div>
-                                <span>@Html.DisplayNameFor(model => model.Name)</span>
+
+                                <a class="item-title" data-ajax="true"
+                                   data-ajax-method="GET"
+                                   data-ajax-mode="replace"
+                                   data-ajax-complete="settingsFadeIn();"
+                                   data-ajax-update="#content"
+                                   data-ajax-url="@Url.Action("GetNoteById","LoginData",new { encrypted_id = @encryptedFields[item.Id] })"
+                                   data-toggle="modal" data-target="#modalCenter">
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </a>
                             </div>
                         </div>
-                        <div class="item-col item-col-header fa-algin-right item-col-sales">
-                            <div>
-                                <span>@Html.DisplayNameFor(model => model.Details)</span>
+
+
+                        <div class="item-col fixed item-col-actions-dropdown">
+                            <div class="item-actions-dropdown">
+                                <a class="item-actions-toggle-btn">
+                                    <span class="inactive">
+                                        <i class="fa fa-cog"></i>
+                                    </span>
+                                    <span class="active">
+                                        <i class="fa fa-chevron-circle-right"></i>
+                                    </span>
+                                </a>
+                                <div class="item-actions-block">
+                                    <ul class="item-actions-list">
+                                        <li>
+                                            <a class="fa fa-info-circle"
+                                               data-ajax="true"
+                                               data-ajax-method="GET"
+                                               data-ajax-mode="replace"
+                                               data-ajax-complete="settingsFadeIn();"
+                                               data-ajax-update="#content"
+                                               data-ajax-url="@Url.Action("GetNoteById","Note",new { encrypted_id = @encryptedFields[item.Id] })"
+                                               data-toggle="modal" data-target="#modalCenter">
+                                            </a>
+
+                                        </li>
+
+
+                                        <li>
+                                            <a class="fa fa-pencil-square-o"
+                                               data-ajax="true"
+                                               data-ajax-method="GET"
+                                               data-ajax-mode="replace"
+                                               data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
+                                               data-ajax-update="#content"
+                                               data-ajax-url="@Url.Action("AddOrEditNote","Note",new { Encrypted_id=@encryptedFields[item.Id]} )"
+                                               data-toggle="modal" data-target="#modalCenter"></a>
+
+
+
+                                        </li>
+
+                                        <li>
+                                            <form name="myformDelete" asp-controller="Note" asp-action="DeleteNote" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
+                                                <button href="/LoginData/DeleteLoginData" class="remove" data-toggle="modal" data-target="#confirm-modal" style="font-size:24px; color:gray"> <i class="fa fa-trash-o"></i></button>
+                                            </form>
+                                        </li>
+
+
+                                    </ul>
+                                </div>
                             </div>
                         </div>
 
 
 
-
-                        <div class="item-col item-col-header fixed item-col-actions-dropdown">
-                        </div>
                     </div>
                 </li>
 
+            }
 
-
-                @foreach (var item in Model)
-                {
-
-
-
-                    <li class="item">
-                        <div class="item-row">
-
-                            <div class="item-col item-col-category no-overflow">
-                                <div class="item-heading">name</div>
-                                <div class="no-overflow">
-                                    <a href="">@Html.DisplayFor(modelItem => item.Name)</a>
-                                </div>
-                            </div>
-                            <div class="item-col item-col-category no-overflow">
-                                <div class="item-heading">Password</div>
-                                <div>
-                                    <a href="">@Html.DisplayFor(modelItem => item.Details)</a>
-
-                                    <a class="btn btn-primary btn-sm rounded-s"
-                                       data-ajax="true"
-                                       data-ajax-method="GET"
-                                       data-ajax-mode="replace"
-                                       data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
-                                       data-ajax-update="#content"
-                                       data-ajax-url="@Url.Action("AddOrEditNote","Note", new { encrypted_id = @encryptedFields[item.Id] })"
-                                       data-toggle="modal" data-target="#modalCenter"> Edit </a>
-
-                                    <form asp-controller="Note" asp-action="DeleteNote" asp-route-encrypted_id="@encryptedFields[item.Id]">
-                                        <input type="submit" value="Delete" />
-                                    </form>
-                                    <a class="btn btn-primary btn-sm rounded-s"
-                                       data-ajax="true"
-                                       data-ajax-method="GET"
-                                       data-ajax-mode="replace"
-                                       data-ajax-complete="settingsFadeIn();"
-                                       data-ajax-update="#content"
-                                       data-ajax-url="@Url.Action("GetNoteById","Note",new { encrypted_id = @encryptedFields[item.Id] })"
-                                       data-toggle="modal" data-target="#modalCenter"> Details </a>
-                                </div>
-                            </div>
-
-                            <div>
-                                <div>
-                                    <a>
-
-
-                                    </a>
-                                    <div>
-                                        <ul>
-                                            @if (!(encryptedFields.Count > 0))
-                                            {
-
-
-
-
-                                                <li>
-
-                                                    <a asp-action="AddOrEditNote" asp-route-encrypted_id="@encryptedFields[item.Id]">Edit</a>
-                                                </li>
-                                                <li>
-                                                    <a asp-action="DeleteNote" asp-route-encrypted_id="@encryptedFields[item.Id]">
-                                                        Delete
-                                                    </a>
-                                                </li>
-
-                                            }
-
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-
-                }
-
-            </ul>
-
-        </div>
+        </ul>
 
     </div>
+
+
+
 </article>
 
 
