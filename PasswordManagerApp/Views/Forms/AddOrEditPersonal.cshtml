@@ -1,0 +1,51 @@
+﻿@model PasswordManagerApp.Models.PersonalInfo
+
+@{
+
+    ViewData["Title"] = "AddOrEditPersonalInfo";
+}
+
+
+
+
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-md-10">
+            <form class="noteForm" asp-action="AddOrEdit" metod="post">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" name="Id" value="@ViewBag.Id" />
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SecondName" class="control-label"></label>
+
+                    <textarea class="form-control" asp-for="SecondName" rows="7"></textarea>
+                    <span asp-validation-for="SecondName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="LastName" class="control-label"></label>
+
+                    <textarea class="form-control" asp-for="LastName" rows="7"></textarea>
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DateOfBirth" class="control-label"></label>
+
+                    <textarea class="form-control" asp-for="DateOfBirth" rows="7"></textarea>
+                    <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+</div>

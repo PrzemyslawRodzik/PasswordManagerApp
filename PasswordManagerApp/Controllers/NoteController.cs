@@ -52,8 +52,7 @@ namespace PasswordManagerApp.Controllers
             }
             userNotes = userNotes ?? Enumerable.Empty<Note>();
 
-            
-            Dictionary<int, string> encryptedIds = new Dictionary<int, string>();
+                Dictionary<int, string> encryptedIds = new Dictionary<int, string>();
                foreach(var x in userNotes)
             {
                 encryptedIds.Add(x.Id, dataProtectionHelper.Encrypt(x.Id.ToString(), "QueryStringsEncryptions"));

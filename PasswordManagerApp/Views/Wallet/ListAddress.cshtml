@@ -1,0 +1,232 @@
+﻿
+
+@model IEnumerable<PasswordManagerApp.Models.Address>
+
+@{
+    ViewData["Title"] = "ListAddress";
+    Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
+
+    var encryptedFields = ViewBag.EncryptedIds as Dictionary<int, string>;
+}
+
+
+
+    <article class="content items-list-page">
+        <div class="title-search-block">
+            <div class="items-search">
+                <form class="form-inline" asp-action="List" asp-controller="LoginData" method="get">
+                    <div class="input-group">
+
+                        <span class="input-group-btn">
+                            <input type="text" class="form-control boxed rounded-s" name="searchString" placeholder="Search for...">
+
+                            <button class="btn btn-secondary rounded-s" asp-action="List">
+                                <i class="fa fa-backward"></i>
+                            </button>
+                            <button class="btn btn-secondary rounded-s" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div>
+            <h3 class="title">
+                Addressess
+                <a class="btn btn-primary btn-sm rounded-s"
+                   data-ajax="true"
+                   data-ajax-method="GET"
+                   data-ajax-mode="replace"
+                   data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
+                   data-ajax-update="#content"
+                   data-ajax-url="@Url.Action("AddOrEditAddress","Address")"
+                   data-toggle="modal" data-target="#modalCenter"> Add New </a>
+
+            </h3>
+            <!-- Modal -->
+            <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                          Add Or Edit Address
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="content"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" id="content">
+
+            </div>
+            <div class="card items"style="margin-top:20px;">
+
+                <ul class="item-list striped table-striped w-auto">
+                    <li class="item item-list-header">
+
+                        <div class="item-row">
+
+                            <div class="item-col item-col-header item-col-title">
+                                <div>
+                                    <span>@Html.DisplayNameFor(model => model.AddressName)</span>
+
+                                </div>
+                            </div>
+                            <div class="item-col item-col-header item-col-title">
+                                <div>
+                                    <span>@Html.DisplayNameFor(model => model.City)</span>
+
+                                </div>
+                            </div>
+
+                            <div class="item-col item-col-header item-col-title">
+                                <div>
+                                    <span>@Html.DisplayNameFor(model => model.ZipCode)</span>
+
+                                </div>
+                            </div>
+                            <div class="item-col item-col-header item-col-title">
+                                <div>
+                                    <span>@Html.DisplayNameFor(model => model.Street)</span>
+
+                                </div>
+                            </div>
+
+                            <div class="item-col item-col-header item-col-title">
+                                <div>
+                                    <span>Number</span>
+
+                                </div>
+                            </div>
+
+
+                            <div class="css-flex-table-header">
+                                <div class="item-col item-col-header fixed item-col-actions-dropdown">
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    @foreach (var item in Model)
+                    {
+
+
+
+                        <li class="item">
+                            <div class="item-row">
+
+
+                                <div class="item-col fixed pull-left item-col-title">
+                                    <div class="item-heading">@Html.DisplayNameFor(model => model.AddressName)</div>
+                                    <div>
+                                        <a href="#" class="">
+                                            <h4 class="item-title"> @Html.DisplayFor(modelItem => item.AddressName)</h4>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="item-col fixed pull-left item-col-title">
+                                    <div class="item-heading">@Html.DisplayNameFor(model => model.City)</div>
+                                    <div>
+                                        <a href="#" class="">
+                                            <h4 class="item-title"> @Html.DisplayFor(modelItem => item.City)</h4>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="item-col fixed pull-left item-col-title">
+                                    <div class="item-heading">@Html.DisplayNameFor(model => model.ZipCode)</div>
+                                    <div>
+                                        <a href="#" class="">
+                                            <h4 class="item-title"> @Html.DisplayFor(modelItem => item.ZipCode) </h4>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="item-col fixed pull-left item-col-title">
+                                    <div class="item-heading">@Html.DisplayNameFor(model => model.Street)</div>
+                                    <div>
+                                        <a href="#" class="">
+                                            <h4 class="item-title"> @Html.DisplayFor(modelItem => item.Street) </h4>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="item-col fixed pull-left item-col-title">
+                                    <div class="item-heading">Number</div>
+                                    <div>
+                                        <a href="#" class="">
+                                            <h4 class="item-title"> @Html.DisplayFor(modelItem => item.Country) </h4>
+                                        </a>
+                                    </div>
+                                </div>
+
+
+
+
+                                <div class="item-col fixed item-col-actions-dropdown">
+                                    <div class="item-actions-dropdown">
+                                        <a class="item-actions-toggle-btn">
+                                            <span class="inactive">
+                                                <i class="fa fa-cog"></i>
+                                            </span>
+                                            <span class="active">
+                                                <i class="fa fa-chevron-circle-right"></i>
+                                            </span>
+                                        </a>
+                                        <div class="item-actions-block">
+                                            <ul class="item-actions-list">
+                                                @if ((encryptedFields.Count > 0))
+                                                {
+                                                    <li>
+                                                        <a class="fa fa-info-circle"
+                                                           data-ajax="true"
+                                                           data-ajax-method="GET"
+                                                           data-ajax-mode="replace"
+                                                           data-ajax-complete="settingsFadeIn();"
+                                                           data-ajax-update="#content"
+                                                           data-ajax-url="@Url.Action("GetAddressById","Address",new { encrypted_id = @encryptedFields[item.Id] })"
+                                                           data-toggle="modal" data-target="#modalCenter">
+                                                        </a>
+
+                                                    </li>
+                                                    <li>
+                                                        <a class="edit" asp-action="AddOrEditAddress" asp-route-encrypted_id="@encryptedFields[item.Id]">
+                                                            <i class="fa fa-pencil"></i>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <form asp-action="DeleteAddress" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
+                                                            <button style="font-size:24px; color:red"> <i class="fa fa-trash-o"></i></button>
+                                                            <!--   <input text="<i class='fa fa-trash-o'></i>" type="submit" /><i class="fa fa-trash-o"></i> -->
+
+                                                        </form>
+                                                        <!--   <a class="remove" asp-action="DeleteAddress" asp-route-encrypted_id="@encryptedFields[item.Id]" data-toggle="modal" data-target="#confirm-modal">
+                <i class="fa fa-trash-o "></i>
+            </a> -->
+                                                    </li>
+
+
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                    }
+                </ul>
+
+            </div>
+
+        </div>
+
+
+        <button class="btn btn-block btn-primary btn-sm rounded-s" onclick="window.history.back();">Cancel</button>
+
+    </article>

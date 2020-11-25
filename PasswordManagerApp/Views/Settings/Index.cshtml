@@ -18,30 +18,15 @@
 
 
         <section class="section">
-
-            <form method="post" data-ajax="true" data-ajax-method="POST" data-ajax-mode="replace" data-ajax-complete="updateNotificationAlert();" data-ajax-update="#notification" data-ajax-url="@Url.Action("UpdatePreferences","Settings")">
+            
+            <form method="post" style="float:left; width:50%;" data-ajax="true" data-ajax-method="POST" data-ajax-mode="replace" data-ajax-complete="updateNotificationAlert();" data-ajax-update="#notification" data-ajax-url="@Url.Action("UpdatePreferences","Settings")">
                 <div class="container">
                     <div class="row">
                         <div class="col-sm">
-                            <div class="panel panel-primary">
-                                <div class="panel-heading clearfix">
 
-                                    <a class="btn btn-primary"
-                                       data-ajax="true"
-                                       data-ajax-method="GET"
-                                       data-ajax-mode="replace"
-                                       data-ajax-complete="settingsFadeIn();"
-                                       data-ajax-update="#content"
-                                       data-ajax-url="@Url.Action("PasswordChange","Settings")"
-                                       data-toggle="modal" data-target="#modalCenter"> Change password </a>
-
-
-
-                                </div>
-                            </div>
                         </div>
 
-                        <div class="col-sm">
+                        <div class="col-sm" style="width:100%; float:left;">
                             <div class="panel panel-primary">
                                 <div class="panel-heading clearfix">
                                     <label class="form-check-label" for="switch2F">
@@ -59,7 +44,7 @@
                             </div>
                         </div>
 
-                        <div class="col-sm">
+                        <div class="col-sm" style="width:100%; float:left;">
                             <div class="panel panel-primary">
                                 <div class="panel-heading clearfix">
                                     <label class="form-check-label" for="switchPnot">
@@ -76,7 +61,7 @@
 
                             </div>
                         </div>
-                        <div class="col-sm">
+                        <div class="col-sm" style="width:100%; float:left;">
                             <div class="panel panel-primary">
                                 <div class="panel-heading clearfix">
                                     <label class="form-check-label" for="sliderVerTime">
@@ -95,74 +80,94 @@
 
                             </div>
                         </div>
+                        <div style="width:100%;">
 
-                        <div class="col-sm">
-                            <div class="panel panel-primary">
-                                <div class="panel-heading clearfix">
-                                    <a class="btn btn-primary"
-                                       data-ajax="true"
-                                       data-ajax-method="GET"
-                                       data-ajax-mode="replace"
-                                       data-ajax-complete="settingsFadeIn();"
-                                       data-ajax-update="#content"
-                                       data-ajax-url="@Url.Action("PasswordGenerator","Settings")"
-                                       data-toggle="modal" data-target="#modalCenter"> Generate password </a>
-
-                                </div>
-
-                            </div>
                         </div>
+
 
 
                     </div>
                 </div>
 
-                <button class="btn btn-primary" name="updatePref" type="submit" formaction="UpdatePreferences" formmethod="POST">Save</button>
-
+                <button style="float:left;  margin-left:40%" class="btn btn-primary" name="updatePref" type="submit" formaction="UpdatePreferences" formmethod="POST">Save</button>
+                <button style="float:left;  margin-left:40%" id="btnDefault" class="btn btn-primary">Default</button>
             </form>
 
-            <button id="btnDefault" class="btn btn-primary">Default</button>
+
             <!-- Modal -->
             <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-
+                            Change master password
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
                             <div id="content"></div>
+                            
+                            <div id="contentDeleteAccount"></div>
                         </div>
 
                     </div>
                 </div>
             </div>
-            
+            <div style="float:right; width:40%; ">
+                <div class="col-sm" style="float:right; width:100%; margin-left:15%;">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading clearfix">
+                            <a class="btn btn-primary"
+                               data-ajax="true"
+                               data-ajax-method="GET"
+                               data-ajax-mode="replace"
+                               data-ajax-complete="settingsFadeIn();"
+                               data-ajax-update="#content"
+                               data-ajax-url="@Url.Action("PasswordGenerator","Settings")"
+                               data-toggle="modal" data-target="#modalCenter"> Generate password </a>
 
+                        </div>
 
+                    </div>
+                </div>
 
-            <div class="col-sm" style="margin-left: 80%;">
-                <div id="contentDeleteAccount"></div>
-                <div class="panel panel-primary">
+                <div class="panel panel-primary" style="float:right; width: 95%; margin-left:15%; margin-top:100px;">
                     <div class="panel-heading clearfix">
+
                         <a class="btn btn-primary"
                            data-ajax="true"
                            data-ajax-method="GET"
                            data-ajax-mode="replace"
-                           
-                           data-ajax-update="#contentDeleteAccount"
-                           data-ajax-url="@Url.Action("DeleteAccount1Step","Auth")"> Delete account </a>
+                           data-ajax-complete="settingsFadeIn();"
+                           data-ajax-update="#content"
+                           data-ajax-url="@Url.Action("PasswordChange","Settings")"
+                           data-toggle="modal" data-target="#modalCenter"> Change password </a>
+
+
 
                     </div>
+                </div>
+
+                <div class="col-sm" style="float:right; width: 96%; margin-left:15%; margin-top:100px;">
+                    <div id="contentDeleteAccount"></div>
+                    <div class="panel panel-primary">
+                        <div class="panel-heading clearfix">
+                            <a class="btn btn-primary"
+                               data-ajax="true"
+                               data-ajax-method="GET"
+                               data-ajax-mode="replace"
+
+                               data-ajax-update="#contentDeleteAccount"
+                               data-ajax-url="@Url.Action("DeleteAccount1Step","Auth")"
+                                data-toggle="modal" data-target="#modalCenter">  Delete account </a>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </section>
     </div>
-
-
-
-
-
 </article>
 
 @section Scripts {

@@ -1,0 +1,33 @@
+﻿@model PasswordManagerApp.Models.PaypalAccount
+
+
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-md-10">
+            <form asp-action="AddOrEditPayPal" metod="post" class="paypalForm" >
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <input type="hidden" name="Id" value="@ViewBag.Id" />
+                <div class="form-group">
+                    <label asp-for="Email" class="control-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Password" class="control-label"></label>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            </form>
+
+           
+        </div>
+    </div>
+
+
+</div> 

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace PasswordManagerApp.Models
 {
     [Table("address")]
-    public class Address
+    public class Address: UserRelationshipModel
     {
         [Key]
         public int Id { get; set; }

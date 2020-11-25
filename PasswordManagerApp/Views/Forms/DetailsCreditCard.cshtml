@@ -1,0 +1,44 @@
+﻿@model PasswordManagerApp.Models.CreditCard
+<div>
+    <h4>Credit Cards</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CardHolderName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CardHolderName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CardNumber)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CardNumber)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SecurityCode)
+        </dt>
+        <dd class="col-sm-10">
+
+            <input type="password" disabled id="encArea" value="@Model.SecurityCode">
+            <button onclick="switchVisibility()">show / hide</button>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ExpirationDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ExpirationDate)
+        </dd>
+
+    </dl>
+
+</div>
+
+
+

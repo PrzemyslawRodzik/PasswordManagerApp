@@ -1,0 +1,227 @@
+﻿@model IEnumerable<PasswordManagerApp.Models.CreditCard>
+@{
+    ViewData["Title"] = "ListCreditCard";
+ 
+
+    var encryptedFields = ViewBag.EncryptedIdsCreditCard as Dictionary<int, string>;
+}
+<article style="margin-left:20%;margin-right:20%; margin-top:100px;">
+
+    <h3 class="title">
+        Credit Cards
+        <a class="btn btn-primary btn-sm rounded-s"
+           data-ajax="true"
+           data-ajax-method="GET"
+           data-ajax-mode="replace"
+           data-ajax-complete="settingsFadeIn(); renewCreditCardValidation();"
+           data-ajax-update="#content"
+           data-ajax-url="@Url.Action("AddOrEditCreditCard","Payments")"
+           data-toggle="modal" data-target="#modalCenter"> Add New </a>
+
+
+
+
+    </h3>
+    <!-- Modal -->
+    <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="content"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="card items">
+        <ul class="item-list striped">
+            <li class="item item-list-header">
+
+                <div class="item-row">
+
+
+                    <div class="item-col item-col-header fa-align-right item-col-sales">
+                        <div>
+                            <span></span>
+                        </div>
+                    </div>
+                    <div class="item-col item-col-header fa-algin-right item-col-sales">
+                        <div>
+                            <span></span>
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="item-col item-col-header fixed item-col-actions-dropdown">
+                    </div>
+                </div>
+            </li>
+            @foreach (var item in Model)
+            {
+
+
+
+                <li class="item">
+                    <div class="item-row">
+
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">Email</div>
+                            <div class="no-overflow">
+                                <a href="">@Html.DisplayFor(modelItem => item.Name)</a>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">Password</div>
+                            <div class="no-overflow">
+                                <a href="">@Html.DisplayFor(modelItem => item.CardHolderName)</a>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">Password</div>
+                            <div class="no-overflow">
+                                <a href="">@Html.DisplayFor(modelItem => item.CardNumber)</a>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">Password</div>
+                            <div class="no-overflow">
+                                <a href="">@Html.DisplayFor(modelItem => item.SecurityCode)</a>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">Password</div>
+                            <div class="no-overflow">
+                                <a href="">@Html.DisplayFor(modelItem => item.ExpirationDate)</a>
+                            </div>
+                        </div>
+
+                        <div class="item-col fixed item-col-actions-dropdown">
+                            <div class="item-actions-dropdown">
+                                <a class="item-actions-toggle-btn">
+                                    <span class="inactive">
+                                        <i class="fa fa-cog"></i>
+                                    </span>
+                                    <span class="active">
+                                        <i class="fa fa-chevron-circle-right"></i>
+                                    </span>
+                                </a>
+                                <div class="item-actions-block">
+                                    <ul class="item-actions-list">
+
+                                        <li>
+                                            <a class="fa fa-info-circle"
+                                               data-ajax="true"
+                                               data-ajax-method="GET"
+                                               data-ajax-mode="replace"
+                                               data-ajax-complete="settingsFadeIn();"
+                                               data-ajax-update="#content"
+                                               data-ajax-url="@Url.Action("GetCreditCardById","Payments",new { encrypted_id = @encryptedFields[item.Id] })"
+                                               data-toggle="modal" data-target="#modalCenter">
+                                            </a>
+
+                                        </li>
+
+
+                                        <li>
+                                            <a class="fa fa-pencil-square-o"
+                                               data-ajax="true"
+                                               data-ajax-method="GET"
+                                               data-ajax-mode="replace"
+                                               data-ajax-complete="settingsFadeIn(); renewCreditCardValidation();"
+                                               data-ajax-update="#content"
+                                               data-ajax-url="@Url.Action("AddOrEditCreditCard","Payments",new { Encrypted_id=@encryptedFields[item.Id]} )"
+                                               data-toggle="modal" data-target="#modalCenter"></a>
+                                        </li>
+                                        <li>
+                                            <form asp-action="DeleteCard" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
+                                                <button style="font-size:24px; color:red"> <i class="fa fa-trash-o"></i></button>
+                                            </form>
+
+                                        </li>
+
+                                        <li>
+                                            <a class="edit" asp-action="AddOrEditCard" asp-route-encrypted_id="@encryptedFields[item.Id]">
+                                                <i class="fa fa-pencil"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+            }
+        </ul>
+
+    </div>
+</article>
+
+
+@section Scripts {
+
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+
+    <script>
+
+
+
+        function switchVisibility() {
+            const passwordField = document.querySelector('#encArea')
+            if (passwordField.getAttribute('type') === 'password') passwordField.setAttribute('type', 'text')
+            else passwordField.setAttribute('type', 'password')
+        }
+
+        function settingsFadeIn() {
+
+            if ($('#content').length) {
+                $('#content').fadeOut('slow');
+                $('#content').fadeIn('slow');
+
+            }
+
+
+        }
+
+        function renewPaypalValidation() {
+
+
+            // Remove validation.
+            $(".paypalForm").removeData("validator").removeData("unobtrusiveValidation");
+
+            // Add validation again.
+            $.validator.unobtrusive.parse(".paypalForm");
+
+
+        }
+        function renewCreditCardValidation() {
+
+
+            // Remove validation.
+            $(".creditcardForm").removeData("validator").removeData("unobtrusiveValidation");
+
+            // Add validation again.
+            $.validator.unobtrusive.parse(".creditcardForm");
+
+
+        }
+
+
+
+
+    </script>
+
+
+
+}

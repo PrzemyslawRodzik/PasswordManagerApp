@@ -1,0 +1,189 @@
+﻿
+
+
+@model IEnumerable<PasswordManagerApp.Models.PersonalInfo>
+@{
+    ViewData["Title"] = "ListPersonal";
+    Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
+
+    var encryptedFields = ViewBag.EncryptedIds as Dictionary<int, string>;
+}
+
+
+    <article class="content items-list-page">
+        <div class="header-block header-block-buttons">
+
+            <a asp-controller="Phone" asp-action="PhoneList" class="btn btn-primary  btn-sm rounded-s" style="width:15%; height:30px">
+
+                <span>Phone numbers</span>
+            </a>
+
+            <a asp-controller="Address" asp-action="AddressList" class="btn btn-primary header-btn  btn-sm rounded-s" style="width:15%; height:30px">
+
+                <span>Addresses</span>
+            </a>
+
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        Add Or Edit Your Note
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="content"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12" id="content">
+
+        </div>
+        <div class="card items">
+            <ul class="item-list striped">
+                <li class="item item-list-header">
+                <li class="item item-list-header">
+                    <div class="item-row">
+
+
+                        <div class="item-col item-col-header item-col-sales">
+                            <div>
+                                <span>@Html.DisplayNameFor(model => model.Name)</span>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-header item-col-sales">
+                            <div>
+                                <span>@Html.DisplayNameFor(model => model.SecondName)</span>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-header item-col-sales">
+                            <div>
+                                <span>@Html.DisplayNameFor(model => model.LastName)</span>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-header item-col-stats">
+                            <div class="no-overflow">
+                                <span>@Html.DisplayNameFor(model => model.DateOfBirth)</span>
+                            </div>
+                        </div>
+
+
+
+                        <div class="item-col item-col-header fixed item-col-actions-dropdown">
+                        </div>
+                    </div>
+                </li>
+                @foreach (var item in Model)
+                {
+
+
+
+                    <li class="item">
+                        <div class="item-row">
+
+                            <div class="item-col item-col-category no-overflow">
+                                <div class="item-heading">Name</div>
+                                <div class="no-overflow">
+                                    <a href="">@Html.DisplayFor(modelItem => item.Name)</a>
+                                </div>
+                            </div>
+                            <div class="item-col item-col-category no-overflow">
+                                <div class="item-heading">Second Name</div>
+                                <div class="no-overflow">
+                                    <a href="">@Html.DisplayFor(modelItem => item.SecondName)</a>
+                                </div>
+                            </div>
+                            <div class="item-col item-col-category no-overflow">
+                                <div class="item-heading">Last Name</div>
+                                <div class="no-overflow">
+                                    <a href="">@Html.DisplayFor(modelItem => item.LastName)</a>
+                                </div>
+                            </div>
+                            <div class="item-col item-col-date">
+                                <div class="item-heading">Date of Birth</div>
+                                <div class="no-overflow">@Html.DisplayFor(modelItem => item.DateOfBirth)</div>
+                            </div>
+                            <div class="item-col fixed item-col-actions-dropdown">
+                                <div class="item-actions-dropdown">
+                                    <a class="item-actions-toggle-btn">
+                                        <span class="inactive">
+                                            <i class="fa fa-cog"></i>
+                                        </span>
+                                        <span class="active">
+                                            <i class="fa fa-chevron-circle-right"></i>
+                                        </span>
+                                    </a>
+                                    <div class="item-actions-block">
+                                        <ul class="item-actions-list">
+                                            <li>
+                                                <a class="fa fa-info-circle"
+                                                   data-ajax="true"
+                                                   data-ajax-method="GET"
+                                                   data-ajax-mode="replace"
+                                                   data-ajax-complete="settingsFadeIn();"
+                                                   data-ajax-update="#content"
+                                                   data-ajax-url="@Url.Action("GetPersonalById","Personal",new { encrypted_id = @encryptedFields[item.Id] })"
+                                                   data-toggle="modal" data-target="#modalCenter">
+                                                </a>
+
+                                            </li>
+                                            <li>
+                                                <a class="edit" asp-action="Edit" asp-route-id="@item.Id">
+                                                    <i class="fa fa-pencil"></i>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="remove" asp-action="Delete" asp-route-id="@item.Id" data-toggle="modal" data-target="#confirm-modal">
+                                                    <i class="fa fa-trash-o "></i>
+                                                </a>
+                                            </li>
+
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                }
+            </ul>
+
+        </div>
+        <!-- MODAL -->
+        <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="content2"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <a class="btn btn-primary header-btn  btn-sm rounded-s"
+           data-ajax="true"
+           data-ajax-method="GET"
+           data-ajax-mode="replace"
+           data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
+           data-ajax-update="#content"
+           data-ajax-url="@Url.Action("AddOrEditPersonal","Personal")"
+           data-toggle="modal" data-target="#modalCenter"> Add New </a>
+    </article>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

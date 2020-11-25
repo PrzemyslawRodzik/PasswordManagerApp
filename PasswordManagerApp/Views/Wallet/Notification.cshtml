@@ -1,0 +1,229 @@
+﻿
+@model PasswordManagerApp.Models.NotiViewModel
+@{
+    ViewData["Title"] = "ListCreditCard";
+    Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
+
+    var encryptedFieldsLog = ViewBag.EncryptedIdsLogin as Dictionary<int, string>;
+    var encryptedFieldsPay = ViewBag.EncryptedIdsPay as Dictionary<int, string>;
+}
+
+
+    <article class="content items-list-page">
+
+        <div class="header-block header-block-buttons">
+
+             </div>
+
+
+        <a class="btn btn-primary btn-sm rounded-s" style="width:40%;"
+           data-ajax="true"
+           data-ajax-method="GET"
+           data-ajax-mode="replace"
+           data-ajax-update="#content"
+           data-ajax-url="@Url.Action("Pwned","Notification")"> Pwned </a>
+
+        <a class="btn btn-primary btn-sm rounded-s" style="width:40%;"
+           data-ajax="true"
+           data-ajax-method="GET"
+           data-ajax-mode="replace"
+           data-ajax-update="#content"
+           data-ajax-url="@Url.Action("Expired","Notification")"> Expired </a>
+
+        <div id="content"></div>
+        <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <a value=""></a>
+                        <!--  Login data details-->
+
+
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="content"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card items">
+            <ul class="item-list striped">
+                <li class="item item-list-header">
+                    <div class="item-row">
+
+
+                        <div class="item-col item-col-header item-col-title">
+                            <div>
+                                <span>Name</span>
+                            </div>
+                        </div>
+
+                        <div class="item-col item-col-header item-col-title">
+                            <div>
+                                <span>Compromised</span>
+                            </div>
+                        </div>
+
+
+                        <div class="item-col item-col-header fixed item-col-actions-dropdown">
+                        </div>
+                    </div>
+                </li>
+                @foreach (var item in Model.LoginDatas)
+                {
+
+
+
+                    <li class="item">
+                        <div class="item-row">
+
+                            <div class="item-col item-col-category no-overflow">
+                                <div class="item-heading">Name</div>
+                                <div class="no-overflow">
+                                    <a href="">@Html.DisplayFor(modelItem => item.Name)</a>
+                                </div>
+                            </div>
+                            <div class="item-col item-col-category no-overflow">
+                                <div class="item-heading">Compromised </div>
+                                <div class="no-overflow">
+                                    <a href="">@Html.DisplayFor(modelItem => item.Compromised)</a>
+                                </div>
+                            </div>
+
+
+                            <div class="item-col fixed item-col-actions-dropdown">
+                                <div class="item-actions-dropdown">
+                                    <a class="item-actions-toggle-btn">
+                                        <span class="inactive">
+                                            <i class="fa fa-cog"></i>
+                                        </span>
+                                        <span class="active">
+                                            <i class="fa fa-chevron-circle-right"></i>
+                                        </span>
+                                    </a>
+                                    <div class="item-actions-block">
+                                        <ul class="item-actions-list">
+                                            <li>
+                                                <a class="fa fa-info-circle"
+                                                   data-ajax="true"
+                                                   data-ajax-method="GET"
+                                                   data-ajax-mode="replace"
+                                                   data-ajax-update="#content"
+                                                   data-ajax-url="@Url.Action("GetLoginDataById","LoginData")"
+                                                   data-toggle="modal" data-target="#modalCenter">
+                                                </a>
+
+                                            </li>
+
+
+                                            <li>
+                                                <a class="fa fa-pencil-square-o"
+                                                   data-ajax="true"
+                                                   data-ajax-method="GET"
+                                                   data-ajax-mode="replace"
+                                                   data-ajax-complete="renewLoginDataValidation();"
+                                                   data-ajax-update="#content"
+                                                   data-ajax-url="@Url.Action("AddOrEditLoginData","LoginData")"
+                                                   data-toggle="modal" data-target="#modalCenter"></a>
+
+                                            </li>
+
+                                        </ul>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </li>
+
+                }
+                @foreach (var item in Model.PaypalAccounts)
+                {
+
+
+
+                    <li class="item">
+                        <div class="item-row">
+
+                            <div class="item-col item-col-category no-overflow">
+                                <div class="item-heading">Name</div>
+                                <div class="no-overflow">
+                                    <a href="">Paypal @Html.DisplayFor(modelItem => item.Id) </a>
+                                </div>
+                            </div>
+                            <div class="item-col item-col-category no-overflow">
+                                <div class="item-heading">Compromised </div>
+                                <div class="no-overflow">
+                                    <a href="">@Html.DisplayFor(modelItem => item.Compromised)</a>
+                                </div>
+                            </div>
+
+
+                            <div class="item-col fixed item-col-actions-dropdown">
+                                <div class="item-actions-dropdown">
+                                    <a class="item-actions-toggle-btn">
+                                        <span class="inactive">
+                                            <i class="fa fa-cog"></i>
+                                        </span>
+                                        <span class="active">
+                                            <i class="fa fa-chevron-circle-right"></i>
+                                        </span>
+                                    </a>
+                                    <div class="item-actions-block">
+                                        <ul class="item-actions-list">
+                                            <li>
+                                                <a class="fa fa-info-circle"
+                                                   data-ajax="true"
+                                                   data-ajax-method="GET"
+                                                   data-ajax-mode="replace"
+                                                   data-ajax-update="#content"
+                                                   data-ajax-url="@Url.Action("GetLoginDataById","LoginData",new { encrypted_id = @encryptedFieldsPay[item.Id] })"
+                                                   data-toggle="modal" data-target="#modalCenter">
+                                                </a>
+
+                                            </li>
+
+
+                                            <li>
+                                                <a class="fa fa-pencil-square-o"
+                                                   data-ajax="true"
+                                                   data-ajax-method="GET"
+                                                   data-ajax-mode="replace"
+                                                   data-ajax-complete="renewLoginDataValidation();"
+                                                   data-ajax-update="#content"
+                                                   data-ajax-url="@Url.Action("AddOrEditLoginData","LoginData",new { Encrypted_id=@encryptedFieldsPay[item.Id]} )"
+                                                   data-toggle="modal" data-target="#modalCenter"></a>
+
+                                            </li>
+
+                                        </ul>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </li>
+
+                }
+            </ul>
+        </div>
+
+
+
+
+    </article>
+
+@section Scripts {
+
+    <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+
+
+
+}
