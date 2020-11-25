@@ -84,7 +84,7 @@ namespace PasswordManagerApp.Controllers
 
 
             return View("Views/Wallet/Notification.cshtml", NotiModel);
-            return View("Views/Wallet/Notification.cshtml");
+            
         }
         [Route("Pwned")]
         public async Task<IActionResult> Pwned()

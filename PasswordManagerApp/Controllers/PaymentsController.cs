@@ -4,24 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using PasswordManagerApp.Models;
-
-
-using PasswordManagerApp.Models.ViewModels;
 using PasswordManagerApp.Services;
 using Microsoft.Extensions.Configuration;
-using System.Diagnostics;
 using PasswordManagerApp.Handlers;
 using Microsoft.AspNetCore.DataProtection;
-
-using System.Dynamic;
 using System.Net.Http;
-using Newtonsoft.Json;
-
-using System.Security.Claims;
 using PasswordManagerApp.Cache;
-
+using System.Threading;
 
 namespace PasswordManagerApp.Controllers
 {
@@ -43,64 +33,7 @@ namespace PasswordManagerApp.Controllers
         }
         public string AuthUserId { get { return HttpContext.User.Identity.Name; } }
 
-        [Route("PayPals")]
-        public async Task<IActionResult> ListPayPal()
-        {
-            IEnumerable<PaypalAccount> userPayPals;
-
-            try
-            {
-                userPayPals = await _cacheService.GetOrCreateCachedResponse<PaypalAccount>(CacheKeys.PaypalAccount + AuthUserId, () => _apiService.GetAllUserData<PaypalAccount>(Int32.Parse(AuthUserId)));
-
-            }
-            catch (HttpRequestException)
-            {
-                userPayPals = Enumerable.Empty<PaypalAccount>();
-            }
-            userPayPals = userPayPals ?? Enumerable.Empty<PaypalAccount>();
-
-
-            Dictionary<int, string> encryptedIds = new Dictionary<int, string>();
-            foreach (var x in userPayPals)
-            {
-                encryptedIds.Add(x.Id, dataProtectionHelper.Encrypt(x.Id.ToString(), "QueryStringsEncryptions"));
-
-            }
-            ViewBag.EncryptedIdsPayPal = encryptedIds;
-            return PartialView("Views/Wallet/ListPayPal.cshtml", userPayPals);
-        }
-        [Route("CreditCards")]
-        public async Task<IActionResult>ListCreditCard()
-        {
-            IEnumerable<CreditCard> userCards;
-
-            try
-            {
-                userCards = await _cacheService.GetOrCreateCachedResponse<CreditCard>(CacheKeys.CreditCard + AuthUserId, () => _apiService.GetAllUserData<CreditCard>(Int32.Parse(AuthUserId)));
-
-            }
-            catch (HttpRequestException)
-            {
-                userCards = Enumerable.Empty<CreditCard>();
-            }
-            userCards = userCards ?? Enumerable.Empty<CreditCard>();
-
-
-            Dictionary<int, string> encryptedIds = new Dictionary<int, string>();
-            foreach (var x in userCards)
-            {
-                encryptedIds.Add(x.Id, dataProtectionHelper.Encrypt(x.Id.ToString(), "QueryStringsEncryptions"));
-
-            }
-            ViewBag.EncryptedIdsCreditCard = encryptedIds;
-            return PartialView("Views/Wallet/ListCreditCard.cshtml", userCards);
-        }
-        [Route("PaymentsList")]
-        public async Task<IActionResult> ListPayments()
-        {
-            return View("Views/Wallet/ListPayments.cshtml");
-        }
-
+        
         [Route("Payments")]
         public async Task<IActionResult> List(string searchString, int payNumber = 1, int paySize = 5,int cardNumber=1,int cardSize=5)
         {
@@ -109,7 +42,7 @@ namespace PasswordManagerApp.Controllers
             PaymentsViewModel PaymentsModel = new PaymentsViewModel();
              try
             {
-                PaymentsModel.CreditCards = await _cacheService.GetOrCreateCachedResponse<CreditCard>(CacheKeys.LoginData + AuthUserId, () => _apiService.GetAllUserData<CreditCard>(Int32.Parse(AuthUserId)));
+                PaymentsModel.CreditCards = await _cacheService.GetOrCreateCachedResponse<CreditCard>(CacheKeys.CreditCard + AuthUserId, () => _apiService.GetAllUserData<CreditCard>(Int32.Parse(AuthUserId)));
             }
             catch (HttpRequestException)
             {
@@ -119,7 +52,7 @@ namespace PasswordManagerApp.Controllers
 
             try
             {
-                PaymentsModel.PaypalAccounts = await _cacheService.GetOrCreateCachedResponse<PaypalAccount>(CacheKeys.LoginData + AuthUserId, () => _apiService.GetAllUserData<PaypalAccount>(Int32.Parse(AuthUserId)));
+                PaymentsModel.PaypalAccounts = await _cacheService.GetOrCreateCachedResponse<PaypalAccount>(CacheKeys.PaypalAccount + AuthUserId, () => _apiService.GetAllUserData<PaypalAccount>(Int32.Parse(AuthUserId)));
             }
             catch (HttpRequestException)
             {
@@ -127,41 +60,7 @@ namespace PasswordManagerApp.Controllers
             }
             PaymentsModel.PaypalAccounts = PaymentsModel.PaypalAccounts ?? Enumerable.Empty<PaypalAccount>();
 
-            /*   IEnumerable<PaypallAcount> userPayPals;
-               IEnumerable<CreditCard> userCards;
-               //   await _apiService.GetAllUserData<Note>(Int32.Parse(userId));
-               // var user = _unitOfWork.Users.Find<User>(int.Parse(User.Identity.Name));
-               try
-               {
-                   userPayPals = await _apiService.GetAllUserData<PaypallAcount>(Int32.Parse(userId));
-           //    userCards = await _apiService.GetAllUserData<CreditCard>(Int32.Parse(userId));
-               }
-               catch (HttpRequestException)
-               {
-                   userPayPals = Enumerable.Empty<PaypallAcount>();
-               }
-               userPayPals = userPayPals ?? Enumerable.Empty<PaypallAcount>();
-
-               try
-               {
-               //    userPayPals = await _apiService.GetAllUserData<PaypallAcount>(Int32.Parse(userId));
-                   userCards = await _apiService.GetAllUserData<CreditCard>(Int32.Parse(userId));
-               }
-               catch (HttpRequestException)
-               {
-                   userCards = Enumerable.Empty<CreditCard>();
-               }*/
-            //  userCards = userCards ?? Enumerable.Empty<CreditCard>();
-
-            //  PaymentsModel.PaypalAccounts = _unitOfWork.Wallet.FindByCondition<PaypallAcount>(x => x.User == user);
-            // PaymentsModel.CreditCards = _unitOfWork.Wallet.FindByCondition<CreditCard>(x => x.User == user);
-
-
-            //  var paym = await _apiService.GetDataById<LoginData>(decrypted_id);
-            //  PaymentsModel = _unitOfWork.Wallet.FindByCondition<PaymentsViewModel>(x => x.User == user);
-
-            //var PaymentsInfo1 = _unitOfWork.Wallet.FindByCondition<PaypallAcount>(x => x.User == user);
-            // var CreditCardInfo = _unitOfWork.Wallet.FindByCondition<CreditCard>(x => x.User == user);
+           
 
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -170,26 +69,7 @@ namespace PasswordManagerApp.Controllers
 
             }
 
-            /*
-            Dictionary<int, string> encryptedIds = new Dictionary<int, string>();
-            if (PaymentsModel.CreditCards.First().Id.ToString() != "null")
-            {
-                foreach (var x in PaymentsModel.CreditCards)
-                {
-                    encryptedIds.Add(x.Id, dataProtectionHelper.Encrypt(x.Id.ToString(), "QueryStringsEncryptions"));
-                    //  x.Encrypted_Id = dataProtectionHelper.Encrypt(x.Id.ToString(), "QueryStringsEncryptions");
-                }
-            }
-
-            ViewBag.EncryptedIdsPay = encryptedIds;
-            if (PaymentsModel.PaypallAcounts.Count() > 0)
-            {
-                foreach (var x in PaymentsModel.PaypallAcounts)
-                {
-                    encryptedIds.Add(x.Id, dataProtectionHelper.Encrypt(x.Id.ToString(), "QueryStringsEncryptions"));
-                    //  x.Encrypted_Id = dataProtectionHelper.Encrypt(x.Id.ToString(), "QueryStringsEncryptions");
-                }
-            } */
+           
 
             Dictionary<int, string> encryptedIdsPay = new Dictionary<int, string>();
             foreach (var x in PaymentsModel.PaypalAccounts)
@@ -228,7 +108,7 @@ namespace PasswordManagerApp.Controllers
                 var paypals = await _cacheService.GetOrCreateCachedResponse<PaypalAccount>(CacheKeys.CreditCard + AuthUserId, () => _apiService.GetAllUserData<PaypalAccount>(Int32.Parse(AuthUserId)));
                 var paypal = paypals.FirstOrDefault(x => x.Id == decrypted_id);
                 ViewBag.Id = encrypted_id;
-                return PartialView("Views/Forms/AddOrEditPayPal.cshtml", paypal);
+                return PartialView("Views/Forms/AddOrEditPayPal.cshtml", DecryptModelPay(paypal));
             }
         }
        
@@ -236,13 +116,14 @@ namespace PasswordManagerApp.Controllers
         [HttpPost]
         [Route("AddOrEditPayPal")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddOrEditPayPal([Bind("Email,Password")] PaypalAccount paypal, string Id)
+        public async Task<IActionResult> AddOrEditPayPal([Bind("Name,Email,Password")] PaypalAccount paypal, string Id)
         {
             paypal.UserId = Int32.Parse(AuthUserId);
             if (!ModelState.IsValid)
                 return PartialView("Views/Forms/AddOrEditPayPal.cshtml", paypal);
-
+            paypal.Compromised = PwnedPasswords.IsPasswordPwnedAsync(paypal.Password, new CancellationToken(), null).Result == -1 ? 0 : 1;
             paypal.Password = _encryptionService.Encrypt(AuthUserId,paypal.Password);
+            
 
             if (!Id.Equals("0"))
                 paypal.Id = Int32.Parse(dataProtectionHelper.Decrypt(Id, "QueryStringsEncryptions"));
@@ -276,13 +157,8 @@ namespace PasswordManagerApp.Controllers
 
                 var card = cards.FirstOrDefault(x => x.Id == decrypted_id);
                
-
-
-                // var card_data = _unitOfWork.Context.CreditCards.Find(decrypted_id);
-              //  var card_data = await _apiService.GetDataById<CreditCard>(decrypted_id);
-
                 ViewBag.Id = encrypted_id;
-                return PartialView("Views/Forms/AddOrEditCreditCard.cshtml", card);
+                return PartialView("Views/Forms/AddOrEditCreditCard.cshtml", DecryptModelCard(card));
             }
         }
 
@@ -297,7 +173,6 @@ namespace PasswordManagerApp.Controllers
                 return PartialView("Views/Forms/AddOrEdiCreditCard.cshtml", card);
 
             card.SecurityCode = _encryptionService.Encrypt(AuthUserId, card.SecurityCode);
-            card.CardHolderName = _encryptionService.Encrypt(AuthUserId, card.CardHolderName);
             card.CardNumber= _encryptionService.Encrypt(AuthUserId, card.CardNumber);
             
 
@@ -363,9 +238,8 @@ namespace PasswordManagerApp.Controllers
             return new CreditCard
             {
                 Name = model.Name,
-                CardHolderName = _encryptionService.Decrypt(AuthUserId, model.CardHolderName),
+                CardHolderName = model.CardHolderName,
                 CardNumber = _encryptionService.Decrypt(AuthUserId, model.CardNumber),
-                
                 SecurityCode = _encryptionService.Decrypt(AuthUserId, model.SecurityCode),
                 ExpirationDate = model.ExpirationDate
             };
@@ -379,20 +253,21 @@ namespace PasswordManagerApp.Controllers
             var card = cards.FirstOrDefault(x => x.Id == cardId);
             return PartialView("Views/Forms/DetailsCreditCard.cshtml", DecryptModelCard(card));
         }
-      /*  public async Task<IActionResult> GetCreditCardById()
-        {
-            return PartialView("Views/Forms/AddOrEditPayPal.cshtml");
-        }*/
+     
+
+
+
+
         private PaypalAccount DecryptModelPay(PaypalAccount model)
         {
             return new PaypalAccount
-            {
+            {   Name = model.Name,
                 Email = model.Email,
                 Password = _encryptionService.Decrypt(AuthUserId, model.Password)
             };
         }
+
         [Route("PaypalDetails")]
-        
         public async Task<IActionResult> GetPaypalById(string encrypted_id)
         {
             var paypalId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
@@ -401,9 +276,6 @@ namespace PasswordManagerApp.Controllers
             return PartialView("Views/Forms/DetailsPayPal.cshtml", DecryptModelPay(paypal));
         }
 
-
-        [Route("decryptData")]
-        public string DecryptField(string enc_data) => _encryptionService.Decrypt(AuthUserId, enc_data);
 
 
 

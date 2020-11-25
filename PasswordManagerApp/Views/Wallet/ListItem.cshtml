@@ -201,7 +201,7 @@
                                         </li>
                                         <li>
                                             <form name="myformDelete" asp-action="DeleteLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
-                                                <a href="javascript: submitform()" class="remove" data-toggle="modal" data-target="#confirm-modal" style="font-size:24px; color:gray"> <i class="fa fa-trash-o"></i></a>
+                                                <a href="javascript: submitform()" class="remove" data-toggle="modal" data-target="#confirm-modal" style="color:gray"> <i class="fa fa-trash-o"></i></a>
                                             </form>
                                         </li>
                                     </ul>
@@ -246,17 +246,6 @@
     <script>
 
 
-
-        function settingsFadeIn() {
-
-            if ($('#content').length) {
-                $('#content').fadeOut('slow');
-                $('#content').fadeIn('slow');
-
-            }
-
-
-        }
         function renewLoginDataValidation() {
 
 

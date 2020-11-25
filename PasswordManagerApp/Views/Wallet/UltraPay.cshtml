@@ -11,215 +11,368 @@
 
 
 
-    <article class="content items-list-page">
-        <div class="title-search-block " style=" margin-right:5%;">
-            <div class="items-search">
-                <form class="form-inline" asp-action="List" asp-controller="Payments" method="get">
-                    <div class="input-group">
+<article class="content items-list-page">
+    <div class="title-search-block " style=" margin-right:5%;">
+        <div class="items-search">
+            <form class="form-inline" asp-action="List" asp-controller="Payments" method="get">
+                <div class="input-group">
 
-                        <span class="input-group-btn">
-                            <input type="text" class="form-control boxed rounded-s" name="searchString" placeholder="Search for...">
+                    <span class="input-group-btn">
+                        <input type="text" class="form-control boxed rounded-s" name="searchString" placeholder="Search for...">
 
-                            <button class="btn btn-secondary rounded-s" asp-action="List">
-                                <i class="fa fa-backward"></i>
-                            </button>
-                            <button class="btn btn-secondary rounded-s" type="submit">
-                                <i class="fa fa-search"></i>
-                            </button>
-                        </span>
-                    </div>
-                </form>
+                        <button class="btn btn-secondary rounded-s" asp-action="List">
+                            <i class="fa fa-backward"></i>
+                        </button>
+                        <button class="btn btn-secondary rounded-s" type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Details -->
+    <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <a value=""></a>
+
+
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="content"></div>
+                </div>
+
             </div>
         </div>
-        <!-- Details -->
-        <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <a value=""></a>
-                        <!--  Login data details-->
-                        
+    </div>
+    <div class="card items" style="width:45%; margin-right:5%; margin-top:60px; float:left;">
 
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+        <div class="header-block header-block-buttons">
+            <h3>
+                Paypal Accounts
+                <a class="btn btn-primary btn-sm rounded-s"
+                   data-ajax="true"
+                   data-ajax-method="GET"
+                   data-ajax-mode="replace"
+                   data-ajax-complete="renewPaypalValidation();"
+                   data-ajax-update="#content"
+                   data-ajax-url="@Url.Action("AddOrEditPayPal","Payments")"
+                   data-toggle="modal" data-target="#modalCenter"> Add New </a>
+        </div> </h3>
+        <ul class="item-list striped">
+            <li class="item item-list-header">
+
+                <div class="item-row">
+
+
+                    <div class="item-col item-col-header item-col-title">
+                        <div>
+                            <span>Name</span>
+                        </div>
                     </div>
-                    <div class="modal-body">
-                        <div id="content"></div>
+
+
+
+                    <div class="item-col item-col-header fixed item-col-actions-dropdown">
+                    </div>
+                </div>
+            </li>
+            @foreach (var item in Model.PaypalAccounts)
+            {
+
+
+
+                <li class="item">
+                    <div class="item-row">
+
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">Name</div>
+                            <div>
+
+
+
+                                <a class="item-title" data-ajax="true"
+                                   data-ajax-method="GET"
+                                   data-ajax-mode="replace"
+                                   data-ajax-update="#content"
+                                   data-ajax-url="@Url.Action("GetPaypalById","Payments",new { encrypted_id = @encryptedFields1[item.Id] })"
+                                   data-toggle="modal" data-target="#modalCenter">
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </a>
+                            </div>
+                        </div>
+
+
+                        <div class="item-col fixed item-col-actions-dropdown">
+                            <div class="item-actions-dropdown">
+                                <a class="item-actions-toggle-btn">
+                                    <span class="inactive">
+                                        <i class="fa fa-cog"></i>
+                                    </span>
+                                    <span class="active">
+                                        <i class="fa fa-chevron-circle-right"></i>
+                                    </span>
+                                </a>
+                                <div class="item-actions-block">
+                                    <ul class="item-actions-list">
+                                        <li>
+                                            
+                                            <a class="fa fa-info-circle"
+                                               data-ajax="true"
+                                               data-ajax-method="GET"
+                                               data-ajax-mode="replace"
+                                               data-ajax-update="#content"
+                                               data-ajax-url="@Url.Action("GetPaypalById","Payments",new { encrypted_id = encryptedFields1[item.Id] })"
+                                               data-toggle="modal" data-target="#modalCenter">
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="fa fa-pencil-square-o"
+                                               data-ajax="true"
+                                               data-ajax-method="GET"
+                                               data-ajax-mode="replace"
+                                               data-ajax-complete="renewPaypalValidation();"
+                                               data-ajax-update="#content"
+                                               data-ajax-url="@Url.Action("AddOrEditPayPal","Payments",new { Encrypted_id=encryptedFields1[item.Id]} )"
+                                               data-toggle="modal" data-target="#modalCenter"></a>
+                                        </li>
+                                        <li>
+                                            <a class="remove" asp-action="DeletePayPal" asp-route-encrypted_id="@encryptedFields1[item.Id]" data-toggle="modal" data-target="#confirm-modal" style="color:gray">
+                                                <i class="fa fa-trash-o "></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+            }
+        </ul>
+
+    </div>
+
+
+    <div class="card items" style="width:45%; margin-top:60px; float:left ;">
+        <div class="header-block header-block-buttons">
+            <h3>
+                Credit cards
+                <a class="btn btn-primary btn-sm rounded-s"
+                   data-ajax="true"
+                   data-ajax-method="GET"
+                   data-ajax-mode="replace"
+                   data-ajax-complete="renewCreditCardValidation();"
+                   data-ajax-update="#content"
+                   data-ajax-url="@Url.Action("AddOrEditCreditCard","Payments")"
+                   data-toggle="modal" data-target="#modalCenter"> Add New </a>
+            </h3>
+        </div>
+
+
+        <ul class="item-list striped">
+            <li class="item item-list-header">
+
+                <div class="item-row">
+
+
+                    <div class="item-col item-col-header item-col-title">
+                        <div>
+                            <span>Name</span>
+                        </div>
+                    </div>
+
+
+
+                    <div class="item-col item-col-header fixed item-col-actions-dropdown">
                     </div>
 
                 </div>
-            </div>
-        </div>
-        <div class="card items" style="width:45%; margin-right:5%; margin-top:60px; float:left;">
+            </li>
+            @foreach (var item in Model.CreditCards)
+            {
 
-            <div class="header-block header-block-buttons">
-                <h3>
-                    Paypal Accounts
-                   <a class="btn btn-primary btn-sm rounded-s"
-                       data-ajax="true"
-                       data-ajax-method="GET"
-                       data-ajax-mode="replace"
-                       data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
-                       data-ajax-update="#content"
-                       data-ajax-url="@Url.Action("AddOrEditPayPal","Payments")"
-                       data-toggle="modal" data-target="#modalCenter"> Add New </a>
-</div> </h3>
-            <ul class="item-list striped">
-                <li class="item item-list-header">
 
+
+                <li class="item">
                     <div class="item-row">
 
-
-                        <div class="item-col item-col-header item-col-title">
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">Name</div>
                             <div>
-                                <span>Name</span>
+
+
+
+                                <a class="item-title" data-ajax="true"
+                                   data-ajax-method="GET"
+                                   data-ajax-mode="replace"
+                                   data-ajax-update="#content"
+                                   data-ajax-url="@Url.Action("GetCreditCardById","Payments",new { encrypted_id = encryptedFields2[item.Id] })"
+                                   data-toggle="modal" data-target="#modalCenter">
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </a>
                             </div>
                         </div>
 
 
+                        <div class="item-col fixed item-col-actions-dropdown">
+                            <div class="item-actions-dropdown">
+                                <a class="item-actions-toggle-btn">
+                                    <span class="inactive">
+                                        <i class="fa fa-cog"></i>
+                                    </span>
+                                    <span class="active">
+                                        <i class="fa fa-chevron-circle-right"></i>
+                                    </span>
+                                </a>
+                                <div class="item-actions-block">
+                                    <ul class="item-actions-list">
 
-                        <div class="item-col item-col-header fixed item-col-actions-dropdown">
+                                        <li>
+                                            <a class="fa fa-info-circle"
+                                               data-ajax="true"
+                                               data-ajax-method="GET"
+                                               data-ajax-mode="replace"
+                                               data-ajax-update="#content"
+                                               data-ajax-url="@Url.Action("GetCreditCardById","Payments",new { encrypted_id = @encryptedFields2[item.Id] })"
+                                               data-toggle="modal" data-target="#modalCenter">
+                                            </a>
+                                        </li>
+
+                                        <li>
+
+                                            <a class="fa fa-pencil-square-o"
+                                               data-ajax="true"
+                                               data-ajax-method="GET"
+                                               data-ajax-mode="replace"
+                                               data-ajax-complete="renewLoginDataValidation();"
+                                               data-ajax-update="#content"
+                                               data-ajax-url="@Url.Action("AddOrEditCreditCard","Payments",new { Encrypted_id=@encryptedFields2[item.Id]} )"
+                                               data-toggle="modal" data-target="#modalCenter"></a>
+
+                                            
+                                        </li>
+                                        <li>
+                                            <a class="remove" asp-action="DeletCard" asp-route-encrypted_id="@encryptedFields2[item.Id]" data-toggle="modal" data-target="#confirm-modal" style="color:gray">
+                                                <i class="fa fa-trash-o "></i>
+                                            </a>
+                                        </li>
+
+                                        
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </li>
-                @foreach (var item in Model.PaypalAccounts)
-                {
+
+            }
+        </ul>
+
+    </div>
+</article>
+
+
+@section Scripts {
+
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+
+    <script>
+
+        function renewCreditCardValidation() {
+
+
+            // Remove validation.
+            $(".creditcardForm").removeData("validator").removeData("unobtrusiveValidation");
+
+            // Add validation again.
+            $.validator.unobtrusive.parse(".creditcardForm");
+
+
+        }
+        function renewPaypalValidation() {
+
+
+            // Remove validation.
+            $(".paypalForm").removeData("validator").removeData("unobtrusiveValidation");
+
+            // Add validation again.
+            $.validator.unobtrusive.parse(".paypalForm");
+
+
+            $("#encArea").on('change keypress paste input', function (e) {
+
+                $("#resultArea").text(' ');
+            });
 
 
 
-                    <li class="item">
-                        <div class="item-row">
-
-                            <div class="item-col item-col-category no-overflow">
-                                <div class="item-heading">Name</div>
-                                <div class="no-overflow">
-                                    <a href="">@Html.DisplayFor(modelItem => item.Email)</a>
-                                </div>
-                            </div>
 
 
-                            <div class="item-col fixed item-col-actions-dropdown">
-                                <div class="item-actions-dropdown">
-                                    <a class="item-actions-toggle-btn">
-                                        <span class="inactive">
-                                            <i class="fa fa-cog"></i>
-                                        </span>
-                                        <span class="active">
-                                            <i class="fa fa-chevron-circle-right"></i>
-                                        </span>
-                                    </a>
-                                    <div class="item-actions-block">
-                                        <ul class="item-actions-list">
-                                            <li>
-                                                <a class="remove" asp-action="DeletePayPal" asp-route-encrypted_id="@encryptedFields1[item.Id]" data-toggle="modal" data-target="#confirm-modal">
-                                                    <i class="fa fa-trash-o "></i>
-                                                </a>
-                                            </li>
-
-                                            <li>
-                                                <a class="edit" asp-action="AddOrEditPayPal" asp-route-encrypted_id="@encryptedFields1[item.Id]">
-                                                    <i class="fa fa-pencil"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-
-                }
-            </ul>
-
-        </div>
-
-
-        <div class="card items" style="width:45%; margin-top:60px; float:left ;">
-            <div class="header-block header-block-buttons">
-                <h3>
-                    Credit cards
-                    <a class="btn btn-primary btn-sm rounded-s"
-                       data-ajax="true"
-                       data-ajax-method="GET"
-                       data-ajax-mode="replace"
-                       data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
-                       data-ajax-update="#content"
-                       data-ajax-url="@Url.Action("AddOrEditCreditCard","Payments")"
-                       data-toggle="modal" data-target="#modalCenter"> Add New </a>
-                </h3>
-            </div>
-
-
-            <ul class="item-list striped">
-                <li class="item item-list-header">
-
-                    <div class="item-row">
-
-
-                        <div class="item-col item-col-header item-col-title">
-                            <div>
-                                <span>Name</span>
-                            </div>
-                        </div>
+        }
 
 
 
-                        <div class="item-col item-col-header fixed item-col-actions-dropdown">
-                        </div>
-
-                    </div>
-                </li>
-                @foreach (var item in Model.CreditCards)
-                {
 
 
 
-                    <li class="item">
-                        <div class="item-row">
 
-                            <div class="item-col item-col-category no-overflow">
-                                <div class="item-heading">Name</div>
-                                <div class="no-overflow">
-                                    <a href="">@Html.DisplayFor(modelItem => item.Name)</a>
-                                </div>
-                            </div>
+        function switchVisibility() {
+            const passwordField = document.querySelector('#encArea')
+            if (passwordField.getAttribute('type') === 'password') passwordField.setAttribute('type', 'text')
+            else passwordField.setAttribute('type', 'password')
+        }
+
+        function ajaxPasswordCall() {
+
+            $.ajax({
+                url: "/settings/passwordgeneratequick",
+                type: "get",
+                data: {
+
+                },
+                success: function (response) {
+                    $("#encArea").val(response);
+                },
+
+            });
+
+        }
 
 
-                            <div class="item-col fixed item-col-actions-dropdown">
-                                <div class="item-actions-dropdown">
-                                    <a class="item-actions-toggle-btn">
-                                        <span class="inactive">
-                                            <i class="fa fa-cog"></i>
-                                        </span>
-                                        <span class="active">
-                                            <i class="fa fa-chevron-circle-right"></i>
-                                        </span>
-                                    </a>
-                                    <div class="item-actions-block">
-                                        <ul class="item-actions-list">
+
+        function ajaxHibpCall() {
+
+            $.ajax({
+                url: "/settings/hibpcheck",
+                type: "post",
+                data: {
+                    password: $("#encArea").val()
+                },
+                success: function (response) {
+                    $("#resultArea").text(response);
+                    $('#resultArea').fadeOut('slow');
+                    $('#resultArea').fadeIn('slow');
+                },
+
+            });
+
+        }
 
 
-                                            <li>
-                                                <a class="remove" asp-action="DeletCard" asp-route-encrypted_id="@encryptedFields2[item.Id]" data-toggle="modal" data-target="#confirm-modal">
-                                                    <i class="fa fa-trash-o "></i>
-                                                </a>
-                                            </li>
 
-                                            <li>
-                                                <a class="edit" asp-action="AddOrEditCard" asp-route-encrypted_id="@encryptedFields2[item.Id]">
-                                                    <i class="fa fa-pencil"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
 
-                }
-            </ul>
+    </script>
 
-        </div>
-    </article>
+
+
+}
