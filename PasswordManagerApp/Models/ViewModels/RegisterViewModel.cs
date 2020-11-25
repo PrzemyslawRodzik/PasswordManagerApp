@@ -20,6 +20,7 @@ namespace PasswordManagerApp.Models.ViewModels
                             "upper case (A-Z), lower case (a-z) and number (0-9)"
             )]
         [HibpCheckRule]
+		
         [Display(Name = "Master password")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
