@@ -101,13 +101,6 @@ namespace PasswordManagerApp.Controllers
                 ModelState.AddModelError("Error", apiResponse.Messages.First());
                 return View(new LoginViewModel());
             }
-            if (apiResponse.TwoFactorLogIn)
-            {
-               _encryptionService.AddOrUpdateEncryptionKey(apiResponse.UserId.ToString(), model.Password);
-                OnPasswordSave(apiResponse.UserId.ToString(), model.Password);
-                TempData["id"] = dataProtectionHelper.Encrypt(apiResponse.UserId.ToString(),"QueryStringsEncryptions");
-               return RedirectToAction(actionName: "TwoFactorLogIn");
-            }
             ClaimsPrincipal claimsPrincipal;
             AuthenticationProperties authProperties;
             var isSuccess = _jwtHelper.ValidateToken(apiResponse.AccessToken, out claimsPrincipal, out authProperties);
