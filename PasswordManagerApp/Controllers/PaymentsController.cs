@@ -136,9 +136,16 @@ namespace PasswordManagerApp.Controllers
             {
                 await _apiService.CreateUpdateData<PaypalAccount>(paypal, paypal.Id);
             }
-
-            _cacheService.ClearCache(CacheKeys.PaypalAccount + AuthUserId);            
+            ClearCache();
+                   
+                     
             return RedirectToAction("List");
+        }
+        private void ClearCache()
+        {
+            _cacheService.ClearCache(CacheKeys.PaypalAccount + AuthUserId);
+            _cacheService.ClearCache(CacheKeys.PaypalAccountBreached + AuthUserId);
+            _cacheService.ClearCache(CacheKeys.PaypalAccountExpired + AuthUserId);
         }
 
         [Route("AddOrEditCreditCard")]
@@ -190,6 +197,7 @@ namespace PasswordManagerApp.Controllers
             }
 
             _cacheService.ClearCache(CacheKeys.CreditCard + AuthUserId);
+            
 
           
             return RedirectToAction("List");

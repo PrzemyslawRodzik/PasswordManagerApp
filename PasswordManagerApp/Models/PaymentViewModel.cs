@@ -11,7 +11,6 @@ namespace PasswordManagerApp.Models
     {
         public IEnumerable<PaypalAccount> PaypalAccounts { get; set; }
         public IEnumerable<CreditCard> CreditCards { get; set; }
-        // public PaypallAcount PaypalAccount { get; set; }
-        //  public CreditCard CreditCard { get; set; }
+        
     }
 }

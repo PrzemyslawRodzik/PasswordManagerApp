@@ -108,11 +108,11 @@ namespace PasswordManagerApp.Services
 
         #region Generic CRUD api calls
 
-        public async Task<IEnumerable<T>> GetAllUserData<T>(int userId, int? compromised = null) where T : class
+        public async Task<IEnumerable<T>> GetAllUserData<T>(int userId, int? compromised = null,int? expired=null) where T : class
         {
             string typeName = typeof(T).Name;
             typeName += "s";
-            var response = await _client.GetAsync($"{typeName}?userId={userId}&compromised={compromised}");
+            var response = await _client.GetAsync($"{typeName}?userId={userId}&compromised={compromised}&expired={expired}");
             
             response.EnsureSuccessStatusCode();
             

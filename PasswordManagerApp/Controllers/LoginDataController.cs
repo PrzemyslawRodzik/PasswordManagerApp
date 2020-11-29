@@ -156,10 +156,16 @@ namespace PasswordManagerApp.Controllers
               await _apiService.CreateUpdateData<LoginData>(loginData);
             else
               await _apiService.CreateUpdateData<LoginData>(loginData, loginData.Id);
-            _cacheService.ClearCache(CacheKeys.LoginData + AuthUserId);
+            ClearCache();
             OnDataEdit(loginData);
              return RedirectToAction("List");
             
+        }
+        private void ClearCache()
+        {
+            _cacheService.ClearCache(CacheKeys.LoginData + AuthUserId);
+            _cacheService.ClearCache(CacheKeys.LoginDataBreached + AuthUserId);
+            _cacheService.ClearCache(CacheKeys.LoginDataExpired + AuthUserId);
         }
         private async void OnDataEdit(ICompromisedModel e)
         {   await Task.Delay(2000);
@@ -171,7 +177,7 @@ namespace PasswordManagerApp.Controllers
         public async Task<IActionResult> DeleteLoginData(string encrypted_id){
             var dataId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
             await _apiService.DeleteData<LoginData>(dataId);
-            _cacheService.ClearCache(CacheKeys.LoginData + AuthUserId);
+            ClearCache();
             return RedirectToAction("List");
         }
     }

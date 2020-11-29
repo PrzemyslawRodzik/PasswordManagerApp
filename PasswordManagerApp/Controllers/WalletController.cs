@@ -54,8 +54,20 @@ namespace PasswordManagerApp.Controllers
             return View("Views/Wallet/IndexDashboard.cshtml");
 
         }
+        public PartialViewResult GetData()
+        {
 
-        
+            ViewBag.UserEmail= HttpContext.User.Claims.FirstOrDefault(x => x.Type.Equals(ClaimTypes.Email)).Value;
+            return PartialView("~/Views/Shared/EmailPartialView.cshtml");
+        }
+        [HttpGet]
+        public IActionResult GetEmail(string email)
+        {   
+            email = ViewBag.UserEmail = HttpContext.User.Claims.FirstOrDefault(x => x.Type.Equals(ClaimTypes.Email)).Value;
+            return PartialView(email);
+        }
+
+
 
     }
 }

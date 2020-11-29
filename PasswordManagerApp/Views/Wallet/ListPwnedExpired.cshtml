@@ -1,12 +1,14 @@
 ﻿
 @using PasswordManagerApp.Models
-@model PaymentsViewModel
+@model PwnedExpiredViewModel
 
 @{
-    ViewData["Title"] = "ListPayments";
+    ViewData["Title"] = "ListPwnedExpired";
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
-    var encryptedFields1 = ViewBag.EncryptedIdsPay as Dictionary<int, string>;
-    var encryptedFields2 = ViewBag.EncryptedIdsCard as Dictionary<int, string>;
+    var encryptedFieldsLogB = ViewBag.encryptedIdsLogBreached as Dictionary<int, string>;
+    var encryptedFieldsLogE = ViewBag.encryptedIdsLogExpired as Dictionary<int, string>;
+    var encryptedFieldsPayB = ViewBag.encryptedIdsPayBreached as Dictionary<int, string>;
+    var encryptedFieldsPayE = ViewBag.encryptedIdsPayExpired as Dictionary<int, string>;
 }
 
 
@@ -14,13 +16,13 @@
 <article class="content items-list-page">
     <div class="title-search-block " style=" margin-right:5%;">
         <div class="items-search">
-            <form class="form-inline" asp-action="List" asp-controller="Payments" method="get">
+            <form class="form-inline" asp-action="Index" asp-controller="PwnedExpired" method="get">
                 <div class="input-group">
 
                     <span class="input-group-btn">
                         <input type="text" class="form-control boxed rounded-s" name="searchString" placeholder="Search for...">
 
-                        <button class="btn btn-secondary rounded-s" asp-action="List">
+                        <button class="btn btn-secondary rounded-s" asp-action="Index" asp-controller="PwnedExpired">
                             <i class="fa fa-backward"></i>
                         </button>
                         <button class="btn btn-secondary rounded-s" type="submit">
@@ -55,15 +57,8 @@
 
         <div class="header-block header-block-buttons">
             <h3>
-                Paypal Accounts
-                <a class="btn btn-primary btn-sm rounded-s"
-                   data-ajax="true"
-                   data-ajax-method="GET"
-                   data-ajax-mode="replace"
-                   data-ajax-complete="renewPaypalValidation();"
-                   data-ajax-update="#content"
-                   data-ajax-url="@Url.Action("AddOrEditPayPal","Payments")"
-                   data-toggle="modal" data-target="#modalCenter"> Add New </a>
+                Breached data
+
         </div> </h3>
         <ul class="item-list striped">
             <li class="item item-list-header">
@@ -83,7 +78,7 @@
                     </div>
                 </div>
             </li>
-            @foreach (var item in Model.PaypalAccounts)
+            @foreach (var item in Model.LoginDatasBreached)
             {
 
 
@@ -101,7 +96,7 @@
                                    data-ajax-method="GET"
                                    data-ajax-mode="replace"
                                    data-ajax-update="#content"
-                                   data-ajax-url="@Url.Action("GetPaypalById","Payments",new { encrypted_id = @encryptedFields1[item.Id] })"
+                                   data-ajax-url="@Url.Action("GetLoginDataById","LoginData",new { encrypted_id = @encryptedFieldsLogB[item.Id] })"
                                    data-toggle="modal" data-target="#modalCenter">
                                     @Html.DisplayFor(modelItem => item.Name)
                                 </a>
@@ -122,13 +117,86 @@
                                 <div class="item-actions-block">
                                     <ul class="item-actions-list">
                                         <li>
-                                            
+
                                             <a class="fa fa-info-circle"
                                                data-ajax="true"
                                                data-ajax-method="GET"
                                                data-ajax-mode="replace"
                                                data-ajax-update="#content"
-                                               data-ajax-url="@Url.Action("GetPaypalById","Payments",new { encrypted_id = @encryptedFields1[item.Id] })"
+                                               data-ajax-url="@Url.Action("GetLoginDataById","LoginData",new { encrypted_id = @encryptedFieldsLogB[item.Id] })"
+                                               data-toggle="modal" data-target="#modalCenter">
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="fa fa-pencil-square-o"
+                                               data-ajax="true"
+                                               data-ajax-method="GET"
+                                               data-ajax-mode="replace"
+                                               data-ajax-complete="renewLoginDataValidation();"
+                                               data-ajax-update="#content"
+                                               data-ajax-url="@Url.Action("AddOrEditLoginData","LoginData",new { encrypted_id=@encryptedFieldsLogB[item.Id]} )"
+                                               data-toggle="modal" data-target="#modalCenter"></a>
+                                        </li>
+                                        <li>
+                                            <a class="remove" asp-action="DeleteLoginData" asp-route-encrypted_id="@encryptedFieldsLogB[item.Id]" data-toggle="modal" data-target="#confirm-modal" style="color:gray">
+                                                <i class="fa fa-trash-o "></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+            }
+            @foreach (var item in Model.PaypalAccountsBreached)
+            {
+
+
+
+                <li class="item">
+                    <div class="item-row">
+
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">Name</div>
+                            <div>
+
+
+
+                                <a class="item-title" data-ajax="true"
+                                   data-ajax-method="GET"
+                                   data-ajax-mode="replace"
+                                   data-ajax-update="#content"
+                                   data-ajax-url="@Url.Action("GetPaypalById","Payments",new { encrypted_id = @encryptedFieldsPayB[item.Id] })"
+                                   data-toggle="modal" data-target="#modalCenter">
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </a>
+                            </div>
+                        </div>
+
+
+                        <div class="item-col fixed item-col-actions-dropdown">
+                            <div class="item-actions-dropdown">
+                                <a class="item-actions-toggle-btn">
+                                    <span class="inactive">
+                                        <i class="fa fa-cog"></i>
+                                    </span>
+                                    <span class="active">
+                                        <i class="fa fa-chevron-circle-right"></i>
+                                    </span>
+                                </a>
+                                <div class="item-actions-block">
+                                    <ul class="item-actions-list">
+                                        <li>
+
+                                            <a class="fa fa-info-circle"
+                                               data-ajax="true"
+                                               data-ajax-method="GET"
+                                               data-ajax-mode="replace"
+                                               data-ajax-update="#content"
+                                               data-ajax-url="@Url.Action("GetPaypalById","Payments",new { encrypted_id = @encryptedFieldsPayB[item.Id] })"
                                                data-toggle="modal" data-target="#modalCenter">
                                             </a>
                                         </li>
@@ -140,11 +208,11 @@
                                                data-ajax-mode="replace"
                                                data-ajax-complete="renewPaypalValidation();"
                                                data-ajax-update="#content"
-                                               data-ajax-url="@Url.Action("AddOrEditPayPal","Payments",new { encrypted_id=@encryptedFields1[item.Id]} )"
+                                               data-ajax-url="@Url.Action("AddOrEditPayPal","Payments",new { encrypted_id=@encryptedFieldsPayB[item.Id]} )"
                                                data-toggle="modal" data-target="#modalCenter"></a>
                                         </li>
                                         <li>
-                                            <a class="remove" asp-action="DeletePayPal" asp-route-encrypted_id="@encryptedFields1[item.Id]" data-toggle="modal" data-target="#confirm-modal" style="color:gray">
+                                            <a class="remove" asp-action="DeletePayPal" asp-route-encrypted_id="@encryptedFieldsPayB[item.Id]" data-toggle="modal" data-target="#confirm-modal" style="color:gray">
                                                 <i class="fa fa-trash-o "></i>
                                             </a>
                                         </li>
@@ -164,15 +232,8 @@
     <div class="card items" style="width:45%; margin-top:60px; float:left ;">
         <div class="header-block header-block-buttons">
             <h3>
-                Credit cards
-                <a class="btn btn-primary btn-sm rounded-s"
-                   data-ajax="true"
-                   data-ajax-method="GET"
-                   data-ajax-mode="replace"
-                   data-ajax-complete="renewCreditCardValidation();"
-                   data-ajax-update="#content"
-                   data-ajax-url="@Url.Action("AddOrEditCreditCard","Payments")"
-                   data-toggle="modal" data-target="#modalCenter"> Add New </a>
+                Expired
+
             </h3>
         </div>
 
@@ -196,7 +257,7 @@
 
                 </div>
             </li>
-            @foreach (var item in Model.CreditCards)
+            @foreach (var item in Model.LoginDatasExpired)
             {
 
 
@@ -214,7 +275,7 @@
                                    data-ajax-method="GET"
                                    data-ajax-mode="replace"
                                    data-ajax-update="#content"
-                                   data-ajax-url="@Url.Action("GetCreditCardById","Payments",new { encrypted_id = @encryptedFields2[item.Id] })"
+                                   data-ajax-url="@Url.Action("GetLoginDataById","LoginData",new { encrypted_id = @encryptedFieldsLogE[item.Id] })"
                                    data-toggle="modal" data-target="#modalCenter">
                                     @Html.DisplayFor(modelItem => item.Name)
                                 </a>
@@ -241,7 +302,7 @@
                                                data-ajax-method="GET"
                                                data-ajax-mode="replace"
                                                data-ajax-update="#content"
-                                               data-ajax-url="@Url.Action("GetCreditCardById","Payments",new { encrypted_id = @encryptedFields2[item.Id] })"
+                                               data-ajax-url="@Url.Action("GetLoginDataById","LoginData",new { encrypted_id = @encryptedFieldsLogE[item.Id] })"
                                                data-toggle="modal" data-target="#modalCenter">
                                             </a>
                                         </li>
@@ -252,20 +313,93 @@
                                                data-ajax="true"
                                                data-ajax-method="GET"
                                                data-ajax-mode="replace"
-                                               data-ajax-complete="renewCreditCardValidation();"
+                                               data-ajax-complete="renewLoginDataValidation();"
                                                data-ajax-update="#content"
-                                               data-ajax-url="@Url.Action("AddOrEditCreditCard","Payments",new { encrypted_id=@encryptedFields2[item.Id]} )"
+                                               data-ajax-url="@Url.Action("AddOrEditLoginData","LoginData",new { encrypted_id=@encryptedFieldsLogE[item.Id]} )"
                                                data-toggle="modal" data-target="#modalCenter"></a>
 
-                                            
+
                                         </li>
                                         <li>
-                                            <a class="remove" asp-action="DeletCard" asp-route-encrypted_id="@encryptedFields2[item.Id]" data-toggle="modal" data-target="#confirm-modal" style="color:gray">
+                                            <a class="remove" asp-action="DeletLoginData" asp-route-encrypted_id="@encryptedFieldsLogE[item.Id]" data-toggle="modal" data-target="#confirm-modal" style="color:gray">
                                                 <i class="fa fa-trash-o "></i>
                                             </a>
                                         </li>
 
-                                        
+
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+            }
+            @foreach (var item in Model.PaypalAccountsExpired)
+            {
+
+
+
+                <li class="item">
+                    <div class="item-row">
+
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">Name</div>
+                            <div>
+
+
+
+                                <a class="item-title" data-ajax="true"
+                                   data-ajax-method="GET"
+                                   data-ajax-mode="replace"
+                                   data-ajax-update="#content"
+                                   data-ajax-url="@Url.Action("GetPaypalById","Payments",new { encrypted_id = @encryptedFieldsPayE[item.Id] })"
+                                   data-toggle="modal" data-target="#modalCenter">
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </a>
+                            </div>
+                        </div>
+
+
+                        <div class="item-col fixed item-col-actions-dropdown">
+                            <div class="item-actions-dropdown">
+                                <a class="item-actions-toggle-btn">
+                                    <span class="inactive">
+                                        <i class="fa fa-cog"></i>
+                                    </span>
+                                    <span class="active">
+                                        <i class="fa fa-chevron-circle-right"></i>
+                                    </span>
+                                </a>
+                                <div class="item-actions-block">
+                                    <ul class="item-actions-list">
+                                        <li>
+
+                                            <a class="fa fa-info-circle"
+                                               data-ajax="true"
+                                               data-ajax-method="GET"
+                                               data-ajax-mode="replace"
+                                               data-ajax-update="#content"
+                                               data-ajax-url="@Url.Action("GetPaypalById","Payments",new { encrypted_id = @encryptedFieldsPayE[item.Id] })"
+                                               data-toggle="modal" data-target="#modalCenter">
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="fa fa-pencil-square-o"
+                                               data-ajax="true"
+                                               data-ajax-method="GET"
+                                               data-ajax-mode="replace"
+                                               data-ajax-complete="renewPaypalValidation();"
+                                               data-ajax-update="#content"
+                                               data-ajax-url="@Url.Action("AddOrEditPayPal","Payments",new { encrypted_id=@encryptedFieldsPayE[item.Id]} )"
+                                               data-toggle="modal" data-target="#modalCenter"></a>
+                                        </li>
+                                        <li>
+                                            <a class="remove" asp-action="DeletePayPal" asp-route-encrypted_id="@encryptedFieldsPayE[item.Id]" data-toggle="modal" data-target="#confirm-modal" style="color:gray">
+                                                <i class="fa fa-trash-o "></i>
+                                            </a>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
@@ -279,25 +413,28 @@
     </div>
 </article>
 
-
 @section Scripts {
 
 
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
+
 
     <script>
 
-        function renewCreditCardValidation() {
+        function renewLoginDataValidation() {
 
 
             // Remove validation.
-            $(".creditcardForm").removeData("validator").removeData("unobtrusiveValidation");
+            $(".loginDataForm").removeData("validator").removeData("unobtrusiveValidation");
 
             // Add validation again.
-            $.validator.unobtrusive.parse(".creditcardForm");
+            $.validator.unobtrusive.parse(".loginDataForm");
 
 
+            $("#encArea").on('change keypress paste input', function (e) {
+
+                $("#resultArea").text(' ');
+            });
         }
         function renewPaypalValidation() {
 
@@ -376,3 +513,6 @@
 
 
 }
+
+
+
