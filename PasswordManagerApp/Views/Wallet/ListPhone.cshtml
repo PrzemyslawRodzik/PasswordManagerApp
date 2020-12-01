@@ -9,185 +9,247 @@
 
 
 
-    <article class="content items-list-page">
-        <div class="title-search-block">
-            <div class="items-search">
-                <form class="form-inline" asp-action="PhoneList" asp-controller="Phone" method="get">
-                    <div class="input-group">
+<article class="content items-list-page">
+    <div class="title-search-block">
+        <div class="items-search">
+            <form class="form-inline" asp-action="PhoneList" asp-controller="Phone" method="get">
+                <div class="input-group">
 
-                        <span class="input-group-btn">
-                            <input type="text" class="form-control boxed rounded-s" name="searchString" placeholder="Search for...">
+                    <span class="input-group-btn">
+                        <input type="text" class="form-control boxed rounded-s" name="searchString" placeholder="Search for...">
 
-                            <button class="btn btn-secondary rounded-s" asp-action="PhoneList">
-                                <i class="fa fa-backward"></i>
-                            </button>
-                            <button class="btn btn-secondary rounded-s" type="submit">
-                                <i class="fa fa-search"></i>
-                            </button>
-                        </span>
-                    </div>
-                </form>
-            </div>
+                        <button class="btn btn-secondary rounded-s" asp-action="PhoneList">
+                            <i class="fa fa-backward"></i>
+                        </button>
+                        <button class="btn btn-secondary rounded-s" type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </form>
         </div>
+    </div>
 
 
-        <div>
-            <h3 class="title">
-                Phone Numbers
-                <a class="btn btn-primary btn-sm rounded-s"
-                   data-ajax="true"
-                   data-ajax-method="GET"
-                   data-ajax-mode="replace"
-                   data-ajax-complete="settingsFadeIn();"
-                   data-ajax-update="#content"
-                   data-ajax-url="@Url.Action("AddOrEditPhone","Phone")"
-                   data-toggle="modal" data-target="#modalCenter"> Add New </a>
-               
+    <div>
+        <h3 class="title">
+            Phone Numbers
+            <a class="btn btn-primary btn-sm rounded-s"
+               data-ajax="true"
+               data-ajax-method="GET"
+               data-ajax-mode="replace"
+               data-ajax-update="#content"
+               data-ajax-complete="renewPhoneValidation();"
+               data-ajax-url="@Url.Action("AddOrEditPhone","Phone")"
+               data-toggle="modal" data-target="#modalCenter"> Add New </a>
 
 
 
-            </h3>
-            <!-- Modal -->
-            <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
 
-                    <div class="modal-content">
+        </h3>
+        <!-- Modal -->
+        <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
 
-                        <div class="modal-header">
-                           Add Or Edit Phone
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div id="content"></div>
-                        </div>
+                <div class="modal-content">
 
+                    <div class="modal-header">
+
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
+                    <div class="modal-body">
+                        <div id="content"></div>
+                    </div>
+
                 </div>
             </div>
-            <div class="col-md-12" id="content">
-
-            </div>
-            
-            <div class="card items" style="margin-top:20px;">
-
-                <ul class="item-list striped table-striped w-auto">
-                    <li class="item item-list-header">
-
-                        <div class="item-row">
-
-
-                            <div class="item-col item-col-header item-col-title">
-                                <div>
-                                    <span>@Html.DisplayNameFor(model => model.NickName)</span>
-                                </div>
-                            </div>
-                            <div class="item-col item-col-header item-col-title">
-                                <div>
-                                    <span>@Html.DisplayNameFor(model => model.TelNumber)</span>
-                                </div>
-                            </div>
-                            <div class="item-col item-col-header item-col-title">
-                                <div>
-                                    <span>@Html.DisplayNameFor(model => model.Type)</span>
-                                </div>
-                            </div>
-
-
-
-                            <div class="item-col item-col-header fixed item-col-actions-dropdown">
-                            </div>
-
-
-                        </div>
-                    </li>
-                    @foreach (var item in Model)
-                    {
-
-
-
-                        <li class="item">
-                            <div class="item-row">
-
-                                <div class="item-col item-col-category no-overflow">
-                                    <div class="item-heading">NickName</div>
-                                    <div class="no-overflow">
-                                        <a href="">@Html.DisplayFor(modelItem => item.NickName)</a>
-                                    </div>
-                                </div>
-                                <div class="item-col item-col-category no-overflow">
-                                    <div class="item-heading">TelNumber</div>
-                                    <div class="no-overflow">
-                                        <a href="">@Html.DisplayFor(modelItem => item.TelNumber)</a>
-                                    </div>
-                                </div>
-                                <div class="item-col item-col-category no-overflow">
-                                    <div class="item-heading">Type</div>
-                                    <div class="no-overflow">
-                                        <a href="">@Html.DisplayFor(modelItem => item.Type)</a>
-                                    </div>
-                                </div>
-
-
-
-
-                                <div class="item-col fixed item-col-actions-dropdown">
-                                    <div class="item-actions-dropdown">
-                                        <a class="item-actions-toggle-btn">
-                                            <span class="inactive">
-                                                <i class="fa fa-cog"></i>
-                                            </span>
-                                            <span class="active">
-                                                <i class="fa fa-chevron-circle-right"></i>
-                                            </span>
-                                        </a>
-                                        <div class="item-actions-block">
-                                            <ul class="item-actions-list">
-                                                <li>
-                                                    <a class="fa fa-info-circle"
-                                                       data-ajax="true"
-                                                       data-ajax-method="GET"
-                                                       data-ajax-mode="replace"
-                                                       data-ajax-complete="settingsFadeIn();"
-                                                       data-ajax-update="#content"
-                                                       data-ajax-url="@Url.Action("GetPhoneById","Phone",new { encrypted_id = @encryptedFields[item.Id] })"
-                                                       data-toggle="modal" data-target="#modalCenter">
-                                                    </a>
-
-                                                </li>
-
-                                                <li>
-                                                    <a class="edit" asp-action="AddOrEditNote" asp-route-encrypted_id="@encryptedFields[item.Id]">
-                                                        <i class="fa fa-pencil"></i>
-                                                    </a>
-                                                </li>
-
-                                                <li>
-                                                    <form asp-action="DeletePhone" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
-                                                        <button style="font-size:24px; color:red"> <i class="fa fa-trash-o"></i></button>
-
-                                                    </form>
-                                                    <!-- <a class="remove" asp-action="DeleteNote" asp-route-encrypted_id="@encryptedFields[item.Id]" data-toggle="modal" data-target="#confirm-modal">
-            <i class="fa fa-trash-o "></i>
-        </a> -->
-                                                </li>
-
-
-
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-
-                    }
-                </ul>
-
-            </div>
+        </div>
+        <div class="col-md-12" id="content">
 
         </div>
-        <button class="btn btn-block btn-primary btn-sm rounded-s" onclick="window.history.back();">Cancel</button>
 
-    </article>
+        <div class="card items" style="margin-top:20px;">
+
+            <ul class="item-list striped table-striped w-auto">
+                <li class="item item-list-header">
+
+                    <div class="item-row">
+
+
+                        <div class="item-col item-col-header item-col-title">
+                            <div>
+                                <span>@Html.DisplayNameFor(model => model.NickName)</span>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-header item-col-title">
+                            <div>
+                                <span>@Html.DisplayNameFor(model => model.TelNumber)</span>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-header item-col-title">
+                            <div>
+                                <span>@Html.DisplayNameFor(model => model.Type)</span>
+                            </div>
+                        </div>
+
+
+
+                        <div class="item-col item-col-header fixed item-col-actions-dropdown">
+                        </div>
+
+
+                    </div>
+                </li>
+                @foreach (var item in Model)
+                {
+
+
+
+                    <li class="item">
+                        <div class="item-row">
+
+                            <div class="item-col item-col-category no-overflow">
+                                <div class="item-heading">NickName</div>
+                                <div class="no-overflow">
+                                    <a href="">@Html.DisplayFor(modelItem => item.NickName)</a>
+                                </div>
+                            </div>
+                            <div class="item-col item-col-category no-overflow">
+                                <div class="item-heading">TelNumber</div>
+                                <div class="no-overflow">
+                                    <a href="">@Html.DisplayFor(modelItem => item.TelNumber)</a>
+                                </div>
+                            </div>
+                            <div class="item-col item-col-category no-overflow">
+                                <div class="item-heading">Type</div>
+                                <div class="no-overflow">
+                                    <a href="">@Html.DisplayFor(modelItem => item.Type)</a>
+                                </div>
+                            </div>
+
+
+
+
+                            <div class="item-col fixed item-col-actions-dropdown">
+                                <div class="item-actions-dropdown">
+                                    <a class="item-actions-toggle-btn">
+                                        <span class="inactive">
+                                            <i class="fa fa-cog"></i>
+                                        </span>
+                                        <span class="active">
+                                            <i class="fa fa-chevron-circle-right"></i>
+                                        </span>
+                                    </a>
+                                    <div class="item-actions-block">
+                                        <ul class="item-actions-list">
+                                            <li>
+                                                <a class="fa fa-info-circle"
+                                                   data-ajax="true"
+                                                   data-ajax-method="GET"
+                                                   data-ajax-mode="replace"
+                                                   data-ajax-update="#content"
+                                                   data-ajax-url="@Url.Action("GetPhoneById","Phone",new { encrypted_id = @encryptedFields[item.Id] })"
+                                                   data-toggle="modal" data-target="#modalCenter">
+                                                </a>
+
+                                            </li>
+
+
+                                            <li>
+                                                <a class="fa fa-pencil-square-o"
+                                                   data-ajax="true"
+                                                   data-ajax-method="GET"
+                                                   data-ajax-mode="replace"
+                                                   data-ajax-complete="renewPhoneValidation();"
+                                                   data-ajax-update="#content"
+                                                   data-ajax-url="@Url.Action("AddOrEditPhone","Phone",new { encrypted_id=@encryptedFields[item.Id]} )"
+                                                   data-toggle="modal" data-target="#modalCenter"></a>
+
+
+
+                                            </li>
+                                            <li>
+                                                <a class="fa fa-trash-o" style="color:gray;" href="javascript:confirmDelete('@encryptedFields[item.Id]','phone')"></a>
+                                            </li>
+
+
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                }
+            </ul>
+
+        </div>
+
+    </div>
+    <button id="cancelButton" class="btn btn-block btn-primary btn-sm rounded-s">Cancel </button>
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="deleteLabel">Deleting</h4>
+                </div>
+                <div class="modal-body">
+                    <p>You have selected to delete this data.</p>
+                    <p>
+                        If this was the action that you wanted to do,
+                        please confirm your choice, or cancel and return
+                        to the page.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="deleteConfirm">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+@section Scripts {
+
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+
+<script>
+         $('#cancelButton').click(function () {
+        document.location = '@Url.Action("Personal","Personal")';
+    });
+
+        function renewPhoneValidation() {
+
+
+            // Remove validation.
+            $(".phoneForm").removeData("validator").removeData("unobtrusiveValidation");
+
+            // Add validation again.
+            $.validator.unobtrusive.parse(".phoneForm");
+
+        }
+
+        function switchVisibility() {
+            const passwordField = document.querySelector('#encArea')
+            if (passwordField.getAttribute('type') === 'password') passwordField.setAttribute('type', 'text')
+            else passwordField.setAttribute('type', 'password')
+        }
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+}

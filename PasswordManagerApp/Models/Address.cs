@@ -8,34 +8,33 @@ using System.Threading.Tasks;
 namespace PasswordManagerApp.Models
 {
     [Table("address")]
-    public class Address: UserRelationshipModel
+    public class Address
     {
         [Key]
         public int Id { get; set; }
 
         [Required]
-        [Column("address_name")]
+       
         public string AddressName { get; set; }
 
         [Required]
-        [Column("street")]
+        
         public string Street { get; set; }
+        [Required]
+       
+        public string StreetNumber { get; set; }
 
         [Required]
-        [Column("zip_code")]
+        
         public string ZipCode { get; set; }
 
         [Required]
-        [Column("city")]
+        
         public string City { get; set; }
 
-        [Required]
-        [Column("country")]
-        public string Country { get; set; }
-
-        [Column("personal_info_id")]
+        public int UserId { get; set; }
         public int PersonalInfoId { get; set; }
-        public PersonalInfo PersonalInfo { get; set; }
+        
 
     }
 }

@@ -145,16 +145,16 @@ namespace PasswordManagerApp.Controllers
 
         }
         [HttpPost]
-        [Route("DeleteNote")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteNote(string encrypted_id)
+        [Route("deletenote")]
+       
+        public IActionResult DeleteNote(string encrypted_id)
         {
              
             
              var noteId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, "QueryStringsEncryptions"));
            
 
-            await _apiService.DeleteData<Note>(noteId);
+            var result = _apiService.DeleteData<Note>(noteId).Result;
             _cacheService.ClearCache(CacheKeys.Note + AuthUserId);
 
             return RedirectToAction("Note");

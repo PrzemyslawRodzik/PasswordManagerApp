@@ -37,13 +37,15 @@ namespace PasswordManagerApp.Controllers
         private readonly ApiService _apiService;
         private readonly EncryptionService _encryptionService;
         private readonly ICacheService _cacheService;
+        private readonly IConfiguration _config;
         public DataProtectionHelper dataProtectionHelper;
-        public PersonalController(IDataProtectionProvider provider, ApiService apiService, EncryptionService encryptionService, ICacheService cacheService)
+        public PersonalController(IDataProtectionProvider provider, ApiService apiService, EncryptionService encryptionService, ICacheService cacheService,IConfiguration config)
         {
             dataProtectionHelper = new DataProtectionHelper(provider);
             _apiService = apiService;
             _encryptionService = encryptionService;
             _cacheService = cacheService;
+            _config = config;
         }
 
        
@@ -91,7 +93,7 @@ namespace PasswordManagerApp.Controllers
 
 
 
-                var personalinfos = await _cacheService.GetOrCreateCachedResponse<Note>(CacheKeys.Note + AuthUserId, () => _apiService.GetAllUserData<Note>(Int32.Parse(AuthUserId)));
+                var personalinfos = await _cacheService.GetOrCreateCachedResponse<PersonalInfo>(CacheKeys.PersonalInfo + AuthUserId, () => _apiService.GetAllUserData<PersonalInfo>(Int32.Parse(AuthUserId)));
                 var personalinfo = personalinfos.FirstOrDefault(x => x.Id == decrypted_id);
 
 
@@ -106,26 +108,26 @@ namespace PasswordManagerApp.Controllers
         [HttpPost]
         [Route("AddOrEditPersonal")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddOrEditPersonal([Bind("Name,Second_name,Last_name,Date_of_birth")] PersonalInfo note, string Id)
+        public async Task<IActionResult> AddOrEditPersonal([Bind("Name,SecondName,LastName,DateOfBirth")] PersonalInfo profile, string Id)
         {
-            note.UserId = Int32.Parse(AuthUserId);
+            profile.UserId = Int32.Parse(AuthUserId);
 
 
             if (!ModelState.IsValid)
-                return PartialView("Views/Forms/AddOrEditPersonal.cshtml", note);
+                return PartialView("Views/Forms/AddOrEditPersonal.cshtml", profile);
 
 
            
             if (!Id.Equals("0"))
-                note.Id = Int32.Parse(dataProtectionHelper.Decrypt(Id, "QueryStringsEncryptions"));
+                profile.Id = Int32.Parse(dataProtectionHelper.Decrypt(Id, "QueryStringsEncryptions"));
 
-            if (note.Id == 0)
+            if (profile.Id == 0)
             {
-                await _apiService.CreateUpdateData<PersonalInfo>(note);
+                await _apiService.CreateUpdateData<PersonalInfo>(profile);
             }
             else
             {
-                await _apiService.CreateUpdateData<PersonalInfo>(note, note.Id);
+                await _apiService.CreateUpdateData<PersonalInfo>(profile, profile.Id);
             }
 
             _cacheService.ClearCache(CacheKeys.PersonalInfo + AuthUserId);
@@ -133,30 +135,34 @@ namespace PasswordManagerApp.Controllers
             return RedirectToAction("Personal");
 
         }
+        [HttpPost]
+        [Route("personal/deleteprofile")]
+        public IActionResult DeleteProfile(string encrypted_id)
+        {
+            var dataId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
+            var result = _apiService.DeleteData<PersonalInfo>(dataId).Result;
+            ClearProfileCache();
+            return RedirectToAction("Personal");
+        }
+        private void ClearProfileCache()
+        {
+            _cacheService.ClearCache(CacheKeys.PersonalInfo + AuthUserId);
+            _cacheService.ClearCache(CacheKeys.Address + AuthUserId);
+            _cacheService.ClearCache(CacheKeys.PhoneNumber + AuthUserId);
+        }
+
+        [Route("GetPersonalById")]
+        public async Task<IActionResult> GetPersonalById(string encrypted_id)
+        {
+            var profileId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
+            var profiles = await _cacheService.GetOrCreateCachedResponse<PersonalInfo>(CacheKeys.PersonalInfo + AuthUserId, () => _apiService.GetAllUserData<PersonalInfo>(Int32.Parse(AuthUserId)));
+            var profile = profiles.FirstOrDefault(x => x.Id == profileId);
+            return PartialView("Views/Forms/DetailsPersonal.cshtml", profile);
+        }
 
 
 
 
-        /* [Route("AdresList")]
-         public IActionResult AdresList()
-         {
-             var user = _unitOfWork.Users.Find<User>(int.Parse(HttpContext.User.Identity.Name));
-             var tempPersonal = _unitOfWork.Wallet.FindByCondition<PersonalInfo>(x => x.User == user);
 
-             var AdresInfo = _unitOfWork.Wallet.FindByCondition<Address>(x => x.PersonalInfo == tempPersonal);
-
-             Dictionary<int, string> encryptedIds = new Dictionary<int, string>();
-             foreach (var x in AdresInfo)
-             {
-                 encryptedIds.Add(x.Id, dataProtectionHelper.Encrypt(x.Id.ToString(), "QueryStringsEncryptions"));
-                 //  x.Encrypted_Id = dataProtectionHelper.Encrypt(x.Id.ToString(), "QueryStringsEncryptions");
-             }
-             ViewBag.EncryptedIds = encryptedIds;
-             return View("Views/Wallet/ListAdres.cshtml", AdresInfo);
-         //    var user = _unitOfWork.Users.Find<User>(int.Parse(User.Identity.Name));
-          //   var AdresInfo = _unitOfWork.Wallet.FindByCondition<Address>(x => x.User == user);
-             //
-          //   return View("Views/Wallet/ListAdres.cshtml", AdresInfo);
-         }*/
     }
 }

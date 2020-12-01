@@ -33,13 +33,15 @@ namespace PasswordManagerApp.Controllers
         private readonly ApiService _apiService;
         private readonly EncryptionService _encryptionService;
         private readonly ICacheService _cacheService;
+        private readonly IConfiguration _config;
         public DataProtectionHelper dataProtectionHelper;
-        public PhoneController(IDataProtectionProvider provider, ApiService apiService, EncryptionService encryptionService, ICacheService cacheService)
+        public PhoneController(IDataProtectionProvider provider, ApiService apiService, EncryptionService encryptionService, ICacheService cacheService,IConfiguration config)
         {
             dataProtectionHelper = new DataProtectionHelper(provider);
             _apiService = apiService;
             _encryptionService = encryptionService;
             _cacheService = cacheService;
+            _config = config;
         }
         [Route("PhoneList")]
 
@@ -62,39 +64,14 @@ namespace PasswordManagerApp.Controllers
             Dictionary<int, string> encryptedIds = new Dictionary<int, string>();
             foreach (var x in userphones)
             {
-                encryptedIds.Add(x.Id, dataProtectionHelper.Encrypt(x.Id.ToString(), "QueryStringsEncryptions"));
+                encryptedIds.Add(x.Id, dataProtectionHelper.Encrypt(x.Id.ToString(), _config["QueryStringsEncryptions"]));
 
             }
             ViewBag.EncryptedIds = encryptedIds;
             return View("Views/Wallet/ListPhone.cshtml", userphones);
 
         }
-        /*
-        // GET: /<controller>/
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        [Route("PhoneList")]
-        public IActionResult PhoneList()
-        {
-            var user = _unitOfWork.Users.Find<User>(int.Parse(HttpContext.User.Identity.Name));
-            var tempPersonal = _unitOfWork.Wallet.FindByCondition<PersonalInfo>(x => x.User == user); //first()
-            var personal_data = tempPersonal.First();
-            var PhoneInfo = _unitOfWork.Wallet.FindByCondition<PhoneNumber>(x => x.PersonalInfoId== personal_data.Id);
-
-
-            Dictionary<int, string> encryptedIds = new Dictionary<int, string>();
-
-            foreach (var x in PhoneInfo)
-            {
-                encryptedIds.Add(x.Id, dataProtectionHelper.Encrypt(x.Id.ToString(), "QueryStringsEncryptions"));
-            }
-            ViewBag.EncryptedIds = encryptedIds;
-            return View("Views/Wallet/ListPhone.cshtml", PhoneInfo);
-        }*/
-
+       
         [Route("AddOrEditPhone")]
         public async Task<IActionResult> AddOrEditPhone(string encrypted_id)
         {
@@ -105,10 +82,10 @@ namespace PasswordManagerApp.Controllers
             }
             else
             {
-                int decrypted_id = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, "QueryStringsEncryptions"));
+                int decrypted_id = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
 
-                var notes = await _cacheService.GetOrCreateCachedResponse<PhoneNumber>(CacheKeys.PhoneNumber + AuthUserId, () => _apiService.GetAllUserData<PhoneNumber>(Int32.Parse(AuthUserId)));
-                var phone = notes.FirstOrDefault(x => x.Id == decrypted_id);
+                var phones = await _cacheService.GetOrCreateCachedResponse<PhoneNumber>(CacheKeys.PhoneNumber + AuthUserId, () => _apiService.GetAllUserData<PhoneNumber>(Int32.Parse(AuthUserId)));
+                var phone = phones.FirstOrDefault(x => x.Id == decrypted_id);
 
 
                 ViewBag.Id = encrypted_id;
@@ -121,12 +98,12 @@ namespace PasswordManagerApp.Controllers
         [HttpPost]
         [Route("AddOrEditPhone")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddOrEditPhone([Bind("Phone_number,Nickname,Type")] PhoneNumber phone, string Id)
+        public async Task<IActionResult> AddOrEditPhone([Bind("NickName,TelNumber,Type")] PhoneNumber phone, string Id)
         {
             int temp_id = Int32.Parse(HttpContext.User.Identity.Name);
-            phone.PersonalInfoId = temp_id;
+            phone.UserId = temp_id;
 
-            //  note.Id = Int32.Parse(dataProtectionHelper.Decrypt(ViewBag.Id, "QueryStringsEncryptions"));
+            
             if (!ModelState.IsValid)
                 return PartialView("Views/Forms/AddOrEditPhone.cshtml", phone);
 
@@ -147,21 +124,27 @@ namespace PasswordManagerApp.Controllers
 
             return RedirectToAction("PhoneList");
         }
+
+
         [HttpPost]
-        [Route("DeletePhone")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeletePhone(string encrypted_id)
+        [Route("phone/deletephone")]
+        public IActionResult DeletePhone(string encrypted_id)
         {
-
-            var noteId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, "QueryStringsEncryptions"));
-
-
-            await _apiService.DeleteData<Note>(noteId);
+            var phoneId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
+            var result = _apiService.DeleteData<PhoneNumber>(phoneId).Result;
             _cacheService.ClearCache(CacheKeys.PhoneNumber + AuthUserId);
-
-            return RedirectToAction(nameof(PhoneList));
-            
+            return RedirectToAction("PhoneList");
         }
+        [Route("GetPhoneById")]
+        public async Task<IActionResult> GetPhoneById(string encrypted_id)
+        {
+            var phoneId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
+            var phones = await _cacheService.GetOrCreateCachedResponse<PhoneNumber>(CacheKeys.PhoneNumber + AuthUserId, () => _apiService.GetAllUserData<PhoneNumber>(Int32.Parse(AuthUserId)));
+            var phone = phones.FirstOrDefault(x => x.Id == phoneId);
+            return PartialView("Views/Forms/DetailsPhone.cshtml", phone);
+        }
+
+
     }
 }
 

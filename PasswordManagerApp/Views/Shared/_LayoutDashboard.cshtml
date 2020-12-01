@@ -305,12 +305,62 @@
                 else if (action == 'logindata') {
                     DeleteLoginData(currentId);
                 }
+                else if (action == 'address') {
+                    DeleteAddress(currentId);
+                }
+                else if (action == 'phone') {
+                    DeletePhoneNumbers(currentId);
+                }
+                else if (action == 'personal') {
+                    DeleteProfile(currentId);
+                }
+
 
 
 
             });
         });
+        
+        function DeleteProfile(currentId) {
 
+            $.ajax({
+
+                type: "post",
+                url: "/personal/deleteprofile",
+                data: { encrypted_id: currentId },
+                success: function (result) {
+                    $("#deleteConfirmModal").modal("hide");
+                    location.reload(true);
+
+
+                },
+                error: function (result) {
+                    console.log(result);
+                }
+
+            })
+
+        }
+        function DeletePhoneNumbers(currentId) {
+
+            $.ajax({
+
+                type: "post",
+                url: "/phone/deletephone",
+                data: { encrypted_id: currentId },
+                success: function (result) {
+                    $("#deleteConfirmModal").modal("hide");
+                    location.reload(true);
+
+
+                },
+                error: function (result) {
+                    console.log(result);
+                }
+
+            })
+
+        }
         function DeletePaypal(currentId) {
 
             $.ajax({
@@ -357,6 +407,26 @@
 
                 type: "post",
                 url: "/logindata/deletelogindata",
+                data: { encrypted_id: currentId },
+                success: function (result) {
+                    $("#deleteConfirmModal").modal("hide");
+                    location.reload(true);
+
+
+                },
+                error: function (result) {
+                    console.log(result);
+                }
+
+            })
+
+        }
+        function DeleteAddress(currentId) {
+
+            $.ajax({
+
+                type: "post",
+                url: "/address/deleteaddress",
                 data: { encrypted_id: currentId },
                 success: function (result) {
                     $("#deleteConfirmModal").modal("hide");

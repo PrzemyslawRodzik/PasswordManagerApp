@@ -1,0 +1,31 @@
+﻿@model PasswordManagerApp.Models.PhoneNumber
+<div>
+    <h4>Phone</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.NickName)
+        </dt>
+        <dd class="col-sm-10" style="padding-left:20%">
+            @Html.DisplayFor(model => model.NickName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.TelNumber)
+        </dt>
+
+
+        <dd class="col-sm-10" style="padding-left:20%">
+            @Html.DisplayFor(model => model.TelNumber)
+        </dd>
+        <dt class="col-sm-2" >
+            @Html.DisplayNameFor(model => model.Type)
+        </dt>
+
+
+        <dd class="col-sm-10" style="padding-left:20%">
+            @Html.DisplayFor(model => model.Type)
+        </dd>
+       
+    </dl>
+</div>
+
