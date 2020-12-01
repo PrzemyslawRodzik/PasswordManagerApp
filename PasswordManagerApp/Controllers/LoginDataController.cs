@@ -172,13 +172,14 @@ namespace PasswordManagerApp.Controllers
             _notify.DataEditEvent(e);
         }
         [HttpPost]
-        [Route("DeleteLoginData")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteLoginData(string encrypted_id){
+        [Route("logindata/deletelogindata")]
+        public IActionResult DeleteLoginData(string encrypted_id)
+        {
             var dataId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
-            await _apiService.DeleteData<LoginData>(dataId);
+            var result = _apiService.DeleteData<LoginData>(dataId).Result;
             ClearCache();
             return RedirectToAction("List");
         }
+        
     }
 }

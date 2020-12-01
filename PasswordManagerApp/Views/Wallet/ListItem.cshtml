@@ -12,11 +12,7 @@
 }
 
 <article class="content items-list-page">
-    <script type="text/javascript">
-        function submitform() {
-            document.myformDelete.submit();
-        }
-    </script>
+
     <div class="title-search-block">
         <div class="title-block">
             <div class="row">
@@ -38,7 +34,7 @@
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <a value=""></a>
-                                   
+
 
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
@@ -137,7 +133,6 @@
                                 <a class="item-title" data-ajax="true"
                                    data-ajax-method="GET"
                                    data-ajax-mode="replace"
-                                   
                                    data-ajax-update="#content"
                                    data-ajax-url="@Url.Action("GetLoginDataById","LoginData",new { encrypted_id = @encryptedFields[item.Id] })"
                                    data-toggle="modal" data-target="#modalCenter">
@@ -148,9 +143,19 @@
                         <div class="item-col fixed pull-left item-col-title">
                             <div class="item-heading">Website</div>
                             <div>
-                                <a href="#" class="">
-                                    <h4 class="item-title">  @Html.DisplayFor(modelItem => item.Website) </h4>
-                                </a>
+                                @if (String.IsNullOrEmpty(item.Website))
+                                {
+                                    <a href="#" class="">
+                                        <h4 class="item-title">  Not added </h4>
+                                    </a>
+                                }
+                                @if (!String.IsNullOrEmpty(item.Website))
+                                {
+                                    <a href="#" class="">
+                                        <h4 class="item-title">  @Html.DisplayFor(modelItem => item.Website) </h4>
+                                    </a>
+                                }
+
                             </div>
                         </div>
 
@@ -174,7 +179,6 @@
                                                data-ajax="true"
                                                data-ajax-method="GET"
                                                data-ajax-mode="replace"
-                                               
                                                data-ajax-update="#content"
                                                data-ajax-url="@Url.Action("GetLoginDataById","LoginData",new { encrypted_id = @encryptedFields[item.Id] })"
                                                data-toggle="modal" data-target="#modalCenter">
@@ -194,14 +198,10 @@
                                                data-toggle="modal" data-target="#modalCenter"></a>
 
 
-                                            <!-- <a class="edit" data-toggle="modal" data-target="#modalCenter" asp-action="AddOrEditLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]">
-                                                <i class="fa fa-pencil"></i>
-                                            </a>   -->
+
                                         </li>
                                         <li>
-                                            <form name="myformDelete" asp-action="DeleteLoginData" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
-                                                <a href="javascript: submitform()" class="remove" data-toggle="modal" data-target="#confirm-modal" style="color:gray"> <i class="fa fa-trash-o"></i></a>
-                                            </form>
+                                            <a class="fa fa-trash-o" style="color:gray;" href="javascript:confirmDelete('@encryptedFields[item.Id]','logindata')"></a>
                                         </li>
                                     </ul>
                                 </div>
@@ -225,12 +225,32 @@
     </nav>
 
 
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="deleteLabel">Deleting</h4>
+                </div>
+                <div class="modal-body">
+                    <p>You have selected to delete this data.</p>
+                    <p>
+                        If this was the action that you wanted to do,
+                        please confirm your choice, or cancel and return
+                        to the page.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="deleteConfirm">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 
 
-
-
+    
 
 </article>
 
@@ -242,9 +262,9 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
 
-    <script>
+<script>
 
-
+     
         function renewLoginDataValidation() {
 
 
@@ -254,17 +274,18 @@
             // Add validation again.
             $.validator.unobtrusive.parse(".loginDataForm");
 
-            
+
             $("#encArea").on('change keypress paste input', function (e) {
-               
+
                 $("#resultArea").text(' ');
             });
 
-            
-            
 
 
-        }
+
+
+    }
+    
 
 
 
@@ -294,7 +315,7 @@
 
         }
 
-        
+
 
         function ajaxHibpCall() {
 
@@ -313,7 +334,7 @@
             });
 
         }
-    </script>
+</script>
 
 
     

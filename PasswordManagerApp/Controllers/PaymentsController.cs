@@ -202,44 +202,27 @@ namespace PasswordManagerApp.Controllers
           
             return RedirectToAction("List");
         }
-        
+
         [HttpPost]
-        [Route("DeletePayPal")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeletePayPal(string encrypted_id)
+        [Route("payments/deletepaypal")]
+        public IActionResult DeletePaypal(string encrypted_id)
         {
-
-            var payId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, "QueryStringsEncryptions"));
-            //  var pay = await _unitOfWork.Context.PaypallAcounts.FindAsync(payId);
-            //  _unitOfWork.Context.PaypallAcounts.Remove(pay);
-            //  await _unitOfWork.Context.SaveChangesAsync();
-            return RedirectToAction(nameof(List));
-
+            var dataId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
+            var result = _apiService.DeleteData<PaypalAccount>(dataId).Result;
+            ClearCache();
+            return RedirectToAction("List");
         }
         [HttpPost]
-        [Route("DeleteCard")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteCard(string encrypted_id)
+        [Route("payments/deletecard")]
+        public IActionResult DeleteCard(string encrypted_id)
         {
-
-            var cardId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, "QueryStringsEncryptions"));
-            //  var card = await _unitOfWork.Context.CreditCards.FindAsync(cardId);
-            //  _unitOfWork.Context.CreditCards.Remove(card);
-            //  await _unitOfWork.Context.SaveChangesAsync();
-            return RedirectToAction(nameof(List));
-
+            var dataId = Int32.Parse(dataProtectionHelper.Decrypt(encrypted_id, _config["QueryStringsEncryptions"]));
+            var result = _apiService.DeleteData<CreditCard>(dataId).Result;
+            _cacheService.ClearCache(CacheKeys.CreditCard + AuthUserId);
+            return RedirectToAction("List");
         }
 
-        // GET: Employee/Delete/5
-        public async Task<IActionResult> DeletePayPa(string id1)
-        {
-            int id = Int32.Parse(id1);
-            //   var employee = await _unitOfWork.Context.PaypallAcounts.FindAsync(id);
-            //   _unitOfWork.Context.PaypallAcounts.Remove(employee);
-            //   await _unitOfWork.Context.SaveChangesAsync();
-            return RedirectToAction(nameof(List));
-
-        }
+       
 
         private CreditCard DecryptModelCard(CreditCard model)
         {

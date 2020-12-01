@@ -122,7 +122,7 @@
                                 <div class="item-actions-block">
                                     <ul class="item-actions-list">
                                         <li>
-                                            
+
                                             <a class="fa fa-info-circle"
                                                data-ajax="true"
                                                data-ajax-method="GET"
@@ -144,9 +144,7 @@
                                                data-toggle="modal" data-target="#modalCenter"></a>
                                         </li>
                                         <li>
-                                            <a class="remove" asp-action="DeletePayPal" asp-route-encrypted_id="@encryptedFields1[item.Id]" data-toggle="modal" data-target="#confirm-modal" style="color:gray">
-                                                <i class="fa fa-trash-o "></i>
-                                            </a>
+                                            <a class="fa fa-trash-o" style="color:gray;" href="javascript:confirmDelete('@encryptedFields1[item.Id]','paypal')"></a>
                                         </li>
                                     </ul>
                                 </div>
@@ -257,15 +255,13 @@
                                                data-ajax-url="@Url.Action("AddOrEditCreditCard","Payments",new { encrypted_id=@encryptedFields2[item.Id]} )"
                                                data-toggle="modal" data-target="#modalCenter"></a>
 
-                                            
+
                                         </li>
                                         <li>
-                                            <a class="remove" asp-action="DeletCard" asp-route-encrypted_id="@encryptedFields2[item.Id]" data-toggle="modal" data-target="#confirm-modal" style="color:gray">
-                                                <i class="fa fa-trash-o "></i>
-                                            </a>
+                                           <a class="fa fa-trash-o" style="color:gray;" href="javascript:confirmDelete('@encryptedFields2[item.Id]','card')"></a>
                                         </li>
 
-                                        
+
                                     </ul>
                                 </div>
                             </div>
@@ -277,6 +273,27 @@
         </ul>
 
     </div>
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="deleteLabel">Deleting</h4>
+                </div>
+                <div class="modal-body">
+                    <p>You have selected to delete this data.</p>
+                    <p>
+                        If this was the action that you wanted to do,
+                        please confirm your choice, or cancel and return
+                        to the page.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="deleteConfirm">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </article>
 
 
@@ -287,7 +304,7 @@
     
 
     <script>
-
+       
         function renewCreditCardValidation() {
 
 

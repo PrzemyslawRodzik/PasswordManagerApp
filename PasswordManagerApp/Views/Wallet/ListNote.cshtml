@@ -36,7 +36,7 @@
            data-ajax="true"
            data-ajax-method="GET"
            data-ajax-mode="replace"
-           data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
+           data-ajax-complete="renewNoteValidation();"
            data-ajax-update="#content"
            data-ajax-url="@Url.Action("AddOrEditNote","Note")"
            data-toggle="modal" data-target="#modalCenter"> Add New </a>
@@ -130,9 +130,8 @@
                                 <a class="item-title" data-ajax="true"
                                    data-ajax-method="GET"
                                    data-ajax-mode="replace"
-                                   data-ajax-complete="settingsFadeIn();"
                                    data-ajax-update="#content"
-                                   data-ajax-url="@Url.Action("GetNoteById","LoginData",new { encrypted_id = @encryptedFields[item.Id] })"
+                                   data-ajax-url="@Url.Action("GetNoteById","Note",new { encrypted_id = @encryptedFields[item.Id] })"
                                    data-toggle="modal" data-target="#modalCenter">
                                     @Html.DisplayFor(modelItem => item.Name)
                                 </a>
@@ -157,7 +156,6 @@
                                                data-ajax="true"
                                                data-ajax-method="GET"
                                                data-ajax-mode="replace"
-                                               data-ajax-complete="settingsFadeIn();"
                                                data-ajax-update="#content"
                                                data-ajax-url="@Url.Action("GetNoteById","Note",new { encrypted_id = @encryptedFields[item.Id] })"
                                                data-toggle="modal" data-target="#modalCenter">
@@ -171,7 +169,7 @@
                                                data-ajax="true"
                                                data-ajax-method="GET"
                                                data-ajax-mode="replace"
-                                               data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
+                                               data-ajax-complete="renewNoteValidation();"
                                                data-ajax-update="#content"
                                                data-ajax-url="@Url.Action("AddOrEditNote","Note",new { Encrypted_id=@encryptedFields[item.Id]} )"
                                                data-toggle="modal" data-target="#modalCenter"></a>
@@ -181,8 +179,8 @@
                                         </li>
 
                                         <li>
-                                            <form name="myformDelete" asp-controller="Note" asp-action="DeleteNote" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
-                                                <button href="/LoginData/DeleteLoginData" class="remove" data-toggle="modal" data-target="#confirm-modal" style="font-size:24px; color:gray"> <i class="fa fa-trash-o"></i></button>
+                                            <form name="myformDelete" asp-action="DeleteNote" asp-controller="Note" asp-route-encrypted_id="@encryptedFields[item.Id]" method="post">
+                                                <a href="javascript: submitform()" class="remove" data-toggle="modal" data-target="#confirm-modal" style="color:gray"> <i class="fa fa-trash-o"></i></a>
                                             </form>
                                         </li>
 
