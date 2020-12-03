@@ -122,6 +122,25 @@ namespace PasswordManagerApp.Services
             return  JsonConvert.DeserializeObject<IEnumerable<T>>(responseString);
 
         }
+        public IEnumerable<SharedLoginModel> GetSharedImportLogins(int userId)
+        {
+
+            var response = _client.GetAsync($"logindatas/share?userId={userId}").Result;
+
+            var responseString = response.Content.ReadAsStringAsync().Result;
+            return JsonConvert.DeserializeObject<IEnumerable<SharedLoginModel>>(responseString);
+        }
+        public IEnumerable<ShareLoginModel> GetSharedExportLogins(int userId)
+        {
+
+            var response = _client.GetAsync($"logindatas/share/export?userId={userId}").Result;
+
+            var responseString = response.Content.ReadAsStringAsync().Result;
+            return JsonConvert.DeserializeObject<IEnumerable<ShareLoginModel>>(responseString);
+        }
+
+
+
 
         public  bool CheckUserGuidDeviceInDb(string guidDeviceHash,int userId)
         {
@@ -215,6 +234,22 @@ namespace PasswordManagerApp.Services
             
 
             
+        }
+        public async Task<bool> DeleteSharedData(int id)
+        {
+            HttpResponseMessage response;
+            
+
+            response = await _client.DeleteAsync($"logindatas/share/{id}");
+
+            if (response.IsSuccessStatusCode)
+                return true;
+            else
+                return false;
+
+
+
+
         }
 
         public  async Task<ApiResponse> ChangeMasterPassword(PasswordChangeViewModel model)
@@ -322,6 +357,7 @@ namespace PasswordManagerApp.Services
 
         #endregion
 
+        
 
         public  void OnDataEditEvent(ICompromisedModel model)
         {

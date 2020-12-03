@@ -12,6 +12,7 @@ namespace PasswordManagerApp.Cache
     public interface ICacheService
     {
         Task<IEnumerable<T>> GetOrCreateCachedResponse<T>(string cacheKey, Func<Task<IEnumerable<T>>> func) where T : class;
+        IEnumerable<T> GetOrCreateCachedResponseSync<T>(string cacheKey, Func<IEnumerable<T>> func) where T : class;
         Task<T> GetOrCreateCachedResponse<T>(string cacheKey, Func<Task<T>> func) where T : class;
         void ClearCache(string cacheKey);
     }
@@ -56,6 +57,24 @@ namespace PasswordManagerApp.Cache
 
             return data;
         }
+        public  IEnumerable<T> GetOrCreateCachedResponseSync<T>(string cacheKey, Func<IEnumerable<T>> func) where T:class
+        {
+            var data = _cacheProvider.GetFromCache<IEnumerable<T>>(cacheKey);
+            if (data != null)
+                return data;
+
+            // Key not in cache, so get data.
+            data =  func();
+
+            // Set cache options.
+            var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
+            cacheEntryOptions.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
+
+            _cacheProvider.SetCache(cacheKey, data, cacheEntryOptions);
+
+            return data;
+        }
+
         public async Task<T> GetOrCreateCachedResponse<T>(string cacheKey, Func<Task<T>> func) where T : class
         {
             var data = _cacheProvider.GetFromCache<T>(cacheKey);

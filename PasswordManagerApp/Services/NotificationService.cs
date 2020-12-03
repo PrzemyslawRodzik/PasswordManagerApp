@@ -138,7 +138,7 @@ namespace PasswordManagerApp.Services
         }
         public async void InformAboutMasterPasswordBreach(string userId,string password)
         {
-            var isBreached = await PwnedPasswords.IsPasswordPwnedAsync("qwerty", new CancellationToken(), null);
+            var isBreached = await PwnedPasswords.IsPasswordPwnedAsync(password, new CancellationToken(), null);
             if (isBreached <= 0)
                 return;
             await _apiService.UpdatePasswordStatus(Int32.Parse(userId), compromised:1);

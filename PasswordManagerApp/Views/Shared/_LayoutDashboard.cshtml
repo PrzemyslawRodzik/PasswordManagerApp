@@ -45,18 +45,15 @@
                     </form>
                 </div>
                 <div class="header-block header-block-buttons">
-                    <a href="https://github.com/modularcode/modular-admin-html" class="btn btn-sm header-btn">
+                    <a href="https://github.com/PrzemyslawRodzik/PasswordManagerApp" class="btn btn-sm header-btn">
                         <i class="fa fa-github-alt"></i>
                         <span>View on GitHub</span>
                     </a>
-                    <a href="https://github.com/modularcode/modular-admin-html/stargazers" class="btn btn-sm header-btn">
+                    <a href="https://github.com/PrzemyslawRodzik/PasswordManagerApp" class="btn btn-sm header-btn">
                         <i class="fa fa-star"></i>
                         <span>Star Us</span>
                     </a>
-                    <a href="#" class="btn btn-sm header-btn" onclick="return HandleNotification();">
-                        <i class="fa fa-cloud-download"></i>
-                        <span>Download .zip</span>
-                    </a>
+                   
                 </div>
                 <div class="header-block header-block-nav">
                     <ul class="nav-profile">
@@ -86,7 +83,7 @@
                                 <footer>
                                     <ul>
                                         <li>
-                                            <a href=""> View All Breaches</a>
+                                            <a  asp-controller="PwnedExpired" asp-action="Index"> View All Breaches</a>
                                         </li>
                                     </ul>
                                 </footer>
@@ -146,7 +143,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a asp-action="Personal" asp-controller="Personal">
+                                <a asp-action="Personal" asp-controller="Personal" >
                                     <i class="fa fa-pencil-square-o"></i> Personal Data
                                 </a>
                             </li>
@@ -161,7 +158,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="forms.html">
+                                <a  asp-action="SharedLoginsExportList" asp-controller="ShareData">
                                     <i class="fa fa-users"></i> Sharing center
                                 </a>
                             </li>
@@ -314,6 +311,9 @@
                 else if (action == 'personal') {
                     DeleteProfile(currentId);
                 }
+                else if (action == 'share') {
+                    DeleteShareData(currentId);
+                }
 
 
 
@@ -328,6 +328,26 @@
                 type: "post",
                 url: "/personal/deleteprofile",
                 data: { encrypted_id: currentId },
+                success: function (result) {
+                    $("#deleteConfirmModal").modal("hide");
+                    location.reload(true);
+
+
+                },
+                error: function (result) {
+                    console.log(result);
+                }
+
+            })
+
+        }
+        function DeleteShareData(currentId) {
+
+            $.ajax({
+
+                type: "post",
+                url: "/share/deletesharedata",
+                data: { id: currentId },
                 success: function (result) {
                     $("#deleteConfirmModal").modal("hide");
                     location.reload(true);

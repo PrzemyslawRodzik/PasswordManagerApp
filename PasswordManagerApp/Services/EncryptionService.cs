@@ -82,7 +82,18 @@ namespace PasswordManagerApp.Services
                 return AESHelper.DecryptAES(encData, myAes.Key);
             }   
         }
-        
+        public string DecryptSharedData(string key, string encData)
+        {
+            using (Aes myAes = Aes.Create())
+            {
+                myAes.Key = dataToSHA256(key);
+                myAes.Mode = CipherMode.CBC;
+                myAes.Padding = PaddingMode.PKCS7;
+
+                return AESHelper.DecryptAES(encData, myAes.Key);
+            }
+        }
+
 
 
 
@@ -92,8 +103,9 @@ namespace PasswordManagerApp.Services
             SHA256 mysha256 = SHA256.Create();
             return mysha256.ComputeHash(Encoding.UTF8.GetBytes(data));
         }
-
         
+
+
     }
 
 

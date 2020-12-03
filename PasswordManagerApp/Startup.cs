@@ -60,7 +60,7 @@ namespace PasswordManagerApp
             services.AddHttpClient<ApiService>(c =>
             {
                c.BaseAddress = new Uri("https://localhost:44324/api/");
-              //c.BaseAddress = new Uri("https://localhost:5006/api/");
+             // c.BaseAddress = new Uri("https://localhost:5006/api/");
                 
                 
 
@@ -85,11 +85,7 @@ namespace PasswordManagerApp
             services.AddScoped<JwtHelper>();
             services.AddScoped<LogInHandler>();
 
-        /*  MySql Database
-            services.AddDbContext<ApplicationDbContext>(options =>
-                       options.UseMySql(Configuration.GetConnectionString("mysqlconnection")));
-
-         */
+        
 
 
             
@@ -104,13 +100,6 @@ namespace PasswordManagerApp
 
             
           
-            /* services.AddAuthorization(options =>
-            {
-                options.AddPolicy("TwoFactorPolicy", policy =>
-                                  policy.RequireClaim("TwoFactorAuth", "1"));
-            });
-
-            */
 
         }
 

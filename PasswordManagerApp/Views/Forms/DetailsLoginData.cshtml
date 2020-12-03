@@ -14,21 +14,7 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        @if (String.IsNullOrEmpty(Model.Email))
-        {
-            <dd class="col-sm-10">
-                Not added
-            </dd>
-        }
-        @if (!String.IsNullOrEmpty(Model.Email))
-        {
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Email)
-            </dd>
-        }
+
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Login)
         </dt>
@@ -58,6 +44,21 @@
         {
             <dd class="col-sm-10">
                 @Html.DisplayFor(model => model.Website)
+            </dd>
+        }
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+        @if (String.IsNullOrEmpty(Model.Email))
+        {
+            <dd class="col-sm-10">
+                Not added
+            </dd>
+        }
+        @if (!String.IsNullOrEmpty(Model.Email))
+        {
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Email)
             </dd>
         }
         <dt class="col-sm-2">

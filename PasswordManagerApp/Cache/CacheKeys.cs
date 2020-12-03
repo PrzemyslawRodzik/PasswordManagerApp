@@ -16,6 +16,8 @@ public static class CacheKeys
     public static string LoginDataExpired { get; set; } = "LoginDataExpired";
     public static string PaypalAccountBreached { get; set; } = "PaypalAccountBreached";
     public static string PaypalAccountExpired { get; set; } = "PaypalAccountExpired";
+    public static string SharedLoginsExported { get; set; } = "SharedLoginsExported";
+    public static string SharedLoginsImported { get; set; } = "SharedLoginsImported";
     
         
 }
