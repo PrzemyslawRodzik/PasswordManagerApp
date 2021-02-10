@@ -1,0 +1,58 @@
+﻿@model PasswordManagerApp.Models.PaypalAccount
+
+
+
+
+    <div class="row">
+        <div class="col-md-10">
+            <form class="paypalForm" asp-action="AddOrEditPayPal">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <input type="hidden" name="Id" value="@ViewBag.Id" />
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Email" class="control-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Password" class="control-label"></label>
+                    <div class="row">
+                        <div class="col-sm-auto" style="padding-left: 3%;"><a class="fa fa-eye" type="button" onclick="return switchVisibility();"></a></div>
+                        <div class="col-sm-auto">
+                            <a class="fa fa-key" type="button" id="quickgenerator" onclick="return ajaxPasswordCall();"></a>
+                        </div>
+                        <div class="col-sm-auto"> <a class="fa fa-check-square" type="button" id="quickHibpCheck" onclick="return ajaxHibpCall();"></a></div>
+
+
+                        <div class="col-sm-auto">
+                            <a class="fa fa-lock"
+                               data-ajax="true"
+                               data-ajax-method="GET"
+                               data-ajax-mode="replace"
+                               data-ajax-update="#content"
+                               data-ajax-url="@Url.Action("PasswordGenerator","Settings")"></a>
+                        </div>
+                    </div>
+
+
+
+
+                    <input name="Password" id="encArea" type="password" class="form-control" value="@Model.Password" />
+
+                    <span asp-validation-for="Password" id="resultArea" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            </form>
+
+           
+        </div>
+    </div>
+ 

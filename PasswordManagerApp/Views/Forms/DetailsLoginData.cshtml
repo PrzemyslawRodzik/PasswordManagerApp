@@ -1,0 +1,75 @@
+﻿@model PasswordManagerApp.Models.ViewModels.LoginDataViewModel
+
+<div class="col-sm-12">
+    <h4>Login data</h4>
+    <hr />
+    
+    
+    <dl>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+
+
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Login)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Login)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Password)
+        </dt>
+        <dd class="col-sm-10">
+            <div class="row no-gutters">
+                <div class="col"><input type="password" disabled id="encArea" value="@Model.Password"></div>
+                <div class="col" style="padding-left: 1%;padding-top:1%;"><a class="fa fa-eye" type="button" onclick="return switchVisibility();"></a></div>
+            </div>
+
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Website)
+        </dt>
+        @if (String.IsNullOrEmpty(Model.Website))
+        {
+            <dd class="col-sm-10">
+                Not added
+            </dd>
+        }
+        @if (!String.IsNullOrEmpty(Model.Website))
+        {
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Website)
+            </dd>
+        }
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+        @if (String.IsNullOrEmpty(Model.Email))
+        {
+            <dd class="col-sm-10">
+                Not added
+            </dd>
+        }
+        @if (!String.IsNullOrEmpty(Model.Email))
+        {
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Email)
+            </dd>
+        }
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ModifiedDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ModifiedDate)
+        </dd>
+
+
+    </dl>
+
+</div>
+

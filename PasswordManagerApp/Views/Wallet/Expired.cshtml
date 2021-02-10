@@ -1,0 +1,92 @@
+﻿@model IEnumerable<PasswordManagerApp.Models.Expired>
+@{
+    ViewData["Title"] = "ListCreditCard";
+    Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
+
+    var encryptedFields = ViewBag.EncryptedIdsCreditCard as Dictionary<int, string>;
+}
+<article style="margin-left:20%;margin-right:20%; margin-top:100px;">
+
+
+    <div class="card items">
+        <ul class="item-list striped">
+            <li class="item item-list-header">
+
+                <div class="item-row">
+
+
+                    <div class="item-col item-col-header fa-align-right item-col-sales">
+                        <div>
+                            <span> Name </span>
+                        </div>
+                    </div>
+                    <div class="item-col item-col-header fa-algin-right item-col-sales">
+                        <div>
+                            <span> Date of Edition </span>
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="item-col item-col-header fixed item-col-actions-dropdown">
+                    </div>
+                </div>
+            </li>
+            @foreach (var item in Model)
+            {
+
+
+
+                <li class="item">
+                    <div class="item-row">
+
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">Name</div>
+                            <div class="no-overflow">
+                                <a href="">@Html.DisplayFor(modelItem => item.name)</a>
+                            </div>
+                        </div>
+                        <div class="item-col item-col-category no-overflow">
+                            <div class="item-heading">Date of Edition </div>
+                            <div class="no-overflow">
+                                <a href="">@Html.DisplayFor(modelItem => item.dateTime)</a>
+                            </div>
+                        </div>
+
+
+                        <div class="item-col fixed item-col-actions-dropdown">
+                            <div class="item-actions-dropdown">
+                                <a class="item-actions-toggle-btn">
+                                    <span class="inactive">
+                                        <i class="fa fa-cog"></i>
+                                    </span>
+                                    <span class="active">
+                                        <i class="fa fa-chevron-circle-right"></i>
+                                    </span>
+                                </a>
+
+                            </div>
+                            <div class="item-actions-block">
+                                <ul class="item-actions-list">
+                                    <li>
+                                        <a class="fa fa-pencil-square-o"
+                                           data-ajax="true"
+                                           data-ajax-method="GET"
+                                           data-ajax-mode="replace"
+                                           data-ajax-complete="settingsFadeIn(); renewNoteValidation();"
+                                           data-ajax-update="#content"
+                                           data-ajax-url="@Url.Action("AddOrEditNote","Note",new { Encrypted_id=@encryptedFields[item.Id]} )"
+                                           data-toggle="modal" data-target="#modalCenter"></a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+            }
+        </ul>
+
+    </div>
+</article>

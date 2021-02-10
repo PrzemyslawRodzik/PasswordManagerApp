@@ -1,0 +1,100 @@
+﻿@model PasswordManagerApp.Models.ViewModels.TwoFactorViewModel
+@{
+    ViewData["Title"] = "TwoFactorLogIn";
+
+
+
+
+}
+
+
+
+
+
+
+<div id="notificationAlert">
+    @if (!ViewData.ModelState.IsValid && ViewData.ModelState["Error"].Errors.Count > 0)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            @ViewData.ModelState["Error"].Errors.First().ErrorMessage
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+</div>
+<div id="notificationResend"></div>
+
+
+<div class="auth-content">
+    <p class="text-center">Verification</p>
+    <form method="POST" asp-controller="Auth" asp-action="TwoFactorLogIn">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+
+            <input type="hidden" name="id" value="@ViewBag.AuthUserId" />
+
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Token" class="control-label text-lg-center">Device verification code</label>
+            <input asp-for="Token" class="form-control underlined" placeholder="6-digit code" />
+            <span asp-validation-for="Token" class="text-danger"></span>
+        </div>
+
+
+
+        <div class="form-group">
+            <button type="submit"  class="btn btn-block btn-primary">Verify</button>
+        </div>
+
+    </form>
+    We just sent your authentication code to your email. The code will expire in 5 minutes.
+    <form method="POST" data-ajax="true" data-ajax-method="POST" data-ajax-mode="replace" data-ajax-complete="updateNotificationAlert();" data-ajax-update="#notificationResend" data-ajax-url="@Url.Action("ReSendCode","Auth")">
+        <div class="form-group">
+            <input type="hidden" name="id" value="@ViewBag.AuthUserId" />
+        </div>
+
+        <div class="form-group">
+            <button id="resendSubmit" formaction="ReSendCode" formmethod="post" type="submit" class="btn btn-link text-info">Re-send the code</button>
+        </div>
+
+    </form>
+
+
+
+
+
+
+
+</div>
+
+@section Scripts {
+
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+
+
+
+
+        function updateNotificationAlert() {
+
+            if ($('.alert').length) {
+                $('.alert').fadeOut('slow');
+                $('.alert').fadeIn('slow');
+
+            }
+
+
+        }
+
+
+
+    </script>
+
+
+
+
+}

@@ -1,0 +1,32 @@
+﻿@model PasswordManagerApp.Models.PaypalAccount
+<div>
+    <h4>Paypal account</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Password)
+        </dt>
+        <dd class="col-sm-10">
+            <div class="row no-gutters">
+                <div class="col"><input type="password" disabled id="encArea" value="@Model.Password"></div>
+                <div class="col" style="padding-left: 1%;padding-top:1%;"><a class="fa fa-eye" type="button" onclick="return switchVisibility();"></a></div>
+            </div>
+
+        </dd>
+    </dl>
+</div>
+
+
+

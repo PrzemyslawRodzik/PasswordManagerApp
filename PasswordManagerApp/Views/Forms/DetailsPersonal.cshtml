@@ -1,0 +1,38 @@
+﻿@model PasswordManagerApp.Models.PersonalInfo
+<div>
+    <h4>My profile</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10" style="padding-left:20%">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SecondName)
+        </dt>
+
+
+        <dd class="col-sm-10" style="padding-left:20%">
+            @Html.DisplayFor(model => model.SecondName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LastName)
+        </dt>
+
+
+        <dd class="col-sm-10" style="padding-left:20%">
+            @Html.DisplayFor(model => model.LastName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DateOfBirth)
+        </dt>
+
+
+        <dd class="col-sm-10" style="padding-left:20%">
+            @Html.DisplayFor(model => model.DateOfBirth)
+        </dd>
+    </dl>
+</div>
+

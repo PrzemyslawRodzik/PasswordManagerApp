@@ -1,38 +1,54 @@
-﻿@model PasswordManagerApp.Models.LoginModel
+﻿@model PasswordManagerApp.Models.ViewModels.LoginViewModel
 
 @{
     ViewData["Title"] = "Login";
 }
 
-<h1>Login</h1>
-
-
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Login">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+@if (!ViewData.ModelState.IsValid && ViewData.ModelState["Error"].Errors.Count > 0)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        @ViewData.ModelState["Error"].Errors.First().ErrorMessage
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
+}
+
+<div class="auth-content">
+    <p class="text-center">LOGIN TO CONTINUE</p>
+    <form id="login-form" asp-action="Login">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="Email">Email</label>
+            <input asp-for="Email" class="form-control underlined" name="email" id="email" placeholder="Your email address">
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Password" class="control-label"></label>
+            <input asp-for="Password" class="form-control underlined" name="password" id="password" placeholder="Your password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label for="remember">
+
+            </label>
+            
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-block btn-primary">Login</button>
+        </div>
+        <div class="form-group">
+            <p class="text-muted text-center">Do not have an account?  <a asp-action="Register">Sign Up</a></p>
+        </div>
+    </form>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
+
 
 @section Scripts {
+   
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
 }

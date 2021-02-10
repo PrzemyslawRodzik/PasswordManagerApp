@@ -1,84 +1,64 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication;
+﻿﻿using Microsoft.AspNetCore.Http;
 using PasswordManagerApp.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+
+
+using Microsoft.AspNetCore.DataProtection;
+using PasswordManagerApp.Handlers;
+using PasswordManagerApp.RealTimeAlerts;
+using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace PasswordManagerApp.Services
 {
     public class UserService : IUserService
     {
 
-        private readonly ApplicationDbContext _db;
-
-        private IEnumerable<User> users;
-
-        public UserService(ApplicationDbContext db)
-        {
-            _db = db;
-        }
-
-        public Task<User> Create(string email, string password)
+        public UserService()
         {
 
-
-             
-            return null;
-
-        }
-
-        public Task<User> AddExternal(string id, string email)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<User> Authenticate(string email, string password)
-        {
-            return null;
+            
             
         }
 
-        public Task<User> AuthenticateExternal(string id)
+        public void InformAllUsersAboutOldPasswords()
         {
-            throw new NotImplementedException();
-        }
 
-      
-
-        public IEnumerable<User> GetAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public User GetById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void delete(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-         public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-        {
-            if (password == null) throw new ArgumentNullException("password");
-            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
-
-            using (var hmac = new System.Security.Cryptography.HMACSHA512())
+           /* var allloginDatasList = _unitOfWork.Context.LoginDatas.ToList();
+            if (allloginDatasList is null)
+                return;
+            var loginDatasListWithOldPasswords = allloginDatasList.Where(x => (DateTime.UtcNow.ToLocalTime() - x.ModifiedDate).Days >= 30).ToList();
+            if (loginDatasListWithOldPasswords is null)
+                return;
+            string websitesList = "";
+            foreach (var item in loginDatasListWithOldPasswords.GroupBy(x => x.UserId))
             {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-            }
-        }
+                websitesList = "";
+                var userEmail = GetById(item.Key).Email;
+                item.ToList().ForEach(x => websitesList += x.Website + ", ");
 
-        User IUserService.Create(string email, string password)
-        {
-            throw new NotImplementedException();
+
+                string message = $"wykryto {item.Count()} hasła nie zmieniane od 30 dni dla podanych stron internetowych : {websitesList}!";
+
+
+              //  _emailSender.SendEmailAsync(new Message(new string[] { userEmail }, "PasswordManagerApp stare hasła", message));
+
+
+            }
+
+
+
+        */
+
+
+
+
         }
+        
+ 
     }
+
 }

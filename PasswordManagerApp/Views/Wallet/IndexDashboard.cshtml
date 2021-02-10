@@ -1,0 +1,120 @@
+﻿
+@{
+    ViewData["Title"] = "IndexDashboard";
+    Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
+
+    var statisticUserData = ViewBag.StatisticData as Dictionary<string, int>;
+}
+
+
+
+
+
+
+<article class="content dashboard-page">
+
+    <section class="section">
+        <div class="row sameheight-container">
+            <div class="col col-12 col-sm-12 col-md-6 col-xl-12 stats-col">
+                <div class="card  stats" data-exclude="xs" style="height:200px;">
+                    <div class="card-block">
+                        <div class="title-block">
+                            <h4 class="title"> Stats </h4>
+
+                        </div>
+                        <div class="row row-sm stats-container">
+                            <div class="col-12 col-sm-6 stat-col">
+                                <div class="stat-icon">
+                                    <i class="fa fa-lock"></i>
+                                </div>
+                                <div class="stat">
+                                    <div class="value"> @statisticUserData["countPasswords"] </div>
+                                    <div class="name"> Passwords </div>
+                                </div>
+                                <div class="progress stat-progress">
+                                    <div class="progress-bar" style="width: 75%;"></div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6 stat-col">
+                                <div class="stat-icon">
+                                    <i class="fa fa-credit-card"></i>
+                                </div>
+                                <div class="stat">
+                                    <div class="value"> @statisticUserData["countCreditCards"] </div>
+                                    <div class="name"> Credit cards </div>
+                                </div>
+                                <div class="progress stat-progress">
+                                    <div class="progress-bar" style="width: 25%;"></div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6  stat-col">
+                                <div class="stat-icon">
+                                    <i class="fa fa-warning"></i>
+                                </div>
+                                <div class="stat">
+                                    <div class="value"> @statisticUserData["countCompromised"] </div>
+                                    <div class="name"> Compromised passwords </div>
+                                </div>
+                                <div class="progress stat-progress">
+                                    <div class="progress-bar" style="width: 60%;"></div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6  stat-col">
+                                <div class="stat-icon">
+                                    <i class="fa fa-users"></i>
+                                </div>
+                                <div class="stat">
+                                    <div class="value"> @statisticUserData["countSharedData"] </div>
+                                    <div class="name"> Shared passwords </div>
+                                </div>
+                                <div class="progress stat-progress">
+                                    <div class="progress-bar" style="width: 34%;"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+    @*
+        @await Html.PartialAsync("/Views/Shared/PasswordGenerator.cshtml")
+    *@
+
+    <a class="btn btn-primary"
+       data-ajax="true"
+       data-ajax-method="GET"
+       data-ajax-mode="replace"
+       data-ajax-update="#content"
+       data-ajax-url="@Url.Action("PasswordGenerator","Settings")"> Generate password </a>
+
+    <div id="content"></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+@section Scripts {
+
+    <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+   
+    
+
+}
