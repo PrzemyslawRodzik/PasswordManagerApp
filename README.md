@@ -69,10 +69,6 @@ dotnet run
 * Check if your password was previously exposed in data breaches 
 
 <p align="center">
-
-<img src="https://media.giphy.com/media/LLZiJ8MLDKb5G1Je1Q/giphy.gif" alt="profileWebvault">
-</p>
-<p align="center">
 <img src="https://i.ibb.co/F03NgvK/ezgif-com-gif-maker.gif" alt="ezgif-com-gif-maker">
 </p>
 
