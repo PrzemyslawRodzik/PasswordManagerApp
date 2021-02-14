@@ -62,9 +62,8 @@ dotnet run
 * Store any data you wish
 
 <p align="center">
-<img src="https://i.ibb.co/TL5s60r/storedatayouwish.gif" alt="storedatayouwish">
+<img src="https://i.ibb.co/N2rXcRF/finalgif.gif" alt="finalgif" >
 </p>
-
 
 
 * Customize your profile
