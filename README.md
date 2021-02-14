@@ -60,8 +60,9 @@ dotnet run
 #### Next move is up to you
 
 * Store any data you wish
-
-![web vault](https://i.ibb.co/Gsx518L/image.png)
+<p align="center">
+<img src="https://i.ibb.co/TL5s60r/storedatayouwish.gif" alt="storedatayouwish">
+</p>
 * Customize your profile
 <p align="center">
 <img src="https://i.ibb.co/RP38tCc/image.png" alt="profileWebvault">
