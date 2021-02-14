@@ -25,8 +25,9 @@ The web vault check every 5h or on user demand whether stored passwords have bee
 
 #
 <p align="center"> <img src="https://i.ibb.co/Y7SF041/image.png" alt="imagepasscheck"></p>
-Client application pass only first 5 characters of password hash to the
-[Have I Been Pwned API](https://haveibeenpwned.com).As the response client received a set of matching records( password hash list followed by a count of how many times it appears in a data breach). What makes our app safe is client app can then search the result records for the presence of source hash. 
+
+Client application pass only first 5 characters of password hash to the [Have I Been Pwned API](https://haveibeenpwned.com)
+ .As the response client received a set of matching records( password hash list followed by a count of how many times it appears in a data breach). What makes our app safe is client app can then search the result records for the presence of source hash. 
 
 
 
