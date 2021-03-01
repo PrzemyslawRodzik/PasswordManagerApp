@@ -58,6 +58,7 @@ We do not send full password hash to the external API.
 
 ## Configuration 
  To run this app first of all you''ll need to run *backend* [PasswordManagerApp server](https://github.com/PrzemyslawRodzik/PasswordManagerAppServer).
+ (Optionally) Set up your [ipstack](https://ipstack.com/ api key, default one is incorrect!
  
 
  
