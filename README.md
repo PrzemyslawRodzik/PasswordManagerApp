@@ -23,6 +23,7 @@ The application can be developed, built and run cross-platform on Windows, and L
 * [SignalR](https://dotnet.microsoft.com/apps/aspnet/signalr) - library that allows server code to send asynchronous notifications to client-side web applications
 * [Otp.NET](https://www.nuget.org/packages/Otp.NET) - an implementation of TOTP
 * [Password Generator](https://www.nuget.org/packages/PasswordGenerator/) - library which generates random passwords
+* [ipstack](https://ipstack.com/) - geolocation API. Allows us to locate and identify website visitors by IP address 
 
 ## Features
 
